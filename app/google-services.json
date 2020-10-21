@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "606359728316",
+    "firebase_url": "https://lendz-7eb71.firebaseio.com",
+    "project_id": "lendz-7eb71",
+    "storage_bucket": "lendz-7eb71.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:606359728316:android:4933b58e693c9e5f9c20b9",
+        "android_client_info": {
+          "package_name": "cmput301.team19.lendz"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "606359728316-7iaokb4ridf32i649382u4jf1ta0tgh9.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDC1vY-COV5Ri_x8U6uGPgoSmJgTYPWBuw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "606359728316-7iaokb4ridf32i649382u4jf1ta0tgh9.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
