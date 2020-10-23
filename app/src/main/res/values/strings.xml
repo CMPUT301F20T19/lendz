@@ -10,4 +10,17 @@
     <string name="user_profile_username_header">Username</string>
     <string name="user_profile_save">Save</string>
     <string name="user_profile_edit_failed">Failed to update user profile information.</string>
+    <string name="app_logo_content_description">Lendz Logo</string>
+    <string name="login_welcome_message">Welcome to Lendz!</string>
+    <string name="login_header">Login</string>
+    <string name="login_userName_editText_hint">Enter username</string>
+    <string name="login_password_editText_hint">Enter password</string>
+    <string name="checkbox_text">Show Password</string>
+    <string name="login_page_signUp_messaage">Don\'t have an account? SignUp</string>
+    <string name="login_button_text">LOGIN</string>
+    <string name="sign_up_header">Sign Up</string>
+    <string name="signup_full_name_hint">Enter full Name</string>
+    <string name="signup_phone_number_hint">Enter Phone number</string>
+    <string name="signup_email_address_hint">Enter Email Address</string>
+    <string name="sign_up_button_text">Sign Up</string>
 </resources>
