@@ -1,0 +1,85 @@
+package cmput301.team19.lendz;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+
+import android.content.Intent;
+import android.graphics.Color;
+import android.os.Bundle;
+import android.text.SpannableString;
+import android.text.Spanned;
+import android.text.TextPaint;
+import android.text.method.HideReturnsTransformationMethod;
+import android.text.method.LinkMovementMethod;
+import android.text.method.PasswordTransformationMethod;
+import android.text.style.ClickableSpan;
+import android.view.View;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.EditText;
+import android.widget.TextView;
+
+public class LoginActivity extends AppCompatActivity {
+
+
+    private EditText password;
+    private CheckBox showpassword;
+    private TextView signupText;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_login);
+        showPassword();
+        signUp();
+    }
+
+
+
+
+    /**
+     * method that handles showing password
+     */
+    public void showPassword(){
+        password = findViewById(R.id.editText_login_password);//Get password editText
+        showpassword = findViewById(R.id.checkbox_show_password);//Get showPassword CheckBox
+        showpassword.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                if(b)//if checked showPassword
+                {
+                    password.setTransformationMethod(HideReturnsTransformationMethod.getInstance());
+                }else {
+                    password.setTransformationMethod(PasswordTransformationMethod.getInstance());
+                }
+            }
+        });
+    }
+
+    /**
+     * method that handles clicking of the signup text
+     */
+    public void signUp()
+    {
+        signupText = findViewById(R.id.login_signUp_message);
+        String text = "Don't have an account? SignUp";
+        SpannableString ss = new SpannableString(text);
+
+        ClickableSpan clickableSpan = new ClickableSpan() {
+            @Override
+            public void onClick(@NonNull View view) {
+                startActivity(new Intent(LoginActivity.this,SignUpActivity.class));
+            }
+
+            @Override
+            public void updateDrawState(@NonNull TextPaint ds) {
+                super.updateDrawState(ds);
+                ds.setColor(Color.MAGENTA);
+                ds.setUnderlineText(false);
+            }
+        };
+        ss.setSpan(clickableSpan,23,29, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        signupText.setText(ss);
+        signupText.setMovementMethod(LinkMovementMethod.getInstance());
+    }
+}
