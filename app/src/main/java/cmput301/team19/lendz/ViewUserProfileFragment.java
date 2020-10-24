@@ -81,9 +81,7 @@ public class ViewUserProfileFragment extends Fragment {
 
         final UUID userId = UUID.fromString(getArguments().getString(ARG_USER_ID));
 
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        CollectionReference users = db.collection("users");
-        users.document(userId.toString()).addSnapshotListener(new EventListener<DocumentSnapshot>() {
+        User.documentOf(userId).addSnapshotListener(new EventListener<DocumentSnapshot>() {
             @Override
             public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
                 if (error != null) {
