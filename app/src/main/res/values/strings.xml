@@ -23,4 +23,17 @@
     <string name="signup_phone_number_hint">Enter Phone number</string>
     <string name="signup_email_address_hint">Enter Email Address</string>
     <string name="sign_up_button_text">Sign Up</string>
+    <string name="book_title">Book Title</string>
+    <string name="status">Status</string>
+    <string name="description">Description</string>
+    <string name="author">Author</string>
+    <string name="isbn">ISBN</string>
+    <string name="ownedby">OwnedBy</string>
+    <string name="username">username</string>
+    <string name="tap_to_add_book_image">Tap to add book Image</string>
+    <string name="save">Save</string>
+    <string name="type_book_description_here">Type book description here</string>
+    <string name="_1234567890">1234567890</string>
+    <string name="book_description">Book Description</string>
+    <string name="edit">Edit</string>
 </resources>
