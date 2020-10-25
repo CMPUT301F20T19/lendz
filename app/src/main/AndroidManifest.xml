@@ -20,9 +20,9 @@
             </intent-filter>
         </activity>
         <activity android:name=".MainActivity" />
-<!--        <activity android:name=".AddBookActivity"-->
-<!--            android:parentActivityName=".MainActivity"-->
-<!--            />-->
+        <activity android:name=".UserProfileActivity">
+
+        </activity>
 
     </application>
 

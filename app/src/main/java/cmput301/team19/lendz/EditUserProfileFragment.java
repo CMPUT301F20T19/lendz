@@ -16,8 +16,6 @@ import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.UUID;
 
@@ -73,6 +71,7 @@ public class EditUserProfileFragment extends Fragment {
         phoneNumberEditText = view.findViewById(R.id.phoneNumberEditText);
 
         if (getArguments() != null) {
+            // Set the contents of editing controls based on the argument values
             userId = UUID.fromString(getArguments().getString(ARG_USER_ID));
             String username = getArguments().getString(ARG_USERNAME);
             String fullName = getArguments().getString(ARG_FULL_NAME);
@@ -107,24 +106,29 @@ public class EditUserProfileFragment extends Fragment {
      * Save the edited profile details to Firestore.
      */
     private void saveProfile() {
-        User user = new User(userId);
+        User user = User.getOrCreate(userId);
+
+        // Set User data based on contents of editing controls
         user.setUsername(usernameEditText.getText().toString());
         user.setFullName(fullNameEditText.getText().toString());
         user.setEmail(emailEditText.getText().toString());
         user.setPhoneNumber(phoneNumberEditText.getText().toString());
 
-        CollectionReference users = FirebaseFirestore.getInstance().collection("users");
-        users.document(userId.toString()).set(user.toData())
+        // Save changes to Firestore
+        user.store()
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
                         getFragmentManager().popBackStack();
                     }
                 }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                Toast.makeText(getContext(), R.string.user_profile_edit_failed, Toast.LENGTH_LONG).show();
-            }
-        });
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Toast.makeText(getContext(),
+                                R.string.user_profile_edit_failed,
+                                Toast.LENGTH_LONG)
+                                .show();
+                    }
+                 });
     }
 }
