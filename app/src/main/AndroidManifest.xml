@@ -3,6 +3,10 @@
     package="cmput301.team19.lendz">
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-feature android:name="android.hardware.camera"/>
+    <uses-feature android:name="android.hardware.camera.autofocus"/>
+
 
     <application
         android:allowBackup="true"
@@ -23,6 +27,11 @@
 <!--        <activity android:name=".AddBookActivity"-->
 <!--            android:parentActivityName=".MainActivity"-->
 <!--            />-->
+       <activity android:name=".capturedAct"
+           android:screenOrientation="fullSensor"
+           android:stateNotNeeded="true"
+           android:windowSoftInputMode="stateAlwaysHidden">
+       </activity>
 
     </application>
 
