@@ -64,75 +64,63 @@ public class SignUpActivity extends AppCompatActivity {
                 //signUp();
                 passWordEditText = findViewById(R.id.editText_signup_password);
                 emailEditText = findViewById(R.id.editText_signup_email);
-                FirebaseAuth mFirebaseAuth;
+                final FirebaseAuth mFirebaseAuth;
                 mFirebaseAuth = FirebaseAuth.getInstance();
-                String email = emailEditText.getText().toString();
+                final String email = emailEditText.getText().toString();
                 String pwd = passWordEditText.getText().toString();
                 mFirebaseAuth.createUserWithEmailAndPassword(email, pwd)
                         .addOnCompleteListener(SignUpActivity.this, new OnCompleteListener<AuthResult>() {
                             @Override
                             public void onComplete(@NonNull Task<AuthResult> task) {
                                 if (!task.isSuccessful()) {
+
                                     Toast.makeText(SignUpActivity.this, "SignUp Unsuccessful, Try again!", Toast.LENGTH_LONG).show();
+                                    Log.e("Err","error",task.getException());
                                 }
                                 else {
+                                    FirebaseUser Fuser = mFirebaseAuth.getCurrentUser();
+                                    //assert Fuser != null;
+                                    String uid = Fuser.getUid();
+                                    User user = User.getOrCreate(uid);
+                                    String username = usernameEditText.getText().toString();
+                                    String fullname = fullnameEditText.getText().toString();
+                                    String phonenumber = phoneNumberEditText.getText().toString();
+                                    String emailStr = emailEditText.getText().toString();
+
+
+                                    if(username.isEmpty()||fullname.isEmpty()||phonenumber.isEmpty()||emailStr.isEmpty())
+                                    {
+                                        Toast.makeText(SignUpActivity.this, "One or more Fields is empty", Toast.LENGTH_LONG).show();
+                                    }
+                                    else{
+                                        user.setUsername(username);
+                                        user.setFullName(fullname);
+                                        user.setPhoneNumber(phonenumber);
+                                        user.setEmail(emailStr);
+
+                                        // Save changes to Firestore
+                                        user.store()
+                                                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                    @Override
+                                                    public void onSuccess(Void aVoid) {
+                                                        //getFragmentManager().popBackStack();
+                                                    }
+                                                }).addOnFailureListener(new OnFailureListener() {
+                                            @Override
+                                            public void onFailure(@NonNull Exception e) {
+                                                Toast.makeText(SignUpActivity.this,"Unable to save user profile", Toast.LENGTH_LONG).show();
+                                                Log.e("err","err",e);
+                                            }
+                                        });
+                                    }
                                     Toast.makeText(SignUpActivity.this, "SignUp successful", Toast.LENGTH_LONG).show();
                                 }
                             }
                         });
-
-                FirebaseUser Fuser = mFirebaseAuth.getCurrentUser();
-                //assert Fuser != null;
-                String uid = Fuser.getUid();
-                User user = User.getOrCreate(UUID.fromString(uid));
-                String username = usernameEditText.getText().toString();
-                String fullname = fullnameEditText.getText().toString();
-                String phonenumber = phoneNumberEditText.getText().toString();
-                String emailStr = emailEditText.getText().toString();
-
-
-                if(username.isEmpty()||fullname.isEmpty()||phonenumber.isEmpty()||email.isEmpty())
-                {
-                    Toast.makeText(SignUpActivity.this, "One or more Fields is empty", Toast.LENGTH_LONG).show();
-                }
-                else{
-                    user.setUsername(username);
-                    user.setFullName(fullname);
-                    user.setPhoneNumber(phonenumber);
-                    user.setEmail(emailStr);
-
-                    // Save changes to Firestore
-                    user.store()
-                            .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                @Override
-                                public void onSuccess(Void aVoid) {
-                                    //getFragmentManager().popBackStack();
-                                }
-                            }).addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            Toast.makeText(SignUpActivity.this,"Unable to save user profile", Toast.LENGTH_LONG).show();
-                        }
-                    });
-                }
-            }
+           }
         });
 
-
-
-
     }
-
-
-
-
-
-
-
-
-
-
-
 
 
 
