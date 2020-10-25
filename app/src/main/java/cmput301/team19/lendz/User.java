@@ -126,7 +126,7 @@ public class User {
         return documentOf(id).update(toData());
     }
 
-    private User(UUID id) {
+    User(UUID id) {
         this.id = id;
     }
 
