@@ -1,29 +1,40 @@
 package cmput301.team19.lendz;
 
+import androidx.annotation.NonNull;
+
+import com.google.firebase.firestore.GeoPoint;
+
 public class Location {
 
     private String address;
-    private Double lat;
-    private Double lon;
+    private double lat;
+    private double lon;
 
     public Location(
             String address,
-            Double lat,
-            Double lon) {
+            double lat,
+            double lon) {
         this.address = address;
         this.lat = lat;
         this.lon = lon;
+    }
+
+    /**
+     * Create a Location from a Firebase GeoPoint.
+     */
+    public Location(@NonNull GeoPoint geoPoint) {
+        this(null, geoPoint.getLatitude(), geoPoint.getLongitude());
     }
 
     public String getAddress() {
         return address;
     }
 
-    public Double getLat() {
+    public double getLat() {
         return lat;
     }
 
-    public Double getLon() {
+    public double getLon() {
         return lon;
     }
 
@@ -31,11 +42,11 @@ public class Location {
         this.address = address;
     }
 
-    public void setLat(Double lat) {
+    public void setLat(double lat) {
         this.lat = lat;
     }
 
-    public void setLon(Double lon) {
+    public void setLon(double lon) {
         this.lon = lon;
     }
 }
