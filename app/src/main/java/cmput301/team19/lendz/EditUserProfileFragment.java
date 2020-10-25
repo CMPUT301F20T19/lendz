@@ -31,7 +31,7 @@ public class EditUserProfileFragment extends Fragment {
     private static final String ARG_EMAIL = "email";
     private static final String ARG_PHONE_NUMBER = "phoneNumber";
 
-    private UUID userId;
+    private String userId;
 
     private EditText usernameEditText;
     private EditText fullNameEditText;
@@ -42,10 +42,10 @@ public class EditUserProfileFragment extends Fragment {
         // Required empty public constructor
     }
 
-    public static EditUserProfileFragment newInstance(UUID id, String username, String fullName, String email, String phoneNumber) {
+    public static EditUserProfileFragment newInstance(String id, String username, String fullName, String email, String phoneNumber) {
         EditUserProfileFragment fragment = new EditUserProfileFragment();
         Bundle args = new Bundle();
-        args.putString(ARG_USER_ID, id.toString());
+        args.putString(ARG_USER_ID, id);
         args.putString(ARG_USERNAME, username);
         args.putString(ARG_FULL_NAME, fullName);
         args.putString(ARG_EMAIL, email);
@@ -72,7 +72,7 @@ public class EditUserProfileFragment extends Fragment {
 
         if (getArguments() != null) {
             // Set the contents of editing controls based on the argument values
-            userId = UUID.fromString(getArguments().getString(ARG_USER_ID));
+            userId = getArguments().getString(ARG_USER_ID);
             String username = getArguments().getString(ARG_USERNAME);
             String fullName = getArguments().getString(ARG_FULL_NAME);
             String email = getArguments().getString(ARG_EMAIL);
