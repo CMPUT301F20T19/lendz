@@ -40,7 +40,7 @@ public class ViewUserProfileFragment extends Fragment {
         // Required empty public constructor
     }
 
-    public static ViewUserProfileFragment newInstance(UUID userId) {
+    public static ViewUserProfileFragment newInstance(String userId) {
         ViewUserProfileFragment fragment = new ViewUserProfileFragment();
         Bundle args = new Bundle();
         args.putString(ARG_USER_ID, userId.toString());
@@ -79,7 +79,7 @@ public class ViewUserProfileFragment extends Fragment {
         if (getArguments() == null)
             throw new IllegalArgumentException("no arguments");
 
-        final UUID userId = UUID.fromString(getArguments().getString(ARG_USER_ID));
+        final String userId = getArguments().getString(ARG_USER_ID);
 
         User.documentOf(userId).addSnapshotListener(new EventListener<DocumentSnapshot>() {
             @Override

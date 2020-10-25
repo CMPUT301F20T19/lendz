@@ -15,6 +15,7 @@
     <string name="login_header">Login</string>
     <string name="login_userName_editText_hint">Enter username</string>
     <string name="login_password_editText_hint">Enter password</string>
+    <string name="sign_password_editText_hint">Enter password(at least 6 characters!)</string>
     <string name="checkbox_text">Show Password</string>
     <string name="login_page_signUp_messaage">Don\'t have an account? SignUp</string>
     <string name="login_button_text">LOGIN</string>
