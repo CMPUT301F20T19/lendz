@@ -42,12 +42,8 @@ public class LoginActivity extends AppCompatActivity {
 
     private EditText email;
     private EditText password;
-    private CheckBox showpassword;
-    private Button loginBtn;
-    private TextView signupText;
     private ImageView imageView;
     final FirebaseAuth mFirebaseAuth = FirebaseAuth.getInstance();
-    FirebaseAuth.AuthStateListener mAuthStateListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,8 +53,6 @@ public class LoginActivity extends AppCompatActivity {
         showPassword();
         signUpClick();
         login();
-
-
     }
 
 
@@ -69,7 +63,7 @@ public class LoginActivity extends AppCompatActivity {
      */
     public void showPassword(){
         password = findViewById(R.id.editText_login_password);//Get password editText
-        showpassword = findViewById(R.id.checkbox_show_password);//Get showPassword CheckBox
+        CheckBox showpassword = findViewById(R.id.checkbox_show_password);//Get showPassword CheckBox
         showpassword.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
@@ -88,7 +82,7 @@ public class LoginActivity extends AppCompatActivity {
      */
     public void signUpClick()
     {
-        signupText = findViewById(R.id.login_signUp_message);
+        TextView signupText = findViewById(R.id.login_signUp_message);
         String text = "Don't have an account? SignUp";
         SpannableString ss = new SpannableString(text);
 
@@ -138,37 +132,12 @@ public class LoginActivity extends AppCompatActivity {
 
     }
 
-//    @Override
-//    protected void onStart() {
-//        super.onStart();
-//        mFirebaseAuth.addAuthStateListener(mAuthStateListener);
-//    }
 
     public void login()
     {
         email = findViewById(R.id.editText_login_username);
         password = findViewById(R.id.editText_login_password);
-        loginBtn = findViewById(R.id.login_button);
-
-//        mAuthStateListener = new FirebaseAuth.AuthStateListener() {
-//            @Override
-//            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-//                FirebaseUser mFirebaseUser = mFirebaseAuth.getCurrentUser();
-//                if(mFirebaseUser != null)
-//                {
-//                    Toast.makeText(LoginActivity.this,"Log in succesful",Toast.LENGTH_SHORT).show();
-//                    Bundle bundle = new Bundle();
-//                    bundle.putSerializable("user", (Serializable) mFirebaseUser);
-//                    Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-//                    intent.putExtras(bundle);
-//                    startActivity(intent);
-//                }
-//                else{
-//                    Toast.makeText(LoginActivity.this,"Account not recognised please signUp",Toast.LENGTH_LONG).show();
-//                }
-//
-//            }
-//        };
+        Button loginBtn = findViewById(R.id.login_button);
 
         loginBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -184,13 +153,13 @@ public class LoginActivity extends AppCompatActivity {
                         @Override
                         public void onComplete(@NonNull Task<AuthResult> task) {
                             if(!task.isSuccessful()){
-                                Toast.makeText(LoginActivity.this,"Account not recognised, try again",Toast.LENGTH_SHORT).show();
+                                Toast.makeText(LoginActivity.this,"Email address or password not recognised, try again",Toast.LENGTH_SHORT).show();
                             }
                             else {
                                 Toast.makeText(LoginActivity.this,"Log in SuccessFul",Toast.LENGTH_SHORT).show();
                                 FirebaseUser mFirebaseUser = mFirebaseAuth.getCurrentUser();
                                 Bundle bundle = new Bundle();
-                                bundle.putSerializable("user", (Serializable) mFirebaseUser.getUid());
+                                bundle.putSerializable("userID", mFirebaseUser.getUid());
                                 Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                                 intent.putExtras(bundle);
                                 startActivity(intent);
@@ -205,5 +174,4 @@ public class LoginActivity extends AppCompatActivity {
 
     }
 
-    public void authenticate(){}
 }
