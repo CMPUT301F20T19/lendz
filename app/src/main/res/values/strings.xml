@@ -23,4 +23,14 @@
     <string name="signup_phone_number_hint">Enter Phone number</string>
     <string name="signup_email_address_hint">Enter Email Address</string>
     <string name="sign_up_button_text">Sign Up</string>
+    <string name="add_book">Add Book</string>
+    <string name="isbn">ISBN</string>
+    <string name="todo">TODO</string>
+    <string name="title">Title</string>
+    <string name="author">Author</string>
+    <string name="save">Save</string>
+    <string name="scan">Scan</string>
+    <string name="book_description">.....</string>
+    <string name="add_image">Add Image</string>
+    <string name="book_description_label">Book Description</string>
 </resources>
