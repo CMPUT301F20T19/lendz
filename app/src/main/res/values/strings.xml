@@ -35,5 +35,26 @@
     <string name="book_description">.....</string>
     <string name="add_image">Add Image</string>
     <string name="book_description_label">Book Description</string>
+    <string name="viewbookdescription">ViewBookDescription</string>
+    <string name="viewbooktitle">ViewBookTitle</string>
+    <string name="viewbookstatus">ViewBookStatus</string>
+    <string name="viewbookowner">Owned BY</string>
+    <string name="viewbookusername">usernamer</string>
+    <string name="viewbookdetailsdescription">description</string>
+    <string name="viewbookdetailsauthor">Author</string>
+    <string name="viewbookdetailstitle">Title</string>
+    <string name="EditBookDetailsIsbn">123456789</string>
+    <string name="editbookdetailsimage">Tap to add Image</string>
+    <string name="EditBookTitle">BokTitle</string>
+    <string name="EditBookAuthor">Author</string>
+    <string name="EditBookDescription">description</string>
+    <string name="EditBookDetailsTitle">Title</string>
+    <string name="EditBookDescriptionHeader">Book Decsription</string>
+    <string name="EditBookDescriptionHead">Book Description</string>
+    <string name="EditBookAuthorHeader">Author</string>
+    <string name="EditBookISBNHeader">ISBN</string>
+    <string name="ViewBookDetailsStatus">Status</string>
+    <string name="ViewBookDetailsImage">ViewBookImage</string>
+    <string name="ViewBookDetailsOwnerImage">ViewBookOwnerImage</string>
 
 </resources>
