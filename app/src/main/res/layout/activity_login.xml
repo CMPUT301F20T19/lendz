@@ -49,7 +49,7 @@
         android:layout_height="48dp"
         android:layout_marginTop="32dp"
         android:ems="10"
-        android:hint="@string/login_userName_editText_hint"
+        android:hint="@string/signup_email_address_hint"
         android:inputType="textPersonName"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.497"
@@ -93,7 +93,7 @@
         app:layout_constraintTop_toBottomOf="@+id/checkbox_show_password" />
 
     <Button
-        android:id="@+id/button"
+        android:id="@+id/login_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="32dp"

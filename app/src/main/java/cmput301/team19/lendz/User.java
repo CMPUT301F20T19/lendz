@@ -3,10 +3,12 @@ package cmput301.team19.lendz;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.SetOptions;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -24,9 +26,9 @@ public class User {
 
     // Maps user ID to User object, guaranteeing at most
     // one User object for each user.
-    private static final HashMap<UUID, User> users = new HashMap<>();
+    private static final HashMap<String, User> users = new HashMap<>();
 
-    private UUID id;
+    private String id;
     private String username;
 
     private String fullName;
@@ -39,7 +41,7 @@ public class User {
     /**
      * Get or create the unique User object with the given user ID.
      */
-    public static User getOrCreate(UUID userId) {
+    public static User getOrCreate(String userId) {
         User user = users.get(userId);
         if (user == null) {
             user = new User(userId);
@@ -50,45 +52,38 @@ public class User {
 
     /**
      * @return document of user with ID userId
+     * @param userId
      */
-    public static DocumentReference documentOf(@NonNull UUID userId) {
+    public static DocumentReference documentOf(@NonNull String userId) {
         return FirebaseFirestore.getInstance()
             .collection("users")
             .document(userId.toString());
     }
 
     /**
-     * Creates a User object by loading data from a Firebase DocumentSnapshot.
+     * Update this User object with data from a Firebase DocumentSnapshot.
      * @param doc DocumentSnapshot to load from
-     * @return created User, or null if doc is null or does not exist
      */
-    public static @Nullable User fromDocument(@Nullable DocumentSnapshot doc) {
-        if (doc == null || !doc.exists()) {
-            return null;
-        }
+    public void load(@NonNull DocumentSnapshot doc) {
+        setUsername(doc.getString(USERNAME_KEY));
+        setFullName(doc.getString(FULL_NAME_KEY));
+        setEmail(doc.getString(EMAIL_KEY));
+        setPhoneNumber(doc.getString(PHONE_NUMBER_KEY));
 
-        User user = getOrCreate(UUID.fromString(doc.getId()));
-        user.setUsername(doc.getString(USERNAME_KEY));
-        user.setFullName(doc.getString(FULL_NAME_KEY));
-        user.setEmail(doc.getString(EMAIL_KEY));
-        user.setPhoneNumber(doc.getString(PHONE_NUMBER_KEY));
-
-        user.ownedBookIds.clear();
+        ownedBookIds.clear();
         Object ownedBookRefs = doc.get(OWNED_BOOKS_KEY);
         if (ownedBookRefs != null) {
             for (DocumentReference bookRef : (List<DocumentReference>) ownedBookRefs) {
-                user.ownedBookIds.add(UUID.fromString(bookRef.getId()));
+                ownedBookIds.add(UUID.fromString(bookRef.getId()));
             }
         }
-        user.borrowedBookIds.clear();
+        borrowedBookIds.clear();
         Object borrowedBooksRefs = doc.get(BORROWED_BOOKS_KEY);
         if (borrowedBooksRefs != null) {
             for (DocumentReference bookRef : (List<DocumentReference>) borrowedBooksRefs) {
-                user.borrowedBookIds.add(UUID.fromString(bookRef.getId()));
+                borrowedBookIds.add(UUID.fromString(bookRef.getId()));
             }
         }
-
-        return user;
     }
 
     /**
@@ -119,18 +114,20 @@ public class User {
         return map;
     }
 
+
+
     /**
      * Store the current state of this User to the Firestore database.
      */
     public Task<Void> store() {
-        return documentOf(id).update(toData());
+        return documentOf(id).set(toData(), SetOptions.merge());
     }
 
-    private User(UUID id) {
+    User(String id) {
         this.id = id;
     }
 
-    public UUID getId() {
+    public String getId() {
         return id;
     }
 
