@@ -80,6 +80,7 @@ public class ViewUserProfileFragment extends Fragment {
             throw new IllegalArgumentException("no arguments");
 
         final UUID userId = UUID.fromString(getArguments().getString(ARG_USER_ID));
+        user = User.getOrCreate(userId);
 
         User.documentOf(userId).addSnapshotListener(new EventListener<DocumentSnapshot>() {
             @Override
@@ -91,7 +92,7 @@ public class ViewUserProfileFragment extends Fragment {
                     Log.w("UserProfileActivity",
                             "didn't find user " + userId.toString());
                 } else {
-                    user = User.fromDocument(value);
+                    user.load(value);
                     updateUserInfo();
                 }
             }
