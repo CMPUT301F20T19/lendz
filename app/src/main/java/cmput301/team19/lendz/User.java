@@ -3,10 +3,12 @@ package cmput301.team19.lendz;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.SetOptions;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -24,9 +26,9 @@ public class User {
 
     // Maps user ID to User object, guaranteeing at most
     // one User object for each user.
-    private static final HashMap<UUID, User> users = new HashMap<>();
+    private static final HashMap<String, User> users = new HashMap<>();
 
-    private UUID id;
+    private String id;
     private String username;
 
     private String fullName;
@@ -39,7 +41,7 @@ public class User {
     /**
      * Get or create the unique User object with the given user ID.
      */
-    public static User getOrCreate(UUID userId) {
+    public static User getOrCreate(String userId) {
         User user = users.get(userId);
         if (user == null) {
             user = new User(userId);
@@ -50,8 +52,9 @@ public class User {
 
     /**
      * @return document of user with ID userId
+     * @param userId
      */
-    public static DocumentReference documentOf(@NonNull UUID userId) {
+    public static DocumentReference documentOf(@NonNull String userId) {
         return FirebaseFirestore.getInstance()
             .collection("users")
             .document(userId.toString());
@@ -111,18 +114,20 @@ public class User {
         return map;
     }
 
+
+
     /**
      * Store the current state of this User to the Firestore database.
      */
     public Task<Void> store() {
-        return documentOf(id).update(toData());
+        return documentOf(id).set(toData(), SetOptions.merge());
     }
 
-    private User(UUID id) {
+    User(String id) {
         this.id = id;
     }
 
-    public UUID getId() {
+    public String getId() {
         return id;
     }
 
