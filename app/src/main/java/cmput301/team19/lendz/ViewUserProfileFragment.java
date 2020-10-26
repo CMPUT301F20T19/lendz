@@ -40,7 +40,7 @@ public class ViewUserProfileFragment extends Fragment {
         // Required empty public constructor
     }
 
-    public static ViewUserProfileFragment newInstance(UUID userId) {
+    public static ViewUserProfileFragment newInstance(String userId) {
         ViewUserProfileFragment fragment = new ViewUserProfileFragment();
         Bundle args = new Bundle();
         args.putString(ARG_USER_ID, userId.toString());
@@ -79,11 +79,10 @@ public class ViewUserProfileFragment extends Fragment {
         if (getArguments() == null)
             throw new IllegalArgumentException("no arguments");
 
-        final UUID userId = UUID.fromString(getArguments().getString(ARG_USER_ID));
+        final String userId = getArguments().getString(ARG_USER_ID);
+        user = User.getOrCreate(userId);
 
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        CollectionReference users = db.collection("users");
-        users.document(userId.toString()).addSnapshotListener(new EventListener<DocumentSnapshot>() {
+        User.documentOf(userId).addSnapshotListener(new EventListener<DocumentSnapshot>() {
             @Override
             public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
                 if (error != null) {
@@ -93,7 +92,7 @@ public class ViewUserProfileFragment extends Fragment {
                     Log.w("UserProfileActivity",
                             "didn't find user " + userId.toString());
                 } else {
-                    user = User.fromDocument(value);
+                    user.load(value);
                     updateUserInfo();
                 }
             }
