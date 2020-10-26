@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 
 import com.google.firebase.firestore.DocumentSnapshot;
 
+import java.util.HashMap;
 import java.util.Map;
 
 public class BookDescription {
@@ -37,6 +38,18 @@ public class BookDescription {
         title = (String) data.get(TITLE_KEY);
         author = (String) data.get(AUTHOR_KEY);
         description = (String) data.get(DESCRIPTION_KEY);
+    }
+
+    /**
+     * Converts this BookDescription object to a Map.
+     */
+    public Map<String, Object> toData() {
+        Map<String, Object> data = new HashMap<>();
+        data.put(ISBN_KEY, isbn);
+        data.put(TITLE_KEY, title);
+        data.put(AUTHOR_KEY, author);
+        data.put(DESCRIPTION_KEY, description);
+        return data;
     }
 
     public String getIsbn() {

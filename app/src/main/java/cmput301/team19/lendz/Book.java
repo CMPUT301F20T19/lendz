@@ -3,19 +3,18 @@ package cmput301.team19.lendz;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
+import com.google.firebase.firestore.SetOptions;
 
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -64,36 +63,31 @@ public class Book {
     }
 
     /**
-     * Creates or updates a Book object by loading from a Firebase DocumentSnapshot.
+     * Updates this Book object with data from a Firebase DocumentSnapshot.
      * @param doc DocumentSnapshot to load from
-     * @return updated Book if doc is non-null and exists
      */
-    public static @Nullable Book fromDocument(@Nullable DocumentSnapshot doc) {
-        if (doc == null || !doc.exists()) {
-            return null;
-        }
-
-        Book book = getOrCreate(UUID.fromString(doc.getId()));
+    public void load(@NonNull DocumentSnapshot doc) {
+        DocumentReference documentReference = Book.documentOf(id);
 
         Map<String, Object> descriptionMap = (Map<String, Object>) doc.get(DESCRIPTION_KEY);
-        book.setDescription(new BookDescription(descriptionMap));
+        setDescription(new BookDescription(descriptionMap));
 
         GeoPoint geoPoint = doc.getGeoPoint(LOCATION_KEY);
         if (geoPoint == null) {
-            book.setLocation(null);
+            setLocation(null);
         } else {
-            book.setLocation(new Location(geoPoint));
+            setLocation(new Location(geoPoint));
         }
 
         DocumentReference ownerReference = doc.getDocumentReference(OWNER_KEY);
         if (ownerReference == null) {
-            book.setOwner(null);
+            setOwner(null);
         } else {
             User owner = User.getOrCreate(UUID.fromString(ownerReference.getId()));
-            book.setOwner(owner);
+            setOwner(owner);
         }
 
-        // TODO: get pendingRequests and acceptedRequsest data
+        // TODO: get pendingRequests and acceptedRequest data
         /*
         List<DocumentReference> pendingRequestsData =
                 (List<DocumentReference>) doc.get(PENDING_REQUESTS_KEY);
@@ -107,12 +101,12 @@ public class Book {
 
         String photoUrlString = doc.getString(PHOTO_KEY);
         if (photoUrlString == null) {
-            book.setPhoto(null);
+            setPhoto(null);
         } else {
             try {
-                book.setPhoto(new URL(photoUrlString));
+                setPhoto(new URL(photoUrlString));
             } catch (MalformedURLException e) {
-                book.setPhoto(null);
+                setPhoto(null);
                 Log.e("Book", "Failed to parse book photo URL " +
                         photoUrlString + ": " + e);
             }
@@ -120,12 +114,10 @@ public class Book {
 
         Long bookStatusLong = doc.getLong(STATUS_KEY);
         if (bookStatusLong == null) {
-            book.setStatus(null);
+            setStatus(null);
         } else {
-            book.setStatus(BookStatus.values()[bookStatusLong.intValue()]);
+            setStatus(BookStatus.values()[bookStatusLong.intValue()]);
         }
-
-        return book;
     }
 
     /**
@@ -133,7 +125,14 @@ public class Book {
      */
     private Map<String, Object> toData() {
         Map<String, Object> map = new HashMap<>();
-        // TODO
+        map.put(DESCRIPTION_KEY, description.toData());
+        GeoPoint geoPoint = new GeoPoint(location.getLat(), location.getLon());
+        map.put(LOCATION_KEY, geoPoint);
+        map.put(OWNER_KEY, User.documentOf(owner.getId()));
+        // TODO: set pendingRequests data
+        // TODO: set acceptedRequest data
+        map.put(PHOTO_KEY, photo.toString());
+        map.put(STATUS_KEY, status.ordinal());
         return map;
     }
 
@@ -141,7 +140,7 @@ public class Book {
      * Store the current state of this Book to the Firestore database.
      */
     public Task<Void> store() {
-        return documentOf(id).update(toData());
+        return documentOf(id).set(toData(), SetOptions.merge());
     }
 
     private Book(@NonNull UUID id) {
