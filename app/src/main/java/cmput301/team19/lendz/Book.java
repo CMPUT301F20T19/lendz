@@ -83,7 +83,7 @@ public class Book {
         if (ownerReference == null) {
             setOwner(null);
         } else {
-            User owner = User.getOrCreate(UUID.fromString(ownerReference.getId()));
+            User owner = User.getOrCreate(ownerReference.getId());
             setOwner(owner);
         }
 
