@@ -37,9 +37,9 @@ public class MainActivity extends AppCompatActivity {
                     }else if (itemID == R.id.my_books) {
                         fragment = new MyBooksFragment();
                     }else if (itemID == R.id.notifications) {
-                        fragment = new NotificaitionsFragment();
+                        fragment = new NotificationsFragment();
                     } else if(itemID == R.id.profile) {
-                        fragment = new NotificaitionsFragment();
+                        fragment = new ViewUserProfileFragment();
                     }
                     getSupportFragmentManager().beginTransaction().replace(R.id.container,fragment).commit();
                     return true;
