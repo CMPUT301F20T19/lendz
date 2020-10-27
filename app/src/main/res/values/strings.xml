@@ -34,4 +34,8 @@
     <string name="book_description">.....</string>
     <string name="add_image">Add Image</string>
     <string name="book_description_label">Book Description</string>
+    <string name="borrow_tab">Borrow</string>
+    <string name="myBooks_tab">My Books</string>
+    <string name="notifications_tab">Notifications</string>
+    <string name="profile_tab">Profile</string>
 </resources>
