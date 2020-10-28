@@ -21,7 +21,6 @@ import com.google.zxing.integration.android.IntentResult;
 public class AddBookActivity extends AppCompatActivity implements View.OnClickListener{
     ImageView imgView;
     Button selectImg;
-
     Button scanBtn;
     TextView isbnTv;
 
@@ -31,7 +30,6 @@ public class AddBookActivity extends AppCompatActivity implements View.OnClickLi
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_addbook);
-
         //Attach views
         imgView = findViewById(R.id.book_IV);
         selectImg = findViewById(R.id.addImg);
@@ -72,8 +70,6 @@ public class AddBookActivity extends AppCompatActivity implements View.OnClickLi
         Intent intent = new Intent(Intent.ACTION_PICK);
         intent.setType("image/*");
         startActivityForResult(intent,IMAGE_PICK_CODE);
-
-
     }
 
     @Override
@@ -95,7 +91,7 @@ public class AddBookActivity extends AppCompatActivity implements View.OnClickLi
     @Override
     public void onClick(View v){
         IntentIntegrator integrator  = new IntentIntegrator(this);
-        integrator.setCaptureActivity(capturedAct.class);
+        integrator.setCaptureActivity(scanActivity.class);
         integrator.setPrompt("Scan a barcode or QR");
         integrator.setOrientationLocked(false);
         integrator.initiateScan();

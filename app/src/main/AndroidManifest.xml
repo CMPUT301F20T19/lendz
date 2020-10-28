@@ -26,11 +26,6 @@
         <activity android:name=".AddBookActivity"
             android:parentActivityName=".MainActivity"
             />
-        <activity android:name=".capturedAct"
-            android:screenOrientation="fullSensor"
-            android:stateNotNeeded="true"
-            android:windowSoftInputMode="stateAlwaysHidden">
-        </activity>
 
     </application>
 
