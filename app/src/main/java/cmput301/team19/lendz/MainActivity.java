@@ -14,6 +14,7 @@ import com.google.firebase.firestore.auth.User;
 public class MainActivity extends AppCompatActivity {
 
     private BottomNavigationView bottomNavigationView;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -22,7 +23,7 @@ public class MainActivity extends AppCompatActivity {
         bottomNavigationView = findViewById(R.id.bottomNav);
 
         bottomNavigationView.setOnNavigationItemSelectedListener(tabSelected);
-        getSupportFragmentManager().beginTransaction().replace(R.id.container, new MyBooksFragment()).commit();
+        getSupportFragmentManager().beginTransaction().replace(R.id.container, new BorrowBookFragment()).commit();
     }
 
     private BottomNavigationView.OnNavigationItemSelectedListener tabSelected =
