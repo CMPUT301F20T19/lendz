@@ -3,6 +3,7 @@ package cmput301.team19.lendz;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
@@ -38,8 +39,13 @@ public class Book {
     private Location location;
     private BookDescription description;
 
-    private ArrayList<Request> pendingRequests;
+    private final ArrayList<Request> pendingRequests;
     private Request acceptedRequest;
+
+    private Book(@NonNull UUID id) {
+        this.id = id;
+        pendingRequests = new ArrayList<>();
+    }
 
     /**
      * Get or create the unique Book object with the given book ID.
@@ -67,9 +73,10 @@ public class Book {
      * @param doc DocumentSnapshot to load from
      */
     public void load(@NonNull DocumentSnapshot doc) {
-        DocumentReference documentReference = Book.documentOf(id);
-
         Map<String, Object> descriptionMap = (Map<String, Object>) doc.get(DESCRIPTION_KEY);
+        if (descriptionMap == null) {
+            throw new NullPointerException("description cannot be null");
+        }
         setDescription(new BookDescription(descriptionMap));
 
         GeoPoint geoPoint = doc.getGeoPoint(LOCATION_KEY);
@@ -81,11 +88,11 @@ public class Book {
 
         DocumentReference ownerReference = doc.getDocumentReference(OWNER_KEY);
         if (ownerReference == null) {
-            setOwner(null);
-        } else {
-            User owner = User.getOrCreate(ownerReference.getId());
-            setOwner(owner);
+            throw new NullPointerException("owner cannot be null");
         }
+        User owner = User.getOrCreate(ownerReference.getId());
+        setOwner(owner);
+
 
         // TODO: get pendingRequests and acceptedRequest data
         /*
@@ -114,10 +121,9 @@ public class Book {
 
         Long bookStatusLong = doc.getLong(STATUS_KEY);
         if (bookStatusLong == null) {
-            setStatus(null);
-        } else {
-            setStatus(BookStatus.values()[bookStatusLong.intValue()]);
+            throw new NullPointerException("bookStatus cannot be null");
         }
+        setStatus(BookStatus.values()[bookStatusLong.intValue()]);
     }
 
     /**
@@ -131,7 +137,11 @@ public class Book {
         map.put(OWNER_KEY, User.documentOf(owner.getId()));
         // TODO: set pendingRequests data
         // TODO: set acceptedRequest data
-        map.put(PHOTO_KEY, photo.toString());
+        if (photo == null)
+            map.put(PHOTO_KEY, null);
+        else
+            map.put(PHOTO_KEY, photo.toString());
+
         map.put(STATUS_KEY, status.ordinal());
         return map;
     }
@@ -143,11 +153,7 @@ public class Book {
         return documentOf(id).set(toData(), SetOptions.merge());
     }
 
-    private Book(@NonNull UUID id) {
-        this.id = id;
-    }
-
-    public void setAcceptedRequest(Request acceptedRequest) {
+    public void setAcceptedRequest(@Nullable Request acceptedRequest) {
         this.acceptedRequest = acceptedRequest;
     }
 
@@ -155,7 +161,7 @@ public class Book {
         return id;
     }
 
-    public void setId(UUID id) {
+    public void setId(@NonNull UUID id) {
         this.id = id;
     }
 
@@ -163,7 +169,7 @@ public class Book {
         return photo;
     }
 
-    public void setPhoto(URL photo) {
+    public void setPhoto(@Nullable URL photo) {
         this.photo = photo;
     }
 
@@ -171,7 +177,7 @@ public class Book {
         return owner;
     }
 
-    public void setOwner(User owner) {
+    public void setOwner(@NonNull User owner) {
         this.owner = owner;
     }
 
@@ -179,7 +185,7 @@ public class Book {
         return status;
     }
 
-    public void setStatus(BookStatus status) {
+    public void setStatus(@NonNull BookStatus status) {
         this.status = status;
     }
 
@@ -187,7 +193,7 @@ public class Book {
         return location;
     }
 
-    public void setLocation(Location location) {
+    public void setLocation(@Nullable Location location) {
         this.location = location;
     }
 
@@ -195,11 +201,11 @@ public class Book {
         return description;
     }
 
-    public void setDescription(BookDescription description) {
+    public void setDescription(@NonNull BookDescription description) {
         this.description = description;
     }
 
-    public void addPendingRequest(Request request) {
+    public void addPendingRequest(@NonNull Request request) {
         this.pendingRequests.add(request);
     }
 }
