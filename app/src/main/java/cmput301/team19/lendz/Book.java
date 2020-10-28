@@ -148,9 +148,18 @@ public class Book {
 
     /**
      * Store the current state of this Book to the Firestore database.
+     * @return Task of the store
      */
     public Task<Void> store() {
         return documentOf(id).set(toData(), SetOptions.merge());
+    }
+
+    /**
+     * Delete this Book from the Firestore database.
+     * @return Task of the deletion
+     */
+    public Task<Void> delete() {
+        return documentOf(id).delete();
     }
 
     public void setAcceptedRequest(@Nullable Request acceptedRequest) {
