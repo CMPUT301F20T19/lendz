@@ -4,7 +4,9 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 
@@ -13,17 +15,33 @@ import com.google.firebase.firestore.auth.User;
 
 public class MainActivity extends AppCompatActivity {
 
+
+    private static final String TAG = "USER_ID" ;
     private BottomNavigationView bottomNavigationView;
+
+
+    private String uid;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        getUserID();
+
         bottomNavigationView = findViewById(R.id.bottomNav);
 
         bottomNavigationView.setOnNavigationItemSelectedListener(tabSelected);
         getSupportFragmentManager().beginTransaction().replace(R.id.container, new BorrowBookFragment()).commit();
+    }
+
+    private void getUserID() {
+        Intent intent = getIntent();
+        if(intent.hasExtra("userID")) {
+          uid = (String) intent.getSerializableExtra("userID");
+            Log.d(TAG, "getUserID: " + uid);
+        }
+
     }
 
     private BottomNavigationView.OnNavigationItemSelectedListener tabSelected =
@@ -40,9 +58,12 @@ public class MainActivity extends AppCompatActivity {
                     }else if (itemID == R.id.notifications) {
                         fragment = new NotificationsFragment();
                     } else if(itemID == R.id.profile) {
-                        fragment = new ViewUserProfileFragment();
+                        fragment = ViewUserProfileFragment.newInstance(uid);
                     }
-                    getSupportFragmentManager().beginTransaction().replace(R.id.container,fragment).commit();
+                    if(fragment != null) {
+                        getSupportFragmentManager().beginTransaction().replace(R.id.container,fragment).commit();
+                    }
+
                     return true;
                 }
             };
