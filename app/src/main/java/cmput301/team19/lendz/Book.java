@@ -38,7 +38,7 @@ public class Book {
     private Location location;
     private BookDescription description;
 
-    private ArrayList<Request> pendingRequests;
+    private final ArrayList<Request> pendingRequests;
     private Request acceptedRequest;
 
     /**
@@ -145,10 +145,7 @@ public class Book {
 
     private Book(@NonNull UUID id) {
         this.id = id;
-    }
-
-    public void setAcceptedRequest(Request acceptedRequest) {
-        this.acceptedRequest = acceptedRequest;
+        pendingRequests = new ArrayList<>();
     }
 
     public UUID getId() {
@@ -201,5 +198,17 @@ public class Book {
 
     public void addPendingRequest(Request request) {
         this.pendingRequests.add(request);
+    }
+
+    public ArrayList<Request> getPendingRequests() {
+        return pendingRequests;
+    }
+
+    public Request getAcceptedRequest() {
+        return acceptedRequest;
+    }
+
+    public void setAcceptedRequest(Request acceptedRequest) {
+        this.acceptedRequest = acceptedRequest;
     }
 }
