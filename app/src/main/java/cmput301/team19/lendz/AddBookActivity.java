@@ -91,7 +91,7 @@ public class AddBookActivity extends AppCompatActivity implements View.OnClickLi
     @Override
     public void onClick(View v){
         IntentIntegrator integrator  = new IntentIntegrator(this);
-        integrator.setCaptureActivity(scanActivity.class);
+        integrator.setCaptureActivity(ScanActivity.class);
         integrator.setPrompt("Scan a barcode or QR");
         integrator.setOrientationLocked(false);
         integrator.initiateScan();
