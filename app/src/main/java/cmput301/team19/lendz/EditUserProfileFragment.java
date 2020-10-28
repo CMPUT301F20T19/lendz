@@ -16,8 +16,6 @@ import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.UUID;
 
@@ -33,7 +31,7 @@ public class EditUserProfileFragment extends Fragment {
     private static final String ARG_EMAIL = "email";
     private static final String ARG_PHONE_NUMBER = "phoneNumber";
 
-    private UUID userId;
+    private String userId;
 
     private EditText usernameEditText;
     private EditText fullNameEditText;
@@ -44,10 +42,10 @@ public class EditUserProfileFragment extends Fragment {
         // Required empty public constructor
     }
 
-    public static EditUserProfileFragment newInstance(UUID id, String username, String fullName, String email, String phoneNumber) {
+    public static EditUserProfileFragment newInstance(String id, String username, String fullName, String email, String phoneNumber) {
         EditUserProfileFragment fragment = new EditUserProfileFragment();
         Bundle args = new Bundle();
-        args.putString(ARG_USER_ID, id.toString());
+        args.putString(ARG_USER_ID, id);
         args.putString(ARG_USERNAME, username);
         args.putString(ARG_FULL_NAME, fullName);
         args.putString(ARG_EMAIL, email);
@@ -73,7 +71,8 @@ public class EditUserProfileFragment extends Fragment {
         phoneNumberEditText = view.findViewById(R.id.phoneNumberEditText);
 
         if (getArguments() != null) {
-            userId = UUID.fromString(getArguments().getString(ARG_USER_ID));
+            // Set the contents of editing controls based on the argument values
+            userId = getArguments().getString(ARG_USER_ID);
             String username = getArguments().getString(ARG_USERNAME);
             String fullName = getArguments().getString(ARG_FULL_NAME);
             String email = getArguments().getString(ARG_EMAIL);
@@ -107,24 +106,29 @@ public class EditUserProfileFragment extends Fragment {
      * Save the edited profile details to Firestore.
      */
     private void saveProfile() {
-        User user = new User(userId);
+        User user = User.getOrCreate(userId);
+
+        // Set User data based on contents of editing controls
         user.setUsername(usernameEditText.getText().toString());
         user.setFullName(fullNameEditText.getText().toString());
         user.setEmail(emailEditText.getText().toString());
         user.setPhoneNumber(phoneNumberEditText.getText().toString());
 
-        CollectionReference users = FirebaseFirestore.getInstance().collection("users");
-        users.document(userId.toString()).set(user.toData())
+        // Save changes to Firestore
+        user.store()
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
                         getFragmentManager().popBackStack();
                     }
                 }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                Toast.makeText(getContext(), R.string.user_profile_edit_failed, Toast.LENGTH_LONG).show();
-            }
-        });
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Toast.makeText(getContext(),
+                                R.string.user_profile_edit_failed,
+                                Toast.LENGTH_LONG)
+                                .show();
+                    }
+                 });
     }
 }

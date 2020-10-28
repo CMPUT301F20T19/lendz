@@ -24,7 +24,7 @@ public class UserProfileActivity extends AppCompatActivity {
         updateBackButton();
 
         // Test user to display profile of
-        UUID testUserId = UUID.fromString("185374c3-85fe-4967-ab73-530c7068033a");
+        String testUserId = "185374c3-85fe-4967-ab73-530c7068033a";
 
         Fragment viewUserProfileFragment = ViewUserProfileFragment.newInstance(testUserId);
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
