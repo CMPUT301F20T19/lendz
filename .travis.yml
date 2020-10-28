@@ -8,6 +8,7 @@ env:
     - ANDROID_BUILD_TOOLS_VERSION=30.0.0
     - ANDROID_EMU_API_LEVEL=22
     - ANDROID_ABI=armeabi-v7a
+    - ADB_INSTALL_TIMEOUT=8 # minutes (2 minutes by default)
     - QEMU_AUDIO_DRV=none # Remove audio
 
 android:
