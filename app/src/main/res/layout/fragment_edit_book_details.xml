@@ -8,19 +8,27 @@
 
     <ImageView
         android:id="@+id/edit_BookImage"
-        android:layout_width="407dp"
+        android:layout_width="0dp"
         android:layout_height="188dp"
+        android:layout_marginStart="18dp"
+        android:layout_marginLeft="18dp"
+        android:layout_marginEnd="18dp"
+        android:layout_marginRight="18dp"
+        android:contentDescription="@string/todo"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        tools:srcCompat="@tools:sample/avatars"
-        android:contentDescription="@string/todo" />
+        tools:srcCompat="@tools:sample/avatars" />
 
     <Button
         android:id="@+id/add_Imagebtn"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginStart="18dp"
+        android:layout_marginLeft="18dp"
         android:layout_marginTop="176dp"
+        android:layout_marginEnd="18dp"
+        android:layout_marginRight="18dp"
         android:background="@color/material_on_background_emphasis_high_type"
         android:text="@string/editbookdetailsimage"
         android:visibility="visible"
@@ -33,9 +41,13 @@
 
     <TextView
         android:id="@+id/isbn_headerView"
-        android:layout_width="53dp"
+        android:layout_width="0dp"
         android:layout_height="18dp"
+        android:layout_marginStart="18dp"
+        android:layout_marginLeft="18dp"
         android:layout_marginTop="10dp"
+        android:layout_marginEnd="18dp"
+        android:layout_marginRight="18dp"
         android:text="@string/EditBookISBNHeader"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.063"
@@ -43,8 +55,8 @@
         app:layout_constraintTop_toBottomOf="@+id/edit_BookImage" />
 
     <EditText
-        android:id="@+id/editISBN"
-        android:layout_width="350dp"
+        android:id="@+id/editBookDetailsISBN"
+        android:layout_width="0dp"
         android:layout_height="50dp"
         android:layout_marginStart="18dp"
         android:layout_marginLeft="18dp"
@@ -62,18 +74,22 @@
 
     <TextView
         android:id="@+id/book_titleHeaderView"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginStart="18dp"
+        android:layout_marginLeft="18dp"
         android:layout_marginTop="10dp"
+        android:layout_marginEnd="18dp"
+        android:layout_marginRight="18dp"
         android:text="@string/EditBookDetailsTitle"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.063"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/editISBN" />
+        app:layout_constraintTop_toBottomOf="@+id/editBookDetailsISBN" />
 
     <EditText
-        android:id="@+id/editBookTitle"
-        android:layout_width="350dp"
+        android:id="@+id/editBookDetailsTitle"
+        android:layout_width="0dp"
         android:layout_height="50dp"
         android:layout_marginStart="18dp"
         android:layout_marginLeft="18dp"
@@ -91,18 +107,22 @@
 
     <TextView
         android:id="@+id/author_HeaderView"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginStart="18dp"
+        android:layout_marginLeft="18dp"
         android:layout_marginTop="10dp"
+        android:layout_marginEnd="18dp"
+        android:layout_marginRight="18dp"
         android:text="@string/EditBookAuthorHeader"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.059"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/editBookTitle" />
+        app:layout_constraintTop_toBottomOf="@+id/editBookDetailsTitle" />
 
     <EditText
         android:id="@+id/editBookAuthor"
-        android:layout_width="364dp"
+        android:layout_width="0dp"
         android:layout_height="43dp"
         android:layout_marginStart="18dp"
         android:layout_marginLeft="18dp"
@@ -120,9 +140,13 @@
 
     <TextView
         android:id="@+id/book_DescriptionHeaderView"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginStart="18dp"
+        android:layout_marginLeft="18dp"
         android:layout_marginTop="10dp"
+        android:layout_marginEnd="18dp"
+        android:layout_marginRight="18dp"
         android:text="@string/EditBookDescriptionHead"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.062"
@@ -131,7 +155,7 @@
 
     <EditText
         android:id="@+id/editBookDescription"
-        android:layout_width="364dp"
+        android:layout_width="0dp"
         android:layout_height="113dp"
         android:layout_marginStart="18dp"
         android:layout_marginLeft="18dp"

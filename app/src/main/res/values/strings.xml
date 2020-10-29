@@ -10,6 +10,7 @@
     <string name="user_profile_username_header">Username</string>
     <string name="user_profile_save">Save</string>
     <string name="user_profile_edit_failed">Failed to update user profile information.</string>
+    <string name="book_edit_failed">Failed to update book details.</string>
     <string name="app_logo_content_description">Lendz Logo</string>
     <string name="login_welcome_message">Welcome to Lendz!</string>
     <string name="login_header">Login</string>
@@ -45,7 +46,7 @@
     <string name="viewbookdetailstitle">Title</string>
     <string name="EditBookDetailsIsbn">123456789</string>
     <string name="editbookdetailsimage">Tap to add Image</string>
-    <string name="EditBookTitle">BokTitle</string>
+    <string name="EditBookTitle">BookTitle</string>
     <string name="EditBookAuthor">Author</string>
     <string name="EditBookDescription">description</string>
     <string name="EditBookDetailsTitle">Title</string>
@@ -56,5 +57,12 @@
     <string name="ViewBookDetailsStatus">Status</string>
     <string name="ViewBookDetailsImage">ViewBookImage</string>
     <string name="ViewBookDetailsOwnerImage">ViewBookOwnerImage</string>
+    <string name="editBook">Edit Book</string>
+    <string name="deleteBook">Delete</string>
+    <string name="borrow_tab">Borrow</string>
+    <string name="myBooks_tab">My Books</string>
+    <string name="notifications_tab">Notifications</string>
+    <string name="profile_tab">Profile</string>
+    <string name="book_deletion_failed">Book Deletion Failed</string>
 
 </resources>

@@ -10,12 +10,15 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestoreException;
@@ -100,8 +103,7 @@ public class ViewBookFragment extends Fragment {
                 }
             }
         });
-        updateBookDetails();
-        return view;
+       return view;
     }
 
     @Override
@@ -115,18 +117,29 @@ public class ViewBookFragment extends Fragment {
             case R.id.editBookDetails:
                 startEdit();
                 return true;
+            case R.id.deleteBook:
+                book.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        getFragmentManager().popBackStack();;
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Toast.makeText(getContext(),
+                                R.string.book_deletion_failed,
+                                Toast.LENGTH_LONG)
+                                .show();
+                    }
+                });
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
     }
 
     private void startEdit(){
-        Fragment editBookDetailsFragment = EditBookFragment.newInstance(
-                book.getId(),
-                book.getDescription().getTitle(),
-                book.getDescription().getIsbn(),
-                book.getDescription().getAuthor(),
-                book.getDescription().getAuthor());
+        Fragment editBookDetailsFragment = EditBookFragment.newInstance(book.getId());
         FragmentTransaction transaction = getFragmentManager().beginTransaction();
         transaction.setCustomAnimations(
                 R.anim.slide_out,
