@@ -38,6 +38,8 @@ public class User {
     private final ArrayList<UUID> ownedBookIds = new ArrayList<>();
     private final ArrayList<UUID> borrowedBookIds = new ArrayList<>();
 
+    private boolean loaded;
+
     /**
      * Get or create the unique User object with the given user ID.
      */
@@ -65,6 +67,8 @@ public class User {
      * @param doc DocumentSnapshot to load from
      */
     public void load(@NonNull DocumentSnapshot doc) {
+        loaded = true;
+
         setUsername(doc.getString(USERNAME_KEY));
         setFullName(doc.getString(FULL_NAME_KEY));
         setEmail(doc.getString(EMAIL_KEY));
@@ -161,5 +165,12 @@ public class User {
 
     public void setPhoneNumber(String phoneNumber) {
         this.phoneNumber = phoneNumber;
+    }
+
+    /**
+     * @return true if this User has loaded data from Firestore, false otherwise
+     */
+    public boolean isLoaded() {
+        return loaded;
     }
 }
