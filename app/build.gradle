@@ -2,13 +2,13 @@ apply plugin: 'com.android.application'
 apply plugin: 'com.google.gms.google-services'
 
 android {
-    compileSdkVersion 30
-    buildToolsVersion '30.0.0'
+    compileSdkVersion 29
+    buildToolsVersion "29.0.2"
 
     defaultConfig {
         applicationId "cmput301.team19.lendz"
         minSdkVersion 16
-        targetSdkVersion 30
+        targetSdkVersion 29
         multiDexEnabled true
         versionCode 1
         versionName "1.0"
@@ -28,7 +28,22 @@ android {
         timeOutInMs 60000 // set timeout to 1 minute		         timeOutInMs 10 * 60 * 1000  // set timeout to 10 minutes
         installOptions "-d","-t"
     }
-	 
+
+    compileOptions {
+        sourceCompatibility = 1.8
+        targetCompatibility = 1.8
+    }
+
+    testOptions {
+        unitTests.all {
+            useJUnitPlatform()
+            testLogging {
+                events "passed", "skipped", "failed", "standardOut", "standardError"
+                outputs.upToDateWhen {false}
+                showStandardStreams = true
+            }
+        }
+    }
 }
 
 dependencies {
