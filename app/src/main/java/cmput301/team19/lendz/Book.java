@@ -101,7 +101,6 @@ public class Book {
         for (DocumentReference pendingRequest : pendingRequestsData) {
             // TODO
         }
-
         DocumentReference acceptedRequestData = doc.getDocumentReference(ACCEPTED_REQUEST_KEY);
         // TODO
          */
@@ -154,9 +153,6 @@ public class Book {
         return documentOf(id).set(toData(), SetOptions.merge());
     }
 
-    private Book(@NonNull UUID id) {
-        this.id = id;
-        pendingRequests = new ArrayList<>();
     /**
      * Delete this Book from the Firestore database.
      * @return Task of the deletion
@@ -219,17 +215,5 @@ public class Book {
 
     public void addPendingRequest(@NonNull Request request) {
         this.pendingRequests.add(request);
-    }
-
-    public ArrayList<Request> getPendingRequests() {
-        return pendingRequests;
-    }
-
-    public Request getAcceptedRequest() {
-        return acceptedRequest;
-    }
-
-    public void setAcceptedRequest(Request acceptedRequest) {
-        this.acceptedRequest = acceptedRequest;
     }
 }
