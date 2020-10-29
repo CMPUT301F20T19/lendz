@@ -123,7 +123,7 @@ public class User {
         return documentOf(id).set(toData(), SetOptions.merge());
     }
 
-    User(String id) {
+    private User(String id) {
         this.id = id;
     }
 
@@ -161,5 +161,13 @@ public class User {
 
     public void setPhoneNumber(String phoneNumber) {
         this.phoneNumber = phoneNumber;
+    }
+
+    public ArrayList<UUID> getOwnedBookIds() {
+        return ownedBookIds;
+    }
+
+    public ArrayList<UUID> getBorrowedBookIds() {
+        return borrowedBookIds;
     }
 }

@@ -3,6 +3,9 @@
     package="cmput301.team19.lendz">
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-feature android:name="android.hardware.camera"/>
+    <uses-feature android:name="android.hardware.camera.autofocus"/>
 
     <application
         android:allowBackup="true"
@@ -13,7 +16,7 @@
         android:theme="@style/AppTheme">
         <activity android:name=".SignUpActivity" android:parentActivityName=".LoginActivity"></activity>
 
-        <activity android:name=".AddBookActivity">
+        <activity android:name=".LoginActivity">
 
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -24,6 +27,7 @@
 
 
         <activity android:name=".MainActivity" />
+      
         <activity android:name=".UserProfileActivity">
 
         </activity>

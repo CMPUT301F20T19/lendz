@@ -154,16 +154,11 @@ public class Book {
         return documentOf(id).set(toData(), SetOptions.merge());
     }
 
-    /**
-     * Delete this Book from the Firestore database.
-     * @return Task of the deletion
-     */
-    public Task<Void> delete() {
-        return documentOf(id).delete();
-    }
 
-    public void setAcceptedRequest(@Nullable Request acceptedRequest) {
-        this.acceptedRequest = acceptedRequest;
+    private Book(@NonNull UUID id) {
+        this.id = id;
+        pendingRequests = new ArrayList<>();
+
     }
 
     public UUID getId() {
@@ -216,5 +211,17 @@ public class Book {
 
     public void addPendingRequest(@NonNull Request request) {
         this.pendingRequests.add(request);
+    }
+
+    public ArrayList<Request> getPendingRequests() {
+        return pendingRequests;
+    }
+
+    public Request getAcceptedRequest() {
+        return acceptedRequest;
+    }
+
+    public void setAcceptedRequest(Request acceptedRequest) {
+        this.acceptedRequest = acceptedRequest;
     }
 }

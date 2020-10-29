@@ -8,26 +8,36 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
-public class AddBookActivity extends AppCompatActivity {
+import com.google.zxing.integration.android.IntentIntegrator;
+import com.google.zxing.integration.android.IntentResult;
+
+public class AddBookActivity extends AppCompatActivity implements View.OnClickListener{
     ImageView imgView;
     Button selectImg;
+    Button scanBtn;
+    TextView isbnTv;
+
     private static final int IMAGE_PICK_CODE = 1000 ;
     private static final int PERMISSION_CODE = 1001;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_addbook);
-
         //Attach views
         imgView = findViewById(R.id.book_IV);
         selectImg = findViewById(R.id.addImg);
 
+        scanBtn = findViewById(R.id.scanBTN);
+        isbnTv = findViewById(R.id.ISBN_ID);
+
+        scanBtn.setOnClickListener(this);
         //handle selectImg btn click
         selectImg.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -60,8 +70,6 @@ public class AddBookActivity extends AppCompatActivity {
         Intent intent = new Intent(Intent.ACTION_PICK);
         intent.setType("image/*");
         startActivityForResult(intent,IMAGE_PICK_CODE);
-
-
     }
 
     @Override
@@ -81,10 +89,34 @@ public class AddBookActivity extends AppCompatActivity {
     }
 
     @Override
+    public void onClick(View v){
+        IntentIntegrator integrator  = new IntentIntegrator(this);
+        integrator.setCaptureActivity(ScanActivity.class);
+        integrator.setPrompt("Scan a barcode or QR");
+        integrator.setOrientationLocked(false);
+        integrator.initiateScan();
+    }
+
+
+    @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if(resultCode == RESULT_OK && requestCode == IMAGE_PICK_CODE){
             imgView.setImageURI(data.getData());
+        }
+        IntentResult result =  IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
+
+        if(result != null){
+
+            if (result.getContents() == null){
+
+                Toast.makeText(this,"CANCELLED",Toast.LENGTH_LONG).show();
+            }else{
+                Toast.makeText(this,result.getContents(),Toast.LENGTH_LONG).show();
+                isbnTv.setText(result.getContents());
+            }
+        }else{
+            super.onActivityResult(requestCode, resultCode, data);
         }
     }
 }

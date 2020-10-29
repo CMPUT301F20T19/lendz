@@ -32,13 +32,13 @@
         android:layout_marginEnd="20dp"
         android:layout_marginRight="20dp"
         android:ems="10"
-        android:hint="@string/isbn"
+        android:hint="Title"
+        android:importantForAutofill="no"
         android:inputType="textPersonName"
-        app:layout_constraintBottom_toTopOf="@+id/editTextTextPersonName2"
+        app:layout_constraintBottom_toTopOf="@+id/ISBN_ID"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/book_IV"
-        android:importantForAutofill="no" />
+        app:layout_constraintTop_toBottomOf="@+id/book_IV" />
 
     <ImageView
         android:id="@+id/book_IV"
@@ -54,7 +54,7 @@
         android:contentDescription="@string/todo" />
 
     <EditText
-        android:id="@+id/editTextTextPersonName2"
+        android:id="@+id/ISBN_ID"
         android:layout_width="0dp"
         android:layout_height="53dp"
         android:layout_marginStart="20dp"
@@ -64,10 +64,10 @@
         android:layout_marginRight="11dp"
         android:autofillHints=""
         android:ems="10"
-        android:hint="@string/title"
+        android:hint="ISBN"
         android:inputType="textPersonName"
         app:layout_constraintBottom_toTopOf="@+id/editTextTextPersonName3"
-        app:layout_constraintEnd_toStartOf="@+id/button4"
+        app:layout_constraintEnd_toStartOf="@+id/scanBTN"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/editTextTextPersonName" />
 
@@ -86,7 +86,7 @@
         app:layout_constraintBottom_toTopOf="@+id/textView5"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/editTextTextPersonName2"
+        app:layout_constraintTop_toBottomOf="@+id/ISBN_ID"
         android:autofillHints="" />
 
     <TextView
@@ -137,7 +137,7 @@
         app:layout_constraintTop_toBottomOf="@+id/editTextTextPersonName4" />
 
     <Button
-        android:id="@+id/button4"
+        android:id="@+id/scanBTN"
         android:layout_width="45dp"
         android:layout_height="49dp"
         android:layout_marginEnd="20dp"
@@ -149,7 +149,7 @@
         app:layout_constraintBottom_toTopOf="@+id/editTextTextPersonName3"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toEndOf="@+id/editTextTextPersonName2"
+        app:layout_constraintStart_toEndOf="@+id/ISBN_ID"
         app:layout_constraintTop_toBottomOf="@+id/editTextTextPersonName"
         app:layout_constraintVertical_bias="0.416" />
 
