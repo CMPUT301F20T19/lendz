@@ -24,6 +24,7 @@ public class Book {
     private static final String DESCRIPTION_KEY = "description";
     private static final String LOCATION_KEY = "location";
     private static final String OWNER_KEY = "owner";
+    private static final String OWNER_USERNAME_KEY = "ownerUsername";
     private static final String PENDING_REQUESTS_KEY = "pendingRequests";
     private static final String PHOTO_KEY = "photo";
     private static final String STATUS_KEY = "status";
@@ -41,6 +42,10 @@ public class Book {
 
     private final ArrayList<Request> pendingRequests;
     private Request acceptedRequest;
+
+    private String ownerUsername;
+
+    private boolean loaded;
 
     private Book(@NonNull UUID id) {
         this.id = id;
@@ -73,12 +78,16 @@ public class Book {
      * @param doc DocumentSnapshot to load from
      */
     public void load(@NonNull DocumentSnapshot doc) {
+        loaded = true;
+
+        // Load BookDescription
         Map<String, Object> descriptionMap = (Map<String, Object>) doc.get(DESCRIPTION_KEY);
         if (descriptionMap == null) {
             throw new NullPointerException("description cannot be null");
         }
         setDescription(new BookDescription(descriptionMap));
 
+        // Load location
         GeoPoint geoPoint = doc.getGeoPoint(LOCATION_KEY);
         if (geoPoint == null) {
             setLocation(null);
@@ -86,6 +95,7 @@ public class Book {
             setLocation(new Location(geoPoint));
         }
 
+        // Load owner
         DocumentReference ownerReference = doc.getDocumentReference(OWNER_KEY);
         if (ownerReference == null) {
             throw new NullPointerException("owner cannot be null");
@@ -93,6 +103,8 @@ public class Book {
         User owner = User.getOrCreate(ownerReference.getId());
         setOwner(owner);
 
+        // Load owner username
+        ownerUsername = doc.getString(OWNER_USERNAME_KEY);
 
         // TODO: get pendingRequests and acceptedRequest data
         /*
@@ -135,8 +147,6 @@ public class Book {
         GeoPoint geoPoint = new GeoPoint(location.getLat(), location.getLon());
         map.put(LOCATION_KEY, geoPoint);
         map.put(OWNER_KEY, User.documentOf(owner.getId()));
-        // TODO: set pendingRequests data
-        // TODO: set acceptedRequest data
         if (photo == null)
             map.put(PHOTO_KEY, null);
         else
@@ -190,6 +200,10 @@ public class Book {
         this.owner = owner;
     }
 
+    public String getOwnerUsername() {
+        return ownerUsername;
+    }
+
     public BookStatus getStatus() {
         return status;
     }
@@ -216,5 +230,12 @@ public class Book {
 
     public void addPendingRequest(@NonNull Request request) {
         this.pendingRequests.add(request);
+    }
+
+    /**
+     * @return true if this Book has loaded data from Firestore, false otherwise
+     */
+    public boolean isLoaded() {
+        return loaded;
     }
 }
