@@ -6,12 +6,12 @@ import android.util.Log;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.DividerItemDecoration;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 
 import java.util.ArrayList;
@@ -26,8 +26,26 @@ public class ViewBooksActivity extends AppCompatActivity {
     ArrayList<Book> borrowedBooks = new ArrayList<>();
 
     private void loadBooks() {
-        String currentUserID = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        User currentUser = User.getOrCreate(currentUserID);
+        // String currentUserID = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        // User currentUser = User.getOrCreate(currentUserID);
+
+        final String currentUserID = "gBDk9Ex6KTUcjIgP9LNBLIlJ6h72";
+        final User currentUser = User.getOrCreate(currentUserID);
+
+        User.documentOf(currentUserID).addSnapshotListener(new EventListener<DocumentSnapshot>() {
+            @Override
+            public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
+                if (error != null) {
+                    Log.e("UserProfileActivity",
+                            "error getting user " + currentUserID + ": " + error);
+                } else if (value == null || !value.exists()) {
+                    Log.w("UserProfileActivity",
+                            "didn't find user " + currentUserID);
+                } else {
+                    currentUser.load(value);
+                }
+            }
+        });
 
         ArrayList<UUID> bookIDs = new ArrayList<>();
         bookIDs.addAll(currentUser.getOwnedBookIds());
@@ -79,6 +97,8 @@ public class ViewBooksActivity extends AppCompatActivity {
 
         ArrayList<ViewBooksSection> sections = new ArrayList<>();
         loadBooks();
+
+        /*
         if (availableBooks.size() > 0) {
             sections.add(new ViewBooksSection("Available Books", availableBooks)); }
         if (requestedBooks.size() > 0) {
@@ -87,6 +107,13 @@ public class ViewBooksActivity extends AppCompatActivity {
             sections.add(new ViewBooksSection("Accepted Books", acceptedBooks)); }
         if (borrowedBooks.size() > 0) {
             sections.add(new ViewBooksSection("Borrowed Books", borrowedBooks)); }
+
+         */
+
+        sections.add(new ViewBooksSection("Available Books", availableBooks));
+        sections.add(new ViewBooksSection("Requested Books", requestedBooks));
+        sections.add(new ViewBooksSection("Accepted Books", acceptedBooks));
+        sections.add(new ViewBooksSection("Borrowed Books", borrowedBooks));
 
         RecyclerView viewBooksRecyclerView = findViewById(R.id.book_list);
         ViewBooksAdapter viewBooksAdapter = new ViewBooksAdapter(this, sections);
