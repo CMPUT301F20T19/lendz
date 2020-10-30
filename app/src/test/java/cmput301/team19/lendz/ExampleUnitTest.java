@@ -16,7 +16,7 @@ public class ExampleUnitTest {
     }
     
     @Test
-    public void absoluteFailure() {
-        assertEquals(21, 9 + 10);
+    public void absoluteSuccess() {
+        assertEquals(19, 9 + 10);
     }
 }
