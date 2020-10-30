@@ -43,7 +43,7 @@ android:
 before_install:
   - yes | sdkmanager "platforms;android-$ANDROID_EMU_API_LEVEL"
   - yes | sdkmanager "platforms;android-$ANDROID_API_LEVEL"
-  - yes | sdkmanager "system-images;android-$ANDROID_API_LEVEL;google_apis;$ABI"
+  - yes | sdkmanager "system-images;android-$ANDROID_API_LEVEL;google_apis;$ANDROID_ABI"
   
 sudo: false
 before_script:
