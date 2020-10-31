@@ -30,19 +30,19 @@ public class Book {
 
     // Maps book ID to Book object, guaranteeing at most
     // one Book object for each book.
-    private static final HashMap<UUID, Book> books = new HashMap<>();
+    private static final HashMap<String, Book> books = new HashMap<>();
 
-    private UUID id;
-    private URL photo;
-    private User owner;
+    private String id;
+    private String photo;
+    private DocumentReference owner;
     private BookStatus status;
     private Location location;
     private BookDescription description;
-
     private final ArrayList<Request> pendingRequests;
+
     private Request acceptedRequest;
 
-    private Book(@NonNull UUID id) {
+    private Book(@NonNull String id) {
         this.id = id;
         pendingRequests = new ArrayList<>();
     }
@@ -50,7 +50,7 @@ public class Book {
     /**
      * Get or create the unique Book object with the given book ID.
      */
-    public static Book getOrCreate(@NonNull UUID bookId) {
+    public static Book getOrCreate(@NonNull String bookId) {
         Book book = books.get(bookId);
         if (book == null) {
             book = new Book(bookId);
@@ -68,62 +68,62 @@ public class Book {
                 .document(bookId.toString());
     }
 
-    /**
-     * Updates this Book object with data from a Firebase DocumentSnapshot.
-     * @param doc DocumentSnapshot to load from
-     */
-    public void load(@NonNull DocumentSnapshot doc) {
-        Map<String, Object> descriptionMap = (Map<String, Object>) doc.get(DESCRIPTION_KEY);
-        if (descriptionMap == null) {
-            throw new NullPointerException("description cannot be null");
-        }
-        setDescription(new BookDescription(descriptionMap));
-
-        GeoPoint geoPoint = doc.getGeoPoint(LOCATION_KEY);
-        if (geoPoint == null) {
-            setLocation(null);
-        } else {
-            setLocation(new Location(geoPoint));
-        }
-
-        DocumentReference ownerReference = doc.getDocumentReference(OWNER_KEY);
-        if (ownerReference == null) {
-            throw new NullPointerException("owner cannot be null");
-        }
-        User owner = User.getOrCreate(ownerReference.getId());
-        setOwner(owner);
-
-
-        // TODO: get pendingRequests and acceptedRequest data
-        /*
-        List<DocumentReference> pendingRequestsData =
-                (List<DocumentReference>) doc.get(PENDING_REQUESTS_KEY);
-        for (DocumentReference pendingRequest : pendingRequestsData) {
-            // TODO
-        }
-        DocumentReference acceptedRequestData = doc.getDocumentReference(ACCEPTED_REQUEST_KEY);
-        // TODO
-         */
-
-        String photoUrlString = doc.getString(PHOTO_KEY);
-        if (photoUrlString == null) {
-            setPhoto(null);
-        } else {
-            try {
-                setPhoto(new URL(photoUrlString));
-            } catch (MalformedURLException e) {
-                setPhoto(null);
-                Log.e("Book", "Failed to parse book photo URL " +
-                        photoUrlString + ": " + e);
-            }
-        }
-
-        Long bookStatusLong = doc.getLong(STATUS_KEY);
-        if (bookStatusLong == null) {
-            throw new NullPointerException("bookStatus cannot be null");
-        }
-        setStatus(BookStatus.values()[bookStatusLong.intValue()]);
-    }
+//    /**
+//     * Updates this Book object with data from a Firebase DocumentSnapshot.
+//     * @param doc DocumentSnapshot to load from
+//     */
+//    public void load(@NonNull DocumentSnapshot doc) {
+//        Map<String, Object> descriptionMap = (Map<String, Object>) doc.get(DESCRIPTION_KEY);
+//        if (descriptionMap == null) {
+//            throw new NullPointerException("description cannot be null");
+//        }
+//        setDescription(new BookDescription(descriptionMap));
+//
+//        GeoPoint geoPoint = doc.getGeoPoint(LOCATION_KEY);
+//        if (geoPoint == null) {
+//            setLocation(null);
+//        } else {
+//            setLocation(new Location(geoPoint));
+//        }
+//
+//        DocumentReference ownerReference = doc.getDocumentReference(OWNER_KEY);
+//        if (ownerReference == null) {
+//            throw new NullPointerException("owner cannot be null");
+//        }
+//        User owner = User.getOrCreate(ownerReference.getId());
+//        setOwner(owner);
+//
+//
+//        // TODO: get pendingRequests and acceptedRequest data
+//        /*
+//        List<DocumentReference> pendingRequestsData =
+//                (List<DocumentReference>) doc.get(PENDING_REQUESTS_KEY);
+//        for (DocumentReference pendingRequest : pendingRequestsData) {
+//            // TODO
+//        }
+//        DocumentReference acceptedRequestData = doc.getDocumentReference(ACCEPTED_REQUEST_KEY);
+//        // TODO
+//         */
+//
+//        String photoUrlString = doc.getString(PHOTO_KEY);
+//        if (photoUrlString == null) {
+//            setPhoto(null);
+//        } else {
+//            try {
+//                setPhoto(new URL(photoUrlString));
+//            } catch (MalformedURLException e) {
+//                setPhoto(null);
+//                Log.e("Book", "Failed to parse book photo URL " +
+//                        photoUrlString + ": " + e);
+//            }
+//        }
+//
+//        Long bookStatusLong = doc.getLong(STATUS_KEY);
+//        if (bookStatusLong == null) {
+//            throw new NullPointerException("bookStatus cannot be null");
+//        }
+//        setStatus(BookStatus.values()[bookStatusLong.intValue()]);
+//    }
 
     /**
      * Converts this Book object to a Map.
@@ -140,7 +140,6 @@ public class Book {
             map.put(PHOTO_KEY, null);
         else
             map.put(PHOTO_KEY, photo.toString());
-
         map.put(STATUS_KEY, status.ordinal());
         return map;
     }
@@ -149,43 +148,51 @@ public class Book {
      * Store the current state of this Book to the Firestore database.
      * @return Task of the store
      */
-    public Task<Void> store() {
-        return documentOf(id).set(toData(), SetOptions.merge());
-    }
+//    public Task<Void> store() {
+//        return documentOf(id).set(toData(), SetOptions.merge());
+//    }
 
     /**
      * Delete this Book from the Firestore database.
      * @return Task of the deletion
      */
-    public Task<Void> delete() {
-        return documentOf(id).delete();
-    }
+//    public Task<Void> delete(id) {
+//        return documentOf(id).delete();
+//    }
 
     public void setAcceptedRequest(@Nullable Request acceptedRequest) {
         this.acceptedRequest = acceptedRequest;
     }
 
-    public UUID getId() {
+    public ArrayList<Request> getPendingRequests() {
+        return pendingRequests;
+    }
+
+    public Request getAcceptedRequest() {
+        return acceptedRequest;
+    }
+
+    public String getId() {
         return id;
     }
 
-    public void setId(@NonNull UUID id) {
+    public void setId(@NonNull String id) {
         this.id = id;
     }
 
-    public URL getPhoto() {
+    public String getPhoto() {
         return photo;
     }
 
-    public void setPhoto(@Nullable URL photo) {
+    public void setPhoto(@Nullable String photo) {
         this.photo = photo;
     }
 
-    public User getOwner() {
+    public DocumentReference getOwner() {
         return owner;
     }
 
-    public void setOwner(@NonNull User owner) {
+    public void setOwner(@NonNull DocumentReference owner) {
         this.owner = owner;
     }
 
