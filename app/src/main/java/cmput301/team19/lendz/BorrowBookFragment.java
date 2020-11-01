@@ -1,7 +1,11 @@
 package cmput301.team19.lendz;
 
+import android.app.SearchManager;
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 
+import androidx.annotation.IntegerRes;
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.SearchView;
 import androidx.fragment.app.Fragment;
@@ -13,6 +17,8 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+
+import static android.content.ContentValues.TAG;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -44,10 +50,6 @@ public class BorrowBookFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
-//        if (getArguments() != null) {
-//            mParam1 = getArguments().getString(ARG_PARAM1);
-//            mParam2 = getArguments().getString(ARG_PARAM2);
-//        }
     }
 
     @Override
@@ -61,22 +63,22 @@ public class BorrowBookFragment extends Fragment {
     public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
         inflater.inflate(R.menu.borrow_fragment_menu,menu);
-        MenuItem menuItem = menu.findItem(R.id.search_button);
-        SearchView searchView = (SearchView) menuItem.getActionView();
-        searchView.setQueryHint("Enter book name here...");
+    }
 
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        Log.d(TAG, "onOptionsItemSelected: ff");
+        int itemID = item.getItemId();
+        if(itemID == R.id.search_item) {
+            openSearchActivity();
+            return true;
+        }else{
+            return super.onOptionsItemSelected(item);
+        }
+    }
 
-        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-            @Override
-            public boolean onQueryTextSubmit(String query) {
-                //make call to fire store to search
-                return false;
-            }
-
-            @Override
-            public boolean onQueryTextChange(String newText) {
-                return false;
-            }
-        });
+    private void openSearchActivity() {
+        Intent intent = new Intent(getActivity(),SearchBooksActivities.class);
+        startActivity(intent);
     }
 }

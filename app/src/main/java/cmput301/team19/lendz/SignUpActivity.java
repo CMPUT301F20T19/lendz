@@ -79,7 +79,7 @@ public class SignUpActivity extends AppCompatActivity {
 
                                 //Send Uid to Main Activity
                                 Bundle bundle = new Bundle();
-                                bundle.putSerializable("UserUID",uid);
+                                bundle.putSerializable("userID",uid);
                                 Intent intent = new Intent(SignUpActivity.this, MainActivity.class);
                                 intent.putExtras(bundle);
                                 startActivity(intent);

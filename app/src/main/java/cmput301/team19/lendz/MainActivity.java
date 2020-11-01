@@ -63,7 +63,6 @@ public class MainActivity extends AppCompatActivity {
                     if(fragment != null) {
                         getSupportFragmentManager().beginTransaction().replace(R.id.container,fragment).commit();
                     }
-
                     return true;
                 }
             };

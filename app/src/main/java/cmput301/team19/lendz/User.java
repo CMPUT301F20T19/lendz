@@ -34,9 +34,8 @@ public class User {
     private String fullName;
     private String email;
     private String phoneNumber;
-
-    private final ArrayList<UUID> ownedBookIds = new ArrayList<>();
-    private final ArrayList<UUID> borrowedBookIds = new ArrayList<>();
+    private final ArrayList<String> ownedBookIds = new ArrayList<>();
+    private final ArrayList<String> borrowedBookIds = new ArrayList<>();
 
     /**
      * Get or create the unique User object with the given user ID.
@@ -61,37 +60,29 @@ public class User {
     }
 
     /**
-     * Creates a User object by loading data from a Firebase DocumentSnapshot.
+     * Update this User object with data from a Firebase DocumentSnapshot.
      * @param doc DocumentSnapshot to load from
-     * @return created User, or null if doc is null or does not exist
      */
-    public static @Nullable User fromDocument(@Nullable DocumentSnapshot doc) {
-        if (doc == null || !doc.exists()) {
-            return null;
-        }
+    public void load(@NonNull DocumentSnapshot doc) {
+        setUsername(doc.getString(USERNAME_KEY));
+        setFullName(doc.getString(FULL_NAME_KEY));
+        setEmail(doc.getString(EMAIL_KEY));
+        setPhoneNumber(doc.getString(PHONE_NUMBER_KEY));
 
-        User user = getOrCreate(doc.getId());
-        user.setUsername(doc.getString(USERNAME_KEY));
-        user.setFullName(doc.getString(FULL_NAME_KEY));
-        user.setEmail(doc.getString(EMAIL_KEY));
-        user.setPhoneNumber(doc.getString(PHONE_NUMBER_KEY));
-
-        user.ownedBookIds.clear();
+        ownedBookIds.clear();
         Object ownedBookRefs = doc.get(OWNED_BOOKS_KEY);
         if (ownedBookRefs != null) {
             for (DocumentReference bookRef : (List<DocumentReference>) ownedBookRefs) {
-                user.ownedBookIds.add(UUID.fromString(bookRef.getId()));
+                ownedBookIds.add(bookRef.getId());
             }
         }
-        user.borrowedBookIds.clear();
+        borrowedBookIds.clear();
         Object borrowedBooksRefs = doc.get(BORROWED_BOOKS_KEY);
         if (borrowedBooksRefs != null) {
             for (DocumentReference bookRef : (List<DocumentReference>) borrowedBooksRefs) {
-                user.borrowedBookIds.add(UUID.fromString(bookRef.getId()));
+                borrowedBookIds.add(bookRef.getId());
             }
         }
-
-        return user;
     }
 
     /**
@@ -104,7 +95,7 @@ public class User {
         map.put(EMAIL_KEY, email);
         map.put(PHONE_NUMBER_KEY, phoneNumber);
         List<DocumentReference> ownedBookRefs = new ArrayList<>();
-        for (UUID bookId : ownedBookIds) {
+        for (String bookId : ownedBookIds) {
             ownedBookRefs.add(
                     FirebaseFirestore.getInstance()
                             .collection("books")
@@ -112,7 +103,7 @@ public class User {
         }
         map.put(OWNED_BOOKS_KEY, ownedBookRefs);
         List<DocumentReference> borrowedBookRefs = new ArrayList<>();
-        for (UUID bookId : borrowedBookIds) {
+        for (String bookId : borrowedBookIds) {
             borrowedBookRefs.add(
                     FirebaseFirestore.getInstance()
                             .collection("books")
@@ -131,7 +122,7 @@ public class User {
         return documentOf(id).set(toData(), SetOptions.merge());
     }
 
-    User(String id) {
+    private User(String id) {
         this.id = id;
     }
 
@@ -169,5 +160,13 @@ public class User {
 
     public void setPhoneNumber(String phoneNumber) {
         this.phoneNumber = phoneNumber;
+    }
+
+    public ArrayList<String> getOwnedBookIds() {
+        return ownedBookIds;
+    }
+
+    public ArrayList<String> getBorrowedBookIds() {
+        return borrowedBookIds;
     }
 }
