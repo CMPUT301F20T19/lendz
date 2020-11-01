@@ -31,6 +31,14 @@
         <activity android:name=".UserProfileActivity">
 
         </activity>
+        <activity android:name=".AddBookActivity"
+            android:parentActivityName=".LoginActivity"
+            />
+        <activity android:name=".ScanActivity"
+            android:screenOrientation="fullSensor"
+            android:stateNotNeeded="true"
+            android:windowSoftInputMode="stateAlwaysHidden">
+        </activity>
 
 
     </application>

@@ -34,7 +34,7 @@ public class Book {
 
     private String id;
     private String photo;
-    private DocumentReference owner;
+    private User owner;
     private BookStatus status;
     private Location location;
     private BookDescription description;
@@ -62,68 +62,62 @@ public class Book {
     /**
      * @return document of book with ID bookId
      */
-    public static DocumentReference documentOf(@NonNull UUID bookId) {
+    public static DocumentReference documentOf(@NonNull String bookId) {
         return FirebaseFirestore.getInstance()
                 .collection("books")
                 .document(bookId.toString());
     }
 
-//    /**
-//     * Updates this Book object with data from a Firebase DocumentSnapshot.
-//     * @param doc DocumentSnapshot to load from
-//     */
-//    public void load(@NonNull DocumentSnapshot doc) {
-//        Map<String, Object> descriptionMap = (Map<String, Object>) doc.get(DESCRIPTION_KEY);
-//        if (descriptionMap == null) {
-//            throw new NullPointerException("description cannot be null");
-//        }
-//        setDescription(new BookDescription(descriptionMap));
-//
-//        GeoPoint geoPoint = doc.getGeoPoint(LOCATION_KEY);
-//        if (geoPoint == null) {
-//            setLocation(null);
-//        } else {
-//            setLocation(new Location(geoPoint));
-//        }
-//
-//        DocumentReference ownerReference = doc.getDocumentReference(OWNER_KEY);
-//        if (ownerReference == null) {
-//            throw new NullPointerException("owner cannot be null");
-//        }
-//        User owner = User.getOrCreate(ownerReference.getId());
-//        setOwner(owner);
-//
-//
-//        // TODO: get pendingRequests and acceptedRequest data
-//        /*
-//        List<DocumentReference> pendingRequestsData =
-//                (List<DocumentReference>) doc.get(PENDING_REQUESTS_KEY);
-//        for (DocumentReference pendingRequest : pendingRequestsData) {
-//            // TODO
-//        }
-//        DocumentReference acceptedRequestData = doc.getDocumentReference(ACCEPTED_REQUEST_KEY);
-//        // TODO
-//         */
-//
-//        String photoUrlString = doc.getString(PHOTO_KEY);
-//        if (photoUrlString == null) {
-//            setPhoto(null);
-//        } else {
-//            try {
-//                setPhoto(new URL(photoUrlString));
-//            } catch (MalformedURLException e) {
-//                setPhoto(null);
-//                Log.e("Book", "Failed to parse book photo URL " +
-//                        photoUrlString + ": " + e);
-//            }
-//        }
-//
-//        Long bookStatusLong = doc.getLong(STATUS_KEY);
-//        if (bookStatusLong == null) {
-//            throw new NullPointerException("bookStatus cannot be null");
-//        }
-//        setStatus(BookStatus.values()[bookStatusLong.intValue()]);
-//    }
+    /**
+     * Updates this Book object with data from a Firebase DocumentSnapshot.
+     * @param doc DocumentSnapshot to load from
+     */
+    public void load(@NonNull DocumentSnapshot doc) {
+        Map<String, Object> descriptionMap = (Map<String, Object>) doc.get(DESCRIPTION_KEY);
+        if (descriptionMap == null) {
+            throw new NullPointerException("description cannot be null");
+        }
+        setDescription(new BookDescription(descriptionMap));
+
+        GeoPoint geoPoint = doc.getGeoPoint(LOCATION_KEY);
+        if (geoPoint == null) {
+            setLocation(null);
+        } else {
+            setLocation(new Location(geoPoint));
+        }
+
+        DocumentReference ownerReference = doc.getDocumentReference(OWNER_KEY);
+        if (ownerReference == null) {
+            throw new NullPointerException("owner cannot be null");
+        }
+        User owner = User.getOrCreate(ownerReference.getId());
+        setOwner(owner);
+
+
+        // TODO: get pendingRequests and acceptedRequest data
+        /*
+        List<DocumentReference> pendingRequestsData =
+                (List<DocumentReference>) doc.get(PENDING_REQUESTS_KEY);
+        for (DocumentReference pendingRequest : pendingRequestsData) {
+            // TODO
+        }
+        DocumentReference acceptedRequestData = doc.getDocumentReference(ACCEPTED_REQUEST_KEY);
+        // TODO
+         */
+
+        String photoUrlString = doc.getString(PHOTO_KEY);
+        if (photoUrlString == null) {
+            setPhoto(null);
+        } else {
+            setPhoto(photoUrlString);
+        }
+
+        Long bookStatusLong = doc.getLong(STATUS_KEY);
+        if (bookStatusLong == null) {
+            throw new NullPointerException("bookStatus cannot be null");
+        }
+        setStatus(BookStatus.values()[bookStatusLong.intValue()]);
+    }
 
     /**
      * Converts this Book object to a Map.
@@ -131,8 +125,9 @@ public class Book {
     private Map<String, Object> toData() {
         Map<String, Object> map = new HashMap<>();
         map.put(DESCRIPTION_KEY, description.toData());
-        GeoPoint geoPoint = new GeoPoint(location.getLat(), location.getLon());
-        map.put(LOCATION_KEY, geoPoint);
+
+//        GeoPoint geoPoint = new GeoPoint(location.getLat(), location.getLon());
+        map.put(LOCATION_KEY, null);
         map.put(OWNER_KEY, User.documentOf(owner.getId()));
         // TODO: set pendingRequests data
         // TODO: set acceptedRequest data
@@ -148,9 +143,9 @@ public class Book {
      * Store the current state of this Book to the Firestore database.
      * @return Task of the store
      */
-//    public Task<Void> store() {
-//        return documentOf(id).set(toData(), SetOptions.merge());
-//    }
+    public Task<Void> store() {
+        return documentOf(id).set(toData(), SetOptions.merge());
+    }
 
     /**
      * Delete this Book from the Firestore database.
@@ -188,11 +183,11 @@ public class Book {
         this.photo = photo;
     }
 
-    public DocumentReference getOwner() {
+    public User getOwner() {
         return owner;
     }
 
-    public void setOwner(@NonNull DocumentReference owner) {
+    public void setOwner(@NonNull User owner) {
         this.owner = owner;
     }
 
