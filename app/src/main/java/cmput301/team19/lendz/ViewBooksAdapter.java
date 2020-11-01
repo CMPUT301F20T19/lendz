@@ -46,7 +46,6 @@ public class ViewBooksAdapter extends RecyclerView.Adapter<ViewBooksAdapter.View
     public void onBindViewHolder(@NonNull ViewBooksAdapter.ViewHolder holder, int position) {
         ViewBooksSection section = sections.get(position);
         holder.section_header.setText(section.getSectionHeader());
-
         ViewBooksSectionAdapter viewBooksSectionAdapter = new ViewBooksSectionAdapter(this.context, section.getBooks());
         holder.section_body.setAdapter(viewBooksSectionAdapter);
     }

@@ -21,7 +21,6 @@ import java.util.ArrayList;
 
 public class ViewBooksSectionAdapter extends RecyclerView.Adapter<ViewBooksSectionAdapter.ViewHolder> {
     private static final String TAG = "ViewBooksSectionAdapter";
-
     Context context;
     ArrayList<Book> books;
 
