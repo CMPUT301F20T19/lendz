@@ -34,7 +34,6 @@ public class User {
     private String fullName;
     private String email;
     private String phoneNumber;
-
     private final ArrayList<UUID> ownedBookIds = new ArrayList<>();
     private final ArrayList<UUID> borrowedBookIds = new ArrayList<>();
 

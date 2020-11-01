@@ -29,7 +29,7 @@ public class ViewBooksActivity extends AppCompatActivity {
     private void loadBooks() {
         // String currentUserID = FirebaseAuth.getInstance().getCurrentUser().getUid();
         // User currentUser = User.getOrCreate(currentUserID);
-/*
+
         final String currentUserID = "gBDk9Ex6KTUcjIgP9LNBLIlJ6h72";
         final User currentUser = User.getOrCreate(currentUserID);
 
