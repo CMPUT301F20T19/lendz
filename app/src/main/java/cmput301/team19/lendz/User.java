@@ -61,37 +61,29 @@ public class User {
     }
 
     /**
-     * Creates a User object by loading data from a Firebase DocumentSnapshot.
+     * Update this User object with data from a Firebase DocumentSnapshot.
      * @param doc DocumentSnapshot to load from
-     * @return created User, or null if doc is null or does not exist
      */
-    public static @Nullable User fromDocument(@Nullable DocumentSnapshot doc) {
-        if (doc == null || !doc.exists()) {
-            return null;
-        }
+    public void load(@NonNull DocumentSnapshot doc) {
+        setUsername(doc.getString(USERNAME_KEY));
+        setFullName(doc.getString(FULL_NAME_KEY));
+        setEmail(doc.getString(EMAIL_KEY));
+        setPhoneNumber(doc.getString(PHONE_NUMBER_KEY));
 
-        User user = getOrCreate(doc.getId());
-        user.setUsername(doc.getString(USERNAME_KEY));
-        user.setFullName(doc.getString(FULL_NAME_KEY));
-        user.setEmail(doc.getString(EMAIL_KEY));
-        user.setPhoneNumber(doc.getString(PHONE_NUMBER_KEY));
-
-        user.ownedBookIds.clear();
+        ownedBookIds.clear();
         Object ownedBookRefs = doc.get(OWNED_BOOKS_KEY);
         if (ownedBookRefs != null) {
             for (DocumentReference bookRef : (List<DocumentReference>) ownedBookRefs) {
-                user.ownedBookIds.add(UUID.fromString(bookRef.getId()));
+                ownedBookIds.add(UUID.fromString(bookRef.getId()));
             }
         }
-        user.borrowedBookIds.clear();
+        borrowedBookIds.clear();
         Object borrowedBooksRefs = doc.get(BORROWED_BOOKS_KEY);
         if (borrowedBooksRefs != null) {
             for (DocumentReference bookRef : (List<DocumentReference>) borrowedBooksRefs) {
-                user.borrowedBookIds.add(UUID.fromString(bookRef.getId()));
+                borrowedBookIds.add(UUID.fromString(bookRef.getId()));
             }
         }
-
-        return user;
     }
 
     /**
