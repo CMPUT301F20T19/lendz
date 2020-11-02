@@ -7,20 +7,22 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.OnProgressListener;
@@ -28,6 +30,13 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+
+
 
 public class AddBookActivity extends AppCompatActivity implements View.OnClickListener{
     ImageView imgView;
@@ -35,10 +44,17 @@ public class AddBookActivity extends AppCompatActivity implements View.OnClickLi
     Button scanBtn;
     Button saveBtn;
     TextView isbnTv;
+    TextView titleTv;
+    TextView authorTV;
+    TextView descriptionTV;
+
     Uri FilePathUri;
     FirebaseStorage storage;
     StorageReference storageReference;
     FirebaseFirestore firestoreRef;
+    String id;
+    String url;
+    User user;
 
     private static final int IMAGE_PICK_CODE = 1000 ;
     private static final int PERMISSION_CODE = 1001;
@@ -52,9 +68,13 @@ public class AddBookActivity extends AppCompatActivity implements View.OnClickLi
         //Attach views
         imgView = findViewById(R.id.book_IV);
         selectImg = findViewById(R.id.addImg);
-
         scanBtn = findViewById(R.id.scanBTN);
         isbnTv = findViewById(R.id.ISBN_ID);
+        titleTv = findViewById(R.id.title_id);
+        authorTV = findViewById(R.id.author_id);
+        descriptionTV = findViewById(R.id.description_id);
+
+
         saveBtn = findViewById((R.id.save_id));
         saveBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -137,7 +157,6 @@ public class AddBookActivity extends AppCompatActivity implements View.OnClickLi
         if(result != null){
 
             if (result.getContents() == null){
-
                 Toast.makeText(this,"CANCELLED",Toast.LENGTH_LONG).show();
             }else{
                 Toast.makeText(this,result.getContents(),Toast.LENGTH_LONG).show();
@@ -149,19 +168,19 @@ public class AddBookActivity extends AppCompatActivity implements View.OnClickLi
     }
 
     public void uploadBook() {
+        firestoreRef = FirebaseFirestore.getInstance();
+
+        //get reference to book collection;
+        final CollectionReference BookCollection = firestoreRef.collection("books");
+
+        //generate a unique id for each book document. Images stored in firebase storage will use the same id
+        id = BookCollection.document().getId();
+
         if (FilePathUri != null) {
 
             final ProgressDialog progressDialog = new ProgressDialog(this);
             progressDialog.setTitle("Uploading...");
             progressDialog.show();
-
-            firestoreRef = FirebaseFirestore.getInstance();
-            //get reference to book collection;
-
-            final CollectionReference BookCollection = firestoreRef.collection("books");
-            //generate a unique id for each book document. Images stored in firebase storage will use the same id
-            final String id = BookCollection.document().getId();
-            Log.d("BOOK ID IS ",id);
 
             final StorageReference ref = storageReference.child("BookImages/"+id);
             ref.putFile(FilePathUri)
@@ -173,11 +192,9 @@ public class AddBookActivity extends AppCompatActivity implements View.OnClickLi
                             ref.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                                 @Override
                                 public void onSuccess(Uri bookImgUrl) {
-                                   String url =  bookImgUrl.toString();
-                                    Toast.makeText(AddBookActivity.this,url, Toast.LENGTH_SHORT).show();
+                                    url =  bookImgUrl.toString();
                                     //SEND TO FIRESTORE
-                                    sendToFirestore(BookCollection,id,url);
-
+                                    sendToFirestore(BookCollection,id);
                                 }
                             });
                         }
@@ -200,22 +217,69 @@ public class AddBookActivity extends AppCompatActivity implements View.OnClickLi
 
                         }
                     });
+        }else{
+            sendToFirestore(BookCollection,id);
         }
     }
-    public void sendToFirestore(CollectionReference BookCollection,String id,String url){
-        BookDescription createdBook = new BookDescription("ISBN","TITLE","AUHTOR","DESCRIPTION");
-        BookCollection.document(id).set(createdBook)
-        .addOnSuccessListener(new OnSuccessListener<Void>() {
-            @Override
-            public void onSuccess(Void aVoid) {
-                Toast.makeText(AddBookActivity.this, "Book Added", Toast.LENGTH_SHORT).show();
+
+    public void sendToFirestore(final CollectionReference BookCollection, final String id){
+        //get text from textviews
+        String isbn = isbnTv.getText().toString();
+        String description = descriptionTV.getText().toString();
+        String title = titleTv.getText().toString();
+        String author = authorTV.getText().toString();
+
+        //check if any text field is empty
+        if(TextUtils.isEmpty(title)){
+            titleTv.setError("TextField Cannot be Empty");
+            return;
+        }
+        if(TextUtils.isEmpty(isbn)){
+            isbnTv.setError("TextField Cannot be Empty");
+            return;
+        }
+        if(TextUtils.isEmpty(author)){
+            authorTV.setError("TextField Cannot be Empty");
+            return;
+        }
+        if(TextUtils.isEmpty(description)){
+            descriptionTV.setError("TextField Cannot be Empty");
+            return;
+        }
+
+        if((isbnTv.getError() == null) && (descriptionTV.getError() == null) && (titleTv.getError() == null) && (authorTV.getError() == null)){
+            //get Firebase User id
+            String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+
+            user = User.getOrCreate(userId);
+
+            //construct book object
+            Book bookObject = Book.getOrCreate(id);
+            bookObject.setOwner(user);
+            if (url != null){
+                Toast.makeText(AddBookActivity.this, "URL NOT EMPTY", Toast.LENGTH_SHORT).show();
+                bookObject.setPhoto(url);
             }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                Toast.makeText(AddBookActivity.this, "Failed to add Book", Toast.LENGTH_SHORT).show();
-            }
-        });
+            bookObject.setStatus(BookStatus.AVAILABLE);
+            //DESCRIPTION
+            BookDescription createdBook = new BookDescription(isbn,title,author,description);
+            bookObject.setDescription(createdBook);
+
+            bookObject.store()
+                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            Toast.makeText(AddBookActivity.this, "Book Added", Toast.LENGTH_SHORT).show();
+                        }
+                    }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    Toast.makeText(AddBookActivity.this, "Failed to add Book", Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
+
+
     }
 
 }
