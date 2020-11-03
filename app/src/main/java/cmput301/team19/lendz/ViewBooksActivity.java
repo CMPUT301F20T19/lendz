@@ -44,8 +44,6 @@ public class ViewBooksActivity extends AppCompatActivity {
         booksRef = db.collection("books");
         setUp();
         loadBooks();
-//        checkSections();
-//        initRecyclerView();
     }
 
     private void setUp() {
