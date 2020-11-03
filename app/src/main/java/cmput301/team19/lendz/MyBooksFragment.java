@@ -73,6 +73,7 @@ public class MyBooksFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(getActivity(),AddBookActivity.class);
+                intent.putExtra("newbook","NEWBOOK");
                 startActivity(intent);
             }
         });

@@ -11,6 +11,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -51,10 +52,10 @@ public class AddBookActivity extends AppCompatActivity implements View.OnClickLi
     Button scanBtn;
     Button del_Img;
     Button saveBtn;
-    TextView isbnTv;
-    TextView titleTv;
-    TextView authorTV;
-    TextView descriptionTV;
+    EditText isbnTv;
+    EditText  titleTv;
+    EditText  authorTV;
+    EditText  descriptionTV;
 
     Uri FilePathUri;
     FirebaseStorage storage;
@@ -90,10 +91,12 @@ public class AddBookActivity extends AppCompatActivity implements View.OnClickLi
         //some extra code
 
         Intent intent = getIntent();
-        existingBookId = intent.getStringExtra("bookId");
-        Toast.makeText(this,existingBookId,Toast.LENGTH_SHORT).show();
 
-        //fetch book with parsed id from firebase;
+
+        if(intent.hasExtra("bookId")){
+            existingBookId = intent.getStringExtra("bookId");
+        }
+//        fetch book with parsed id from firebase;
         if (existingBookId != null){
             final Book book = Book.getOrCreate(existingBookId);
             Book.documentOf(existingBookId).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
@@ -293,18 +296,22 @@ public class AddBookActivity extends AppCompatActivity implements View.OnClickLi
 
     public void sendToFirestore(final CollectionReference BookCollection, final String id){
         tempId = id;
-
+        Toast.makeText(AddBookActivity.this, "in Send to firestore", Toast.LENGTH_SHORT).show();
         //get text from textViews
         String isbn = isbnTv.getText().toString();
+
+
         String description = descriptionTV.getText().toString();
         // Creating keywords out from description using whitespace as delimiters
         String[] strArray = description.split(" ");
 
         String title = titleTv.getText().toString();
         String author = authorTV.getText().toString();
+        Toast.makeText(AddBookActivity.this, author, Toast.LENGTH_SHORT).show();
 
         //check if any text field is empty
         if(TextUtils.isEmpty(title)){
+            Toast.makeText(AddBookActivity.this, "woow", Toast.LENGTH_SHORT).show();
             titleTv.setError("TextField Cannot be Empty");
             return;
         }
@@ -323,15 +330,13 @@ public class AddBookActivity extends AppCompatActivity implements View.OnClickLi
 
         if((isbnTv.getError() == null) && (descriptionTV.getError() == null) && (titleTv.getError() == null) && (authorTV.getError() == null)){
             //get Firebase User id
+
             String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
-
             user = User.getOrCreate(userId);
-
             //construct book object
             final Book bookObject = Book.getOrCreate(id);
             bookObject.setOwner(user);
             bookObject.setKeywords(Arrays.asList(strArray));
-            Toast.makeText(AddBookActivity.this, url, Toast.LENGTH_SHORT).show();
             if (url != null){
                 Toast.makeText(AddBookActivity.this, "URL NOT EMPTY", Toast.LENGTH_SHORT).show();
                 bookObject.setPhoto(url);
