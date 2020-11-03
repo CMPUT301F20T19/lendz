@@ -25,7 +25,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class SearchBooksActivities extends AppCompatActivity {
+public class SearchBooksActivities extends AppCompatActivity implements OnBookClickListener{
 
     private static final String TAG = "Search created" ;
     private SearchViewAdapter adapter;
@@ -50,7 +50,7 @@ public class SearchBooksActivities extends AppCompatActivity {
     }
 
     private void initRecyclerView() {
-        adapter = new SearchViewAdapter(books,this);
+        adapter = new SearchViewAdapter(books,this, this);
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
     }
@@ -60,7 +60,7 @@ public class SearchBooksActivities extends AppCompatActivity {
         books.clear();
         adapter.notifyDataSetChanged();
         searchET = findViewById(R.id.search_edit);
-        String searchText = searchET.getText().toString();
+        String searchText = searchET.getText().toString().trim();
         performSearch(searchText);
     }
 
@@ -89,5 +89,11 @@ public class SearchBooksActivities extends AppCompatActivity {
         book.load(snapshot);
         books.add(books.size(),book);
         adapter.notifyItemInserted(books.size());
+    }
+
+    @Override
+    public void onBookClick(int position) {
+        Intent intent = new Intent();
+        startActivity(intent);
     }
 }
