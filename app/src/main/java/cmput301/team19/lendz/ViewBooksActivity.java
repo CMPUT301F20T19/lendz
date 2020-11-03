@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -24,10 +25,54 @@ import java.util.ArrayList;
 public class ViewBooksActivity extends AppCompatActivity {
     private static final String TAG = "ViewBooksActivity";
 
-    static ArrayList<Book> availableBooks = new ArrayList<>();
-    static ArrayList<Book> requestedBooks = new ArrayList<>();
-    static ArrayList<Book> acceptedBooks = new ArrayList<>();
-    static ArrayList<Book> borrowedBooks = new ArrayList<>();
+    private RecyclerView viewBooksRecyclerView;
+    private ArrayList<Book> availableBooks;
+    private ArrayList<Book> requestedBooks;
+    private ArrayList<Book> acceptedBooks;
+    private ArrayList<Book> borrowedBooks;
+    private ViewBooksAdapter viewBooksAdapter;
+    private ArrayList<ViewBooksSection> sections;
+    FirebaseFirestore db;
+    CollectionReference booksRef;
+
+    @Override
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_view_books);
+
+        db = FirebaseFirestore.getInstance();
+        booksRef = db.collection("books");
+        setUp();
+        loadBooks();
+        checkSections();
+        initRecyclerView();
+    }
+
+    private void setUp() {
+        availableBooks = new ArrayList<>();
+        requestedBooks = new ArrayList<>();
+        acceptedBooks = new ArrayList<>();
+        borrowedBooks = new ArrayList<>();
+        sections = new ArrayList<>();
+    }
+
+    private void checkSections() {
+        if (availableBooks.size() > 0) {
+            sections.add(new ViewBooksSection("Available Books", availableBooks)); }
+        if (requestedBooks.size() > 0) {
+            sections.add(new ViewBooksSection("Requested Books", requestedBooks)); }
+        if (acceptedBooks.size() > 0) {
+            sections.add(new ViewBooksSection("Accepted Books", acceptedBooks)); }
+        if (borrowedBooks.size() > 0) {
+            sections.add(new ViewBooksSection("Borrowed Books", borrowedBooks)); }
+    }
+
+    private void initRecyclerView() {
+        viewBooksRecyclerView = findViewById(R.id.book_list);
+        viewBooksAdapter = new ViewBooksAdapter(this, sections);
+        viewBooksRecyclerView.setAdapter(viewBooksAdapter);
+        viewBooksRecyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
+    }
 
     private void loadBooks() {
         // String currentUserID = FirebaseAuth.getInstance().getCurrentUser().getUid();
@@ -36,64 +81,84 @@ public class ViewBooksActivity extends AppCompatActivity {
         // new code for loading books of user
         final String currentUserID = "gBDk9Ex6KTUcjIgP9LNBLIlJ6h72";
 
-        Query query = FirebaseFirestore.getInstance()
-                .collection("books")
-                .whereEqualTo("owner", User.documentOf(currentUserID));
-
-        query.get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
-                            for (QueryDocumentSnapshot document : task.getResult()) {
-                                // loading book data
-                                Log.d(TAG, "Processing book ID: " + document.getId());
-
-                                final String bookID = document.getId();
-                                final Book book = Book.getOrCreate(bookID);
-
-                                Book.documentOf(bookID).addSnapshotListener(new EventListener<DocumentSnapshot>() {
-                                    @Override
-                                    public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
-                                        if (error != null) {
-                                            Log.e(TAG,
-                                                    "error getting book with ID " + bookID + ": " + error);
-                                        } else if (value == null || !value.exists()) {
-                                            Log.w(TAG,
-                                                    "didn't find book with ID " + bookID);
-                                        } else {
-                                            book.load(value);
-
-                                            // adding book to appropriate array list
-                                            BookStatus bookStatus = book.getStatus();
-                                            Request bookAcceptedRequest = book.getAcceptedRequest();
-
-                                            if (bookStatus == BookStatus.BORROWED) {
-                                                Log.e(TAG, "adding borrowed book");
-                                                ViewBooksActivity.borrowedBooks.add(book);
-                                            } else if (bookStatus == BookStatus.AVAILABLE) {
-                                                Log.e(TAG, "adding available book");
-                                                ViewBooksActivity.availableBooks.add(book);
-                                            } else if (bookAcceptedRequest != null) {
-                                                Log.e(TAG, "adding unsorted book");
-                                                RequestStatus bookRequestStatus = bookAcceptedRequest.getStatus();
-
-                                                if (bookRequestStatus == RequestStatus.SENT) {
-                                                    ViewBooksActivity.requestedBooks.add(book);
-                                                } else if (bookRequestStatus == RequestStatus.ACCEPTED) {
-                                                    ViewBooksActivity.acceptedBooks.add(book);
-                                                }
-                                            }
-
-                                        }
-                                    }
-                                });
-                            }
-                        } else {
-                            Log.d(TAG, "Error getting book ID: ", task.getException());
-                        }
+        booksRef
+            .whereEqualTo("owner", User.documentOf(currentUserID))
+        .get()
+        .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()) {
+                    for (QueryDocumentSnapshot document : task.getResult()) {
+                        Log.d(TAG, document.getId() + " => " + document.getData());
+                        // loading book data
+//                                Log.d(TAG, "Processing book ID: " + document.getId());
+                        addBooks(document.getId(),document);
                     }
-                });
+                } else {
+                    Log.d(TAG, "Error getting book ID: ", task.getException());
+                }
+            }
+        });
+
+
+    }
+
+    private void addBooks(String id, DocumentSnapshot snapshot) {
+        Book book = Book.getOrCreate(id);
+        book.load(snapshot);
+        BookStatus bookStatus = book.getStatus();
+        Request bookAcceptedRequest = book.getAcceptedRequest();
+        if (bookStatus == BookStatus.BORROWED) {
+            Log.e(TAG, "adding borrowed book");
+            borrowedBooks.add(borrowedBooks.size(), book);
+            viewBooksAdapter.notifyItemInserted(borrowedBooks.size());
+        } else if (bookStatus == BookStatus.AVAILABLE) {
+            Log.e(TAG, "adding available book");
+            availableBooks.add(availableBooks.size(),book);
+            viewBooksAdapter.notifyItemInserted(availableBooks.size());
+        } else if (bookAcceptedRequest != null) {
+            Log.e(TAG, "adding unsorted book");
+            RequestStatus bookRequestStatus = bookAcceptedRequest.getStatus();
+            if (bookRequestStatus == RequestStatus.SENT) {
+                requestedBooks.add(requestedBooks.size(),book);
+                viewBooksAdapter.notifyItemInserted(requestedBooks.size());
+            } else if (bookRequestStatus == RequestStatus.ACCEPTED) {
+                acceptedBooks.add(acceptedBooks.size(),book);
+                viewBooksAdapter.notifyItemInserted(acceptedBooks.size());
+            }
+        }
+        Log.e(TAG, book.getDescription().getTitle());
+    }
+}
+
+
+
+
+
+
+//                                final String bookID = document.getId();
+//                                final Book book = Book.getOrCreate(bookID);
+//                                book.load(document);
+
+//                                Book.documentOf(bookID).addSnapshotListener(new EventListener<DocumentSnapshot>() {
+//                                    @Override
+//                                    public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
+//                                        if (error != null) {
+//                                            Log.e(TAG,
+//                                                    "error getting book with ID " + bookID + ": " + error);
+//                                        } else if (value == null || !value.exists()) {
+//                                            Log.w(TAG,
+//                                                    "didn't find book with ID " + bookID);
+//                                        } else {
+//                                            // adding book to appropriate array list
+//
+//
+//                                        }
+//                                    }
+//                                });
+
+
+
 
 /*
     // hard-coded book objects for testing
@@ -118,36 +183,3 @@ public class ViewBooksActivity extends AppCompatActivity {
     testBook3.setDescription(new BookDescription("213476", "Pride and prejudice", "Jane Austen", ""));
     borrowedBooks.add(testBook3);
 */
-    }
-
-    @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_view_books);
-
-        ArrayList<ViewBooksSection> sections = new ArrayList<>();
-        loadBooks();
-
-        // code for testing
-        Log.e(TAG, "ViewBooksActivity.availableBooks.size() = " + ViewBooksActivity.availableBooks.size());
-        Log.e(TAG, "ViewBooksActivity.borrowedBooks.size() = " + ViewBooksActivity.borrowedBooks.size());
-        Log.e(TAG, "ViewBooksActivity.requestedBooks.size() = " + ViewBooksActivity.requestedBooks.size());
-        Log.e(TAG, "ViewBooksActivity.acceptedBooks.size() = " + ViewBooksActivity.acceptedBooks.size());
-
-        // show a section if and only if there are books in it
-        if (ViewBooksActivity.availableBooks.size() > 0) {
-            sections.add(new ViewBooksSection("Available Books", ViewBooksActivity.availableBooks)); }
-        if (ViewBooksActivity.requestedBooks.size() > 0) {
-            sections.add(new ViewBooksSection("Requested Books", ViewBooksActivity.requestedBooks)); }
-        if (ViewBooksActivity.acceptedBooks.size() > 0) {
-            sections.add(new ViewBooksSection("Accepted Books", ViewBooksActivity.acceptedBooks)); }
-        if (ViewBooksActivity.borrowedBooks.size() > 0) {
-            sections.add(new ViewBooksSection("Borrowed Books", ViewBooksActivity.borrowedBooks)); }
-
-        // showing book list
-        RecyclerView viewBooksRecyclerView = findViewById(R.id.book_list);
-        ViewBooksAdapter viewBooksAdapter = new ViewBooksAdapter(this, sections);
-        viewBooksRecyclerView.setAdapter(viewBooksAdapter);
-        viewBooksRecyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
-    }
-}
