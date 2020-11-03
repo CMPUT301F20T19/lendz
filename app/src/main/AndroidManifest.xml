@@ -19,13 +19,14 @@
         <activity android:name=".LoginActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".AddBookActivity" />
-        <activity android:name=".MainActivity">
+        <activity android:name=".ViewBooksActivity"
+            android:label="@string/app_name">
         </activity>
+        <activity android:name=".AddBookActivity" />
+        <activity android:name=".MainActivity"/>
         <activity android:name=".UserProfileActivity" />
         <activity android:name=".SearchBooksActivities"
             android:parentActivityName=".MainActivity">

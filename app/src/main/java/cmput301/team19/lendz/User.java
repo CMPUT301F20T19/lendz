@@ -55,8 +55,8 @@ public class User {
      */
     public static DocumentReference documentOf(@NonNull String userId) {
         return FirebaseFirestore.getInstance()
-            .collection("users")
-            .document(userId.toString());
+                .collection("users")
+                .document(userId.toString());
     }
 
     /**
