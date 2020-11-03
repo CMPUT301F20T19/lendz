@@ -33,6 +33,9 @@ public class MainActivity extends AppCompatActivity {
 
         bottomNavigationView.setOnNavigationItemSelectedListener(tabSelected);
         getSupportFragmentManager().beginTransaction().replace(R.id.container, new BorrowBookFragment()).commit();
+
+        Intent intent = new Intent(MainActivity.this,AddBookActivity.class);
+        startActivity(intent);
     }
 
     private void getUserID() {

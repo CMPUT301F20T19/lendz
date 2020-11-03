@@ -26,7 +26,7 @@
         </activity>
 
 
-        <activity android:name=".MainActivity" />
+
       
         <activity android:name=".UserProfileActivity">
 
@@ -34,6 +34,7 @@
         <activity android:name=".AddBookActivity"
             android:parentActivityName=".LoginActivity"
             />
+        <activity android:name=".MainActivity" />
         <activity android:name=".ScanActivity"
             android:screenOrientation="fullSensor"
             android:stateNotNeeded="true"

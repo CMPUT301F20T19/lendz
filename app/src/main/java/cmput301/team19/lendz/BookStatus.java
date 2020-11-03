@@ -5,5 +5,4 @@ public enum  BookStatus {
     REQUESTED,
     BORROWED,
     ACCEPTED
-
 }

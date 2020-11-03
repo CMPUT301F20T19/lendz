@@ -117,7 +117,7 @@ public class LoginActivity extends AppCompatActivity {
                 {
                     @Override
                     public void onSuccess(Uri uri) {
-                        Picasso.with(LoginActivity.this).load(uri).into(imageView);
+//                        Picasso.with(LoginActivity.this).load(uri).into(imageView);
                     }
                 }
 

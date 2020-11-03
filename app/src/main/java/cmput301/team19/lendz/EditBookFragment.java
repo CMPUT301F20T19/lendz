@@ -43,14 +43,13 @@ public class EditBookFragment extends Fragment {
     private EditText bookDescriptionEditText;
 
 
-    public static EditBookFragment newInstance(UUID id) {
-        EditBookFragment fragment = new EditBookFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_BOOK_ID, id.toString());
-        fragment.setArguments(args);
-
-        return fragment;
-    }
+//    public static EditBookFragment newInstance(String id) {
+//        EditBookFragment fragment = new EditBookFragment();
+//        Bundle args = new Bundle();
+//        args.putString(ARG_BOOK_ID, id.toString());
+//        fragment.setArguments(args);
+//        return fragment;
+//    }
 
 
     @Override
@@ -63,7 +62,7 @@ public class EditBookFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         //Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_edit_book_details, container, false);
+        View view = inflater.inflate(R.layout.activity_addbook, container, false);
 
         bookISBNEditText = view.findViewById(R.id.editBookDetailsISBN);
         bookTitleEditText = view.findViewById(R.id.editBookDetailsTitle);
@@ -73,12 +72,12 @@ public class EditBookFragment extends Fragment {
         if (getArguments() != null) {
             bookId = UUID.fromString(getArguments().getString(ARG_BOOK_ID));
 
-            Book book = Book.getOrCreate(bookId);
+//            Book book = Book.getOrCreate(bookId);
 
-            bookISBNEditText.setText(book.getDescription().getIsbn());
-            bookTitleEditText.setText(book.getDescription().getTitle());
-            bookAuthorEditText.setText(book.getDescription().getTitle());
-            bookDescriptionEditText.setText(book.getDescription().getDescription());
+//            bookISBNEditText.setText(book.getDescription().getIsbn());
+//            bookTitleEditText.setText(book.getDescription().getTitle());
+//            bookAuthorEditText.setText(book.getDescription().getTitle());
+//            bookDescriptionEditText.setText(book.getDescription().getDescription());
         }
 
         //Attach views
@@ -124,7 +123,7 @@ public class EditBookFragment extends Fragment {
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
             case R.id.saveBookDetails:
-                saveBook();
+//                saveBook();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -134,67 +133,35 @@ public class EditBookFragment extends Fragment {
     /**
      * Save the edited book details to Firestore.
      */
-    private void saveBook() {
-        Book book = Book.getOrCreate(bookId);
+//    private void saveBook() {
+//        Book book = Book.getOrCreate(bookId);
+//
+//        // Set Book data based on contents of editing controls
+//        BookDescription bookDescription = new BookDescription(bookISBNEditText.getText().toString(),
+//                bookTitleEditText.getText().toString(),
+//                bookAuthorEditText.getText().toString(),
+//                bookDescriptionEditText.getText().toString());
+//
+//        book.setDescription(bookDescription);
+//
+//        // Save changes to Firestore
+//        book.store()
+//                .addOnSuccessListener(new OnSuccessListener<Void>() {
+//                    @Override
+//                    public void onSuccess(Void aVoid) {
+//                        getFragmentManager().popBackStack();
+//                    }
+//                }).addOnFailureListener(new OnFailureListener() {
+//            @Override
+//            public void onFailure(@NonNull Exception e) {
+//                Toast.makeText(getContext(),
+//                        R.string.book_edit_failed,
+//                        Toast.LENGTH_LONG)
+//                        .show();
+//            }
+//        });
+//    }
 
-        // Set Book data based on contents of editing controls
-        BookDescription bookDescription = new BookDescription(bookISBNEditText.getText().toString(),
-                bookTitleEditText.getText().toString(),
-                bookAuthorEditText.getText().toString(),
-                bookDescriptionEditText.getText().toString());
-
-        book.setDescription(bookDescription);
-
-        // Save changes to Firestore
-        book.store()
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        getFragmentManager().popBackStack();
-                    }
-                }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                Toast.makeText(getContext(),
-                        R.string.book_edit_failed,
-                        Toast.LENGTH_LONG)
-                        .show();
-            }
-        });
-    }
-
-    private void pickImageFromGallery() {
-        //intent to pick image
-        Intent intent = new Intent(Intent.ACTION_PICK);
-        intent.setType("image/*");
-        startActivityForResult(intent, IMAGE_PICK_CODE);
-
-
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        switch (requestCode) {
-            case PERMISSION_CODE: {
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    //permission granted
-                    pickImageFromGallery();
-                } else {
-                    //permission denied
-                    Toast.makeText(getContext(), "permission denied...!", Toast.LENGTH_SHORT).show();
-                }
-            }
-        }
-    }
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (resultCode == RESULT_OK && requestCode == IMAGE_PICK_CODE) {
-            imgView.setImageURI(data.getData());
-        }
-    }
 
 
 }
