@@ -17,4 +17,6 @@ public class Request {
     public void setRequester(User requester) {
         this.requester = requester;
     }
+
+    public RequestStatus getStatus() { return status; }
 }
