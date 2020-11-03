@@ -38,13 +38,14 @@ import com.squareup.picasso.Picasso;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
 
 
-public class AddBookActivity extends AppCompatActivity implements View.OnClickListener{
+public class EditBookActivity extends AppCompatActivity implements View.OnClickListener{
     ImageView imgView;
     Button selectImg;
     Button scanBtn;
@@ -61,6 +62,7 @@ public class AddBookActivity extends AppCompatActivity implements View.OnClickLi
     FirebaseFirestore firestoreRef;
     String id;
     String existingBookId;
+    String tempId;
     String url;
     User user;
     int triggerDelete = 0;
@@ -87,9 +89,9 @@ public class AddBookActivity extends AppCompatActivity implements View.OnClickLi
 
         //some extra code
 
-        existingBookId = "r02H9QQQd83uXSKIb3C9"; // Not copying it right now. Come back to it later.
+        existingBookId = null; // Not copying it right now. Come back to it later.
 
-        //fetch book with porsed id from firebase;
+        //fetch book with parsed id from firebase;
         if (existingBookId != null){
             final Book book = Book.getOrCreate(existingBookId);
             Book.documentOf(existingBookId).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
@@ -100,8 +102,7 @@ public class AddBookActivity extends AppCompatActivity implements View.OnClickLi
                     titleTv.setText(book.getDescription().getTitle());
                     authorTV.setText(book.getDescription().getTitle());
                     descriptionTV.setText(book.getDescription().getDescription());
-//                    retrievedUrl = book.getPhoto();
-                    Toast.makeText(AddBookActivity.this,book.getPhoto(),Toast.LENGTH_SHORT).show();
+                    Toast.makeText(EditBookActivity.this,book.getPhoto(),Toast.LENGTH_SHORT).show();
                     if (book.getPhoto() != null){
                         Picasso.get().load(book.getPhoto()).into(imgView);
                     }
@@ -132,8 +133,6 @@ public class AddBookActivity extends AppCompatActivity implements View.OnClickLi
         selectImg.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //check for permission
-//                Log.d("STATE","WOOOW");
 
                 if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
                     if(checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED){
@@ -227,6 +226,9 @@ public class AddBookActivity extends AppCompatActivity implements View.OnClickLi
             progressDialog.setTitle("Uploading...");
             progressDialog.show();
 
+            if (tempId != null){
+                id = tempId;
+            }
             //check if existingBookId is null
             if (existingBookId != null){
                 //change is made to existing book
@@ -238,7 +240,7 @@ public class AddBookActivity extends AppCompatActivity implements View.OnClickLi
                     .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                         @Override
                         public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                            Toast.makeText(AddBookActivity.this, "Uploaded", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(EditBookActivity.this, "Uploaded", Toast.LENGTH_SHORT).show();
                             progressDialog.dismiss();
                             ref.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                                 @Override
@@ -254,7 +256,7 @@ public class AddBookActivity extends AppCompatActivity implements View.OnClickLi
                         @Override
                         public void onFailure(@NonNull Exception e) {
                             progressDialog.dismiss();
-                            Toast.makeText(AddBookActivity.this, "Failed "+e.getMessage(), Toast.LENGTH_SHORT).show();
+                            Toast.makeText(EditBookActivity.this, "Failed "+e.getMessage(), Toast.LENGTH_SHORT).show();
                         }
                     })
                     .addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
@@ -269,21 +271,29 @@ public class AddBookActivity extends AppCompatActivity implements View.OnClickLi
                         }
                     });
         }else{
+            if (tempId != null){
+                id = tempId;
+            }
 
             //check if existingBookId is null
             if (existingBookId != null){
                 //change is made to existing book
                 id = existingBookId;
-                Toast.makeText(AddBookActivity.this, "existingbook not null", Toast.LENGTH_SHORT).show();
+                Toast.makeText(EditBookActivity.this, "existingBook not null", Toast.LENGTH_SHORT).show();
             }
             sendToFirestore(BookCollection,id);
         }
     }
 
     public void sendToFirestore(final CollectionReference BookCollection, final String id){
-        //get text from textviews
+        tempId = id;
+
+        //get text from textViews
         String isbn = isbnTv.getText().toString();
         String description = descriptionTV.getText().toString();
+        // Creating keywords out from description using whitespace as delimiters
+        String[] strArray = description.split(" ");
+
         String title = titleTv.getText().toString();
         String author = authorTV.getText().toString();
 
@@ -314,27 +324,24 @@ public class AddBookActivity extends AppCompatActivity implements View.OnClickLi
             //construct book object
             final Book bookObject = Book.getOrCreate(id);
             bookObject.setOwner(user);
-            Toast.makeText(AddBookActivity.this, url, Toast.LENGTH_SHORT).show();
+            bookObject.setKeywords(Arrays.asList(strArray));
+            Toast.makeText(EditBookActivity.this, url, Toast.LENGTH_SHORT).show();
             if (url != null){
-                Toast.makeText(AddBookActivity.this, "URL NOT EMPTY", Toast.LENGTH_SHORT).show();
+                Toast.makeText(EditBookActivity.this, "URL NOT EMPTY", Toast.LENGTH_SHORT).show();
                 bookObject.setPhoto(url);
             }
             if(triggerDelete == 1){
-                Toast.makeText(AddBookActivity.this, "triggerDel = 1", Toast.LENGTH_SHORT).show();
+                Toast.makeText(EditBookActivity.this, "triggerDel = 1", Toast.LENGTH_SHORT).show();
                 final Book book = Book.getOrCreate(existingBookId);
-//                if(book.getPhoto() == null){
-//                    triggerDelete = 0;
-//                    return;
-//                }
-                Toast.makeText(AddBookActivity.this, "passed", Toast.LENGTH_SHORT).show();
-//
-//                String storageUrl = "BookImages/"+id;
+
+                Toast.makeText(EditBookActivity.this, "passed", Toast.LENGTH_SHORT).show();
+
                 final StorageReference ref = storageReference.child("BookImages/"+id);
                 ref.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
                         Log.e("Picture","#deleted");
-                        Toast.makeText(AddBookActivity.this, "img deleted", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(EditBookActivity.this, "img deleted", Toast.LENGTH_SHORT).show();
 
                         bookObject.setPhoto(null);
                         saveBook(bookObject);
@@ -342,7 +349,7 @@ public class AddBookActivity extends AppCompatActivity implements View.OnClickLi
                 }).addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        Toast.makeText(AddBookActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(EditBookActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
                     }
                 });
                 triggerDelete = 0;
@@ -366,12 +373,13 @@ public class AddBookActivity extends AppCompatActivity implements View.OnClickLi
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                        Toast.makeText(AddBookActivity.this, "Book Added", Toast.LENGTH_SHORT).show();
+                        FilePathUri = null;
+                        Toast.makeText(EditBookActivity.this, "Book Added", Toast.LENGTH_SHORT).show();
                     }
                 }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
-                Toast.makeText(AddBookActivity.this, "Failed to add Book", Toast.LENGTH_SHORT).show();
+                Toast.makeText(EditBookActivity.this, "Failed to add Book", Toast.LENGTH_SHORT).show();
             }
         });
     }
