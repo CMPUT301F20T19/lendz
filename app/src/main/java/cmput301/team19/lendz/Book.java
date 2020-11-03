@@ -99,7 +99,7 @@ public class Book {
         setOwner(owner);
 
 
-        // TODO: get pendingRequests and acceptedRequest data
+
         /*
         List<DocumentReference> pendingRequestsData =
                 (List<DocumentReference>) doc.get(PENDING_REQUESTS_KEY);
