@@ -24,7 +24,7 @@ public class BookActivity extends AppCompatActivity {
         updateBackButton();
 
         // Test user to display profile of
-        String testUserId = "624b2e66-7f26-45e9-a892-741910d7e94f";
+        String testUserId = "BxDT9dFk9ZfwNp4WKcxw";
 
         Fragment viewBookFragment = ViewBookFragment.newInstance(testUserId);
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();

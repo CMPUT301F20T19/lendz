@@ -1,5 +1,6 @@
 package cmput301.team19.lendz;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -22,6 +23,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.squareup.picasso.Picasso;
 
 import java.util.UUID;
 
@@ -67,6 +69,7 @@ public class ViewBookFragment extends Fragment {
             bookISBNTextVIew.setText(book.getDescription().getIsbn());
             bookOwnerTextView.setText(book.getOwner().getFullName());
             bookBorrowerTextView.setText(book.getOwner().getUsername());
+            Picasso.get().load(book.getPhoto()).into(bookImage);
         }
     }
 
@@ -82,11 +85,12 @@ public class ViewBookFragment extends Fragment {
         bookISBNTextVIew = view.findViewById(R.id.bookViewISBN);
         bookOwnerTextView = view.findViewById(R.id.bookViewOwner);
         bookBorrowerTextView = view.findViewById(R.id.bookViewUsername);
+        bookImage = view.findViewById(R.id.bookImge);
 
         if (getArguments() == null)
             throw new IllegalArgumentException("no arguments");
 
-        final UUID bookId = UUID.fromString(getArguments().getString(ARG_BOOK_ID));
+        final String bookId = getArguments().getString(ARG_BOOK_ID);
         book = Book.getOrCreate(bookId);
 
         Book.documentOf(bookId).addSnapshotListener(new EventListener<DocumentSnapshot>() {
@@ -114,13 +118,19 @@ public class ViewBookFragment extends Fragment {
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()){
-            case R.id.editBookDetails:
-                startEdit();
-                return true;
             case R.id.deleteBook:
                 book.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
+                        bookTitleTextView.setText(null);
+                        bookStatusTextView.setText(null);
+                        bookDescriptionTextView.setText(null);
+                        bookAuthorTextView.setText(null);
+                        bookISBNTextVIew.setText(null);
+                        bookOwnerTextView.setText(null);
+                        bookBorrowerTextView.setText(null);
+                        book.setPhoto("http://abcd");
+                        Picasso.get().load(book.getPhoto()).into(bookImage);
                         getFragmentManager().popBackStack();;
                     }
                 }).addOnFailureListener(new OnFailureListener() {
@@ -133,25 +143,16 @@ public class ViewBookFragment extends Fragment {
                     }
                 });
                 return true;
+            case R.id.editBookDetails:
+                Intent intent = new Intent(getActivity(), AddBookActivity.class);
+                final String bookId = getArguments().getString(ARG_BOOK_ID);
+                //Toast.makeText(getContext(),  bookId ,Toast.LENGTH_SHORT).show();
+                intent.putExtra("bookId", bookId);
+                startActivity(intent);
             default:
                 return super.onOptionsItemSelected(item);
         }
     }
 
-    private void startEdit(){
-        Fragment editBookDetailsFragment = EditBookFragment.newInstance(book.getId());
-        FragmentTransaction transaction = getFragmentManager().beginTransaction();
-        transaction.setCustomAnimations(
-                R.anim.slide_out,
-                R.anim.fade_out,
-                R.anim.fade_in,
-                R.anim.slide_out
-        );
 
-        transaction.replace(R.id.book_FragmentView, editBookDetailsFragment);
-        transaction.addToBackStack(null);
-
-        transaction.commit();
-
-    }
 }
