@@ -3,6 +3,7 @@ package cmput301.team19.lendz;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
@@ -29,22 +30,27 @@ public class Book {
 
     // Maps book ID to Book object, guaranteeing at most
     // one Book object for each book.
-    private static final HashMap<UUID, Book> books = new HashMap<>();
+    private static final HashMap<String, Book> books = new HashMap<>();
 
-    private UUID id;
-    private URL photo;
+    private String id;
+    private String photo;
     private User owner;
     private BookStatus status;
     private Location location;
     private BookDescription description;
-
     private final ArrayList<Request> pendingRequests;
+
     private Request acceptedRequest;
+
+    private Book(@NonNull String id) {
+        this.id = id;
+        pendingRequests = new ArrayList<>();
+    }
 
     /**
      * Get or create the unique Book object with the given book ID.
      */
-    public static Book getOrCreate(@NonNull UUID bookId) {
+    public static Book getOrCreate(@NonNull String bookId) {
         Book book = books.get(bookId);
         if (book == null) {
             book = new Book(bookId);
@@ -56,7 +62,7 @@ public class Book {
     /**
      * @return document of book with ID bookId
      */
-    public static DocumentReference documentOf(@NonNull UUID bookId) {
+    public static DocumentReference documentOf(@NonNull String bookId) {
         return FirebaseFirestore.getInstance()
                 .collection("books")
                 .document(bookId.toString());
@@ -67,9 +73,10 @@ public class Book {
      * @param doc DocumentSnapshot to load from
      */
     public void load(@NonNull DocumentSnapshot doc) {
-        DocumentReference documentReference = Book.documentOf(id);
-
         Map<String, Object> descriptionMap = (Map<String, Object>) doc.get(DESCRIPTION_KEY);
+        if (descriptionMap == null) {
+            throw new NullPointerException("description cannot be null");
+        }
         setDescription(new BookDescription(descriptionMap));
 
         GeoPoint geoPoint = doc.getGeoPoint(LOCATION_KEY);
@@ -81,11 +88,11 @@ public class Book {
 
         DocumentReference ownerReference = doc.getDocumentReference(OWNER_KEY);
         if (ownerReference == null) {
-            setOwner(null);
-        } else {
-            User owner = User.getOrCreate(ownerReference.getId());
-            setOwner(owner);
+            throw new NullPointerException("owner cannot be null");
         }
+        User owner = User.getOrCreate(ownerReference.getId());
+        setOwner(owner);
+
 
         // TODO: get pendingRequests and acceptedRequest data
         /*
@@ -94,7 +101,6 @@ public class Book {
         for (DocumentReference pendingRequest : pendingRequestsData) {
             // TODO
         }
-
         DocumentReference acceptedRequestData = doc.getDocumentReference(ACCEPTED_REQUEST_KEY);
         // TODO
          */
@@ -103,21 +109,14 @@ public class Book {
         if (photoUrlString == null) {
             setPhoto(null);
         } else {
-            try {
-                setPhoto(new URL(photoUrlString));
-            } catch (MalformedURLException e) {
-                setPhoto(null);
-                Log.e("Book", "Failed to parse book photo URL " +
-                        photoUrlString + ": " + e);
-            }
+            setPhoto(photoUrlString);
         }
 
         Long bookStatusLong = doc.getLong(STATUS_KEY);
         if (bookStatusLong == null) {
-            setStatus(null);
-        } else {
-            setStatus(BookStatus.values()[bookStatusLong.intValue()]);
+            throw new NullPointerException("bookStatus cannot be null");
         }
+        setStatus(BookStatus.values()[bookStatusLong.intValue()]);
     }
 
     /**
@@ -126,78 +125,38 @@ public class Book {
     private Map<String, Object> toData() {
         Map<String, Object> map = new HashMap<>();
         map.put(DESCRIPTION_KEY, description.toData());
-        GeoPoint geoPoint = new GeoPoint(location.getLat(), location.getLon());
-        map.put(LOCATION_KEY, geoPoint);
+
+//        GeoPoint geoPoint = new GeoPoint(location.getLat(), location.getLon());
+        map.put(LOCATION_KEY, null);
         map.put(OWNER_KEY, User.documentOf(owner.getId()));
         // TODO: set pendingRequests data
         // TODO: set acceptedRequest data
-        map.put(PHOTO_KEY, photo.toString());
+        if (photo == null)
+            map.put(PHOTO_KEY, null);
+        else
+            map.put(PHOTO_KEY, photo.toString());
         map.put(STATUS_KEY, status.ordinal());
         return map;
     }
 
     /**
      * Store the current state of this Book to the Firestore database.
+     * @return Task of the store
      */
     public Task<Void> store() {
         return documentOf(id).set(toData(), SetOptions.merge());
     }
 
-    private Book(@NonNull UUID id) {
-        this.id = id;
-        pendingRequests = new ArrayList<>();
-    }
+    /**
+     * Delete this Book from the Firestore database.
+     * @return Task of the deletion
+     */
+//    public Task<Void> delete(id) {
+//        return documentOf(id).delete();
+//    }
 
-    public UUID getId() {
-        return id;
-    }
-
-    public void setId(UUID id) {
-        this.id = id;
-    }
-
-    public URL getPhoto() {
-        return photo;
-    }
-
-    public void setPhoto(URL photo) {
-        this.photo = photo;
-    }
-
-    public User getOwner() {
-        return owner;
-    }
-
-    public void setOwner(User owner) {
-        this.owner = owner;
-    }
-
-    public BookStatus getStatus() {
-        return status;
-    }
-
-    public void setStatus(BookStatus status) {
-        this.status = status;
-    }
-
-    public Location getLocation() {
-        return location;
-    }
-
-    public void setLocation(Location location) {
-        this.location = location;
-    }
-
-    public BookDescription getDescription() {
-        return description;
-    }
-
-    public void setDescription(BookDescription description) {
-        this.description = description;
-    }
-
-    public void addPendingRequest(Request request) {
-        this.pendingRequests.add(request);
+    public void setAcceptedRequest(@Nullable Request acceptedRequest) {
+        this.acceptedRequest = acceptedRequest;
     }
 
     public ArrayList<Request> getPendingRequests() {
@@ -208,7 +167,55 @@ public class Book {
         return acceptedRequest;
     }
 
-    public void setAcceptedRequest(Request acceptedRequest) {
-        this.acceptedRequest = acceptedRequest;
+    public String getId() {
+        return id;
+    }
+
+    public void setId(@NonNull String id) {
+        this.id = id;
+    }
+
+    public String getPhoto() {
+        return photo;
+    }
+
+    public void setPhoto(@Nullable String photo) {
+        this.photo = photo;
+    }
+
+    public User getOwner() {
+        return owner;
+    }
+
+    public void setOwner(@NonNull User owner) {
+        this.owner = owner;
+    }
+
+    public BookStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(@NonNull BookStatus status) {
+        this.status = status;
+    }
+
+    public Location getLocation() {
+        return location;
+    }
+
+    public void setLocation(@Nullable Location location) {
+        this.location = location;
+    }
+
+    public BookDescription getDescription() {
+        return description;
+    }
+
+    public void setDescription(@NonNull BookDescription description) {
+        this.description = description;
+    }
+
+    public void addPendingRequest(@NonNull Request request) {
+        this.pendingRequests.add(request);
     }
 }

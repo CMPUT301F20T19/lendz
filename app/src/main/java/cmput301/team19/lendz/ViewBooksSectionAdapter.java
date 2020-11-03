@@ -17,6 +17,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.squareup.picasso.Picasso;
 
+import java.net.URL;
 import java.util.ArrayList;
 
 public class ViewBooksSectionAdapter extends RecyclerView.Adapter<ViewBooksSectionAdapter.ViewHolder> {
@@ -58,33 +59,43 @@ public class ViewBooksSectionAdapter extends RecyclerView.Adapter<ViewBooksSecti
     @Override
     public void onBindViewHolder(@NonNull ViewBooksSectionAdapter.ViewHolder holder, int position) {
         Book book = books.get(position);
-        BookDescription bookDescription = book.getDescription();
 
         // loading and showing book photo
-        final ViewBooksSectionAdapter.ViewHolder holderCopy = holder;
-        FirebaseStorage storage = FirebaseStorage.getInstance();
-        String bookPhotoUrl = book.getPhoto().toString();
-        storage.getReferenceFromUrl(bookPhotoUrl)
-                .getDownloadUrl()
-                .addOnSuccessListener(new OnSuccessListener<Uri>()
-                                      {
-                                          @Override
-                                          public void onSuccess(Uri uri) {
-                                              Picasso.with(context).load(uri).into(holderCopy.book_photo);
+        String bookPhotoUrl = book.getPhoto();
+
+        if (bookPhotoUrl != null && bookPhotoUrl != "") {
+            final ViewBooksSectionAdapter.ViewHolder holderCopy = holder;
+            FirebaseStorage storage = FirebaseStorage.getInstance();
+
+            storage.getReferenceFromUrl(bookPhotoUrl)
+                    .getDownloadUrl()
+                    .addOnSuccessListener(new OnSuccessListener<Uri>()
+                                          {
+                                              @Override
+                                              public void onSuccess(Uri uri) {
+                                                  Picasso.with(context).load(uri).into(holderCopy.book_photo);
+                                              }
                                           }
-                                      }
-                )
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.e(TAG,"Could not load book photo : ", e);
-                    }
-                });
+                    )
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Log.e(TAG,"Could not load book photo : ", e);
+                            holderCopy.book_photo.setImageResource(R.drawable.ic_baseline_image_24);
+                        }
+                    });
+        } else {
+            holder.book_photo.setImageResource(R.drawable.ic_baseline_image_24);
+        }
 
         // showing text information
-        holder.book_title.setText(bookDescription.getTitle());
-        holder.book_author.setText((bookDescription.getAuthor()));
-        // holder.book_owner_username.setText(book.getOwnerUsername());
+        BookDescription bookDescription = book.getDescription();
+
+        if (bookDescription != null) {
+            holder.book_title.setText(bookDescription.getTitle());
+            holder.book_author.setText((bookDescription.getAuthor()));
+            // holder.book_owner_username.setText(book.getOwnerUsername());
+        }
     }
 
     @Override
