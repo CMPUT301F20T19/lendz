@@ -17,6 +17,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -59,7 +60,6 @@ public class AddBookActivity extends AppCompatActivity implements View.OnClickLi
     StorageReference storageReference;
     FirebaseFirestore firestoreRef;
     String id;
-    String retrievedUrl;
     String existingBookId;
     String url;
     User user;
@@ -87,7 +87,7 @@ public class AddBookActivity extends AppCompatActivity implements View.OnClickLi
 
         //some extra code
 
-        existingBookId = "r02H9QQQd83uXSKIb3C9";
+        existingBookId = "r02H9QQQd83uXSKIb3C9"; // Not copying it right now. Come back to it later.
 
         //fetch book with porsed id from firebase;
         if (existingBookId != null){
@@ -102,8 +102,9 @@ public class AddBookActivity extends AppCompatActivity implements View.OnClickLi
                     descriptionTV.setText(book.getDescription().getDescription());
 //                    retrievedUrl = book.getPhoto();
                     Toast.makeText(AddBookActivity.this,book.getPhoto(),Toast.LENGTH_SHORT).show();
-                    Picasso.get().load(book.getPhoto()).into(imgView);
-
+                    if (book.getPhoto() != null){
+                        Picasso.get().load(book.getPhoto()).into(imgView);
+                    }
                 }
             });
         }
@@ -319,12 +320,12 @@ public class AddBookActivity extends AppCompatActivity implements View.OnClickLi
                 bookObject.setPhoto(url);
             }
             if(triggerDelete == 1){
-                Toast.makeText(AddBookActivity.this, "triggerdel = 1", Toast.LENGTH_SHORT).show();
+                Toast.makeText(AddBookActivity.this, "triggerDel = 1", Toast.LENGTH_SHORT).show();
                 final Book book = Book.getOrCreate(existingBookId);
-                if(book.getPhoto() == null){
-                    triggerDelete = 0;
-                    return;
-                }
+//                if(book.getPhoto() == null){
+//                    triggerDelete = 0;
+//                    return;
+//                }
                 Toast.makeText(AddBookActivity.this, "passed", Toast.LENGTH_SHORT).show();
 //
 //                String storageUrl = "BookImages/"+id;
@@ -335,7 +336,8 @@ public class AddBookActivity extends AppCompatActivity implements View.OnClickLi
                         Log.e("Picture","#deleted");
                         Toast.makeText(AddBookActivity.this, "img deleted", Toast.LENGTH_SHORT).show();
 
-                        bookObject.setPhoto("");
+                        bookObject.setPhoto(null);
+                        saveBook(bookObject);
                     }
                 }).addOnFailureListener(new OnFailureListener() {
                     @Override
@@ -350,21 +352,28 @@ public class AddBookActivity extends AppCompatActivity implements View.OnClickLi
             BookDescription createdBook = new BookDescription(isbn,title,author,description);
             bookObject.setDescription(createdBook);
 
-            bookObject.store()
-                    .addOnSuccessListener(new OnSuccessListener<Void>() {
-                        @Override
-                        public void onSuccess(Void aVoid) {
-                            Toast.makeText(AddBookActivity.this, "Book Added", Toast.LENGTH_SHORT).show();
-                        }
-                    }).addOnFailureListener(new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception e) {
-                    Toast.makeText(AddBookActivity.this, "Failed to add Book", Toast.LENGTH_SHORT).show();
-                }
-            });
+            if (triggerDelete == 0){
+                // This means that a book is being edited or added without the picture being deleted
+                saveBook(bookObject);
+            }
         }
 
 
+    }
+
+    public void saveBook(Book bookObject){
+        bookObject.store()
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Toast.makeText(AddBookActivity.this, "Book Added", Toast.LENGTH_SHORT).show();
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Toast.makeText(AddBookActivity.this, "Failed to add Book", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
 }
