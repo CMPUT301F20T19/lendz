@@ -1,5 +1,6 @@
 package cmput301.team19.lendz;
 
+import android.app.ProgressDialog;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
@@ -57,6 +58,7 @@ public class BorrowBookFragment extends Fragment {
     private View borrowView;
     FirebaseFirestore db;
     CollectionReference booksRef;
+    ProgressDialog progressDialog;
 
     public BorrowBookFragment() {
         // Required empty public constructor
@@ -84,12 +86,12 @@ public class BorrowBookFragment extends Fragment {
         if (getArguments() == null)
             throw new IllegalArgumentException("no arguments");
 
+        borrowView = view;
         userID = getArguments().getString(ARG_USER_ID);
         db = FirebaseFirestore.getInstance();
         booksRef = db.collection("books");
         setUp();
         loadBooks();
-        borrowView = view;
         return view;
     }
 
@@ -117,6 +119,9 @@ public class BorrowBookFragment extends Fragment {
     }
 
     private void setUp() {
+        progressDialog = new ProgressDialog(borrowView.getContext());
+        progressDialog.setTitle("Loading...");
+        progressDialog.show();
         availableBooks = new ArrayList<>();
         requestedBooks = new ArrayList<>();
         acceptedBooks = new ArrayList<>();
@@ -157,6 +162,7 @@ public class BorrowBookFragment extends Fragment {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
+                            progressDialog.dismiss();
                             for (QueryDocumentSnapshot document : task.getResult()) {
                                 addBooks(document.getId(),document);
                             }

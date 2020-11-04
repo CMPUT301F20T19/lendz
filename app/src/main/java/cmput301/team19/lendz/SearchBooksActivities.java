@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.app.ProgressDialog;
 import android.app.SearchManager;
 import android.content.Intent;
 import android.os.Bundle;
@@ -34,6 +35,7 @@ public class SearchBooksActivities extends AppCompatActivity implements OnBookCl
     private EditText searchET;
     FirebaseFirestore db;
     CollectionReference booksRef;
+    ProgressDialog progressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,7 +48,12 @@ public class SearchBooksActivities extends AppCompatActivity implements OnBookCl
         recyclerView = findViewById(R.id.search_recyclerview);
         initRecyclerView();
 
+    }
 
+    private void setUp() {
+        progressDialog = new ProgressDialog(this);
+        progressDialog.setTitle("Loading...");
+        progressDialog.show();
     }
 
     private void initRecyclerView() {
@@ -65,6 +72,7 @@ public class SearchBooksActivities extends AppCompatActivity implements OnBookCl
     }
 
     private void performSearch(String query ) {
+        setUp();
         booksRef
                 .whereIn("status", Arrays.asList(0,1))
                 .whereArrayContains("keywords",query)
@@ -73,6 +81,7 @@ public class SearchBooksActivities extends AppCompatActivity implements OnBookCl
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 if (task.isSuccessful()) {
+                    progressDialog.dismiss();
                     for (QueryDocumentSnapshot document : task.getResult()) {
 //                        Log.d(TAG, document.getId() + " => " + document.getData());
                         addBook(document.getId(),document);
