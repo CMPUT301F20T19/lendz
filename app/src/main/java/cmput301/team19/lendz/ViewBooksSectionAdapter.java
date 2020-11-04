@@ -22,42 +22,52 @@ import java.util.ArrayList;
 
 public class ViewBooksSectionAdapter extends RecyclerView.Adapter<ViewBooksSectionAdapter.ViewHolder> {
     private static final String TAG = "ViewBooksSectionAdapter";
-    Context context;
-    ArrayList<Book> books;
+    private Context context;
+    private ArrayList<Book> books;
+    private OnBookClickListener onBookClickListener;
 
-    public static class ViewHolder extends RecyclerView.ViewHolder {
+    public static class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         ImageView book_photo;
         TextView book_title;
         TextView book_author;
         TextView book_owner_username;
+        private OnBookClickListener onBookClickListener;
 
-        public ViewHolder(@NonNull View itemView) {
+        public ViewHolder(@NonNull View itemView, OnBookClickListener onBookClickListener) {
             super(itemView);
 
             book_photo = itemView.findViewById(R.id.book_photo);
             book_title = itemView.findViewById(R.id.book_title);
             book_author = itemView.findViewById(R.id.book_author);
             book_owner_username = itemView.findViewById(R.id.book_owner_username);
+            this.onBookClickListener = onBookClickListener;
+            itemView.setOnClickListener(this);
+        }
+
+        @Override
+        public void onClick(View v) {
+            onBookClickListener.onBookClick(getAdapterPosition());
         }
     }
 
-    public ViewBooksSectionAdapter(Context context, ArrayList<Book> books) {
+    public ViewBooksSectionAdapter(Context context, ArrayList<Book> books, OnBookClickListener onBookClickListener) {
         this.context = context;
         this.books = books;
+        this.onBookClickListener = onBookClickListener;
     }
 
     @NonNull
     @Override
-    public ViewBooksSectionAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(context);
         View view = inflater.inflate(R.layout.activity_view_books_list_item, parent, false);
-        ViewBooksSectionAdapter.ViewHolder viewHolder = new ViewBooksSectionAdapter.ViewHolder(view);
+        ViewBooksSectionAdapter.ViewHolder viewHolder = new ViewHolder(view,onBookClickListener);
 
         return viewHolder;
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ViewBooksSectionAdapter.ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Book book = books.get(position);
 
         // loading and showing book photo

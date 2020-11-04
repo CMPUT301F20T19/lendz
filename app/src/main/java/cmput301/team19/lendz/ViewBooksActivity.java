@@ -1,5 +1,6 @@
 package cmput301.team19.lendz;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 
@@ -22,7 +23,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 
-public class ViewBooksActivity extends AppCompatActivity {
+public class ViewBooksActivity extends AppCompatActivity implements OnBookClickListener {
     private static final String TAG = "ViewBooksActivity";
 
     private RecyclerView viewBooksRecyclerView;
@@ -71,7 +72,7 @@ public class ViewBooksActivity extends AppCompatActivity {
 
     private void initRecyclerView() {
         viewBooksRecyclerView = findViewById(R.id.book_list);
-        viewBooksAdapter = new ViewBooksAdapter(this, sections);
+        viewBooksAdapter = new ViewBooksAdapter(this, sections,this);
         viewBooksRecyclerView.setAdapter(viewBooksAdapter);
         viewBooksRecyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
     }
@@ -122,5 +123,11 @@ public class ViewBooksActivity extends AppCompatActivity {
                 acceptedBooks.add(acceptedBooks.size(),book);
             }
         }
+    }
+
+    @Override
+    public void onBookClick(int position) {
+        Intent intent = new Intent(this,AddBookActivity.class);
+        startActivity(intent);
     }
 }

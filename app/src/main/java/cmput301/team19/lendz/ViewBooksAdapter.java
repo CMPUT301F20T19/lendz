@@ -14,6 +14,7 @@ import java.util.ArrayList;
 public class ViewBooksAdapter extends RecyclerView.Adapter<ViewBooksAdapter.ViewHolder> {
     Context context;
     ArrayList<ViewBooksSection> sections;
+    private OnBookClickListener onBookClickListener;
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         TextView section_header;
@@ -27,9 +28,10 @@ public class ViewBooksAdapter extends RecyclerView.Adapter<ViewBooksAdapter.View
         }
     }
 
-    public ViewBooksAdapter(Context context, ArrayList<ViewBooksSection> sections) {
+    public ViewBooksAdapter(Context context, ArrayList<ViewBooksSection> sections, OnBookClickListener onBookClickListener) {
         this.context = context;
         this.sections = sections;
+        this.onBookClickListener = onBookClickListener;
     }
 
     @NonNull
@@ -46,7 +48,7 @@ public class ViewBooksAdapter extends RecyclerView.Adapter<ViewBooksAdapter.View
     public void onBindViewHolder(@NonNull ViewBooksAdapter.ViewHolder holder, int position) {
         ViewBooksSection section = sections.get(position);
         holder.section_header.setText(section.getSectionHeader());
-        ViewBooksSectionAdapter viewBooksSectionAdapter = new ViewBooksSectionAdapter(this.context, section.getBooks());
+        ViewBooksSectionAdapter viewBooksSectionAdapter = new ViewBooksSectionAdapter(this.context, section.getBooks(),onBookClickListener);
         holder.section_body.setAdapter(viewBooksSectionAdapter);
     }
 

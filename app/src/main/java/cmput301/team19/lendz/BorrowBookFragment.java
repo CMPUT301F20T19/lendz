@@ -41,7 +41,7 @@ import static android.content.ContentValues.TAG;
  * A simple {@link Fragment} subclass.
  * create an instance of this fragment.
  */
-public class BorrowBookFragment extends Fragment {
+public class BorrowBookFragment extends Fragment implements  OnBookClickListener {
 
     private static final String ARG_USER_ID = "userId";
 
@@ -146,7 +146,7 @@ public class BorrowBookFragment extends Fragment {
 
     private void initRecyclerView() {
         viewBooksRecyclerView = borrowView.findViewById(R.id.borrowFrag_recyclerView);
-        viewBooksAdapter = new ViewBooksAdapter(borrowView.getContext(), sections);
+        viewBooksAdapter = new ViewBooksAdapter(borrowView.getContext(), sections,this);
         viewBooksRecyclerView.setAdapter(viewBooksAdapter);
         viewBooksRecyclerView.setLayoutManager(new LinearLayoutManager(borrowView.getContext()));
         viewBooksRecyclerView.addItemDecoration(new DividerItemDecoration(borrowView.getContext(), DividerItemDecoration.VERTICAL));
@@ -194,4 +194,9 @@ public class BorrowBookFragment extends Fragment {
         }
     }
 
+    @Override
+    public void onBookClick(int position) {
+        Intent intent = new Intent(getActivity(),AddBookActivity.class);
+        startActivity(intent);
+    }
 }
