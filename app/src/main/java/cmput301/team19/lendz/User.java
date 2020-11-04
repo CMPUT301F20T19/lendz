@@ -34,9 +34,8 @@ public class User {
     private String fullName;
     private String email;
     private String phoneNumber;
-
-    private final ArrayList<UUID> ownedBookIds = new ArrayList<>();
-    private final ArrayList<UUID> borrowedBookIds = new ArrayList<>();
+    private final ArrayList<String> ownedBookIds = new ArrayList<>();
+    private final ArrayList<String> borrowedBookIds = new ArrayList<>();
 
     private boolean loaded;
 
@@ -78,14 +77,14 @@ public class User {
         Object ownedBookRefs = doc.get(OWNED_BOOKS_KEY);
         if (ownedBookRefs != null) {
             for (DocumentReference bookRef : (List<DocumentReference>) ownedBookRefs) {
-                ownedBookIds.add(UUID.fromString(bookRef.getId()));
+                ownedBookIds.add(bookRef.getId());
             }
         }
         borrowedBookIds.clear();
         Object borrowedBooksRefs = doc.get(BORROWED_BOOKS_KEY);
         if (borrowedBooksRefs != null) {
             for (DocumentReference bookRef : (List<DocumentReference>) borrowedBooksRefs) {
-                borrowedBookIds.add(UUID.fromString(bookRef.getId()));
+                borrowedBookIds.add(bookRef.getId());
             }
         }
     }
@@ -100,7 +99,7 @@ public class User {
         map.put(EMAIL_KEY, email);
         map.put(PHONE_NUMBER_KEY, phoneNumber);
         List<DocumentReference> ownedBookRefs = new ArrayList<>();
-        for (UUID bookId : ownedBookIds) {
+        for (String bookId : ownedBookIds) {
             ownedBookRefs.add(
                     FirebaseFirestore.getInstance()
                             .collection("books")
@@ -108,7 +107,7 @@ public class User {
         }
         map.put(OWNED_BOOKS_KEY, ownedBookRefs);
         List<DocumentReference> borrowedBookRefs = new ArrayList<>();
-        for (UUID bookId : borrowedBookIds) {
+        for (String bookId : borrowedBookIds) {
             borrowedBookRefs.add(
                     FirebaseFirestore.getInstance()
                             .collection("books")
@@ -127,7 +126,7 @@ public class User {
         return documentOf(id).set(toData(), SetOptions.merge());
     }
 
-    User(String id) {
+    private User(String id) {
         this.id = id;
     }
 
@@ -172,5 +171,12 @@ public class User {
      */
     public boolean isLoaded() {
         return loaded;
+
+    public ArrayList<String> getOwnedBookIds() {
+        return ownedBookIds;
+    }
+
+    public ArrayList<String> getBorrowedBookIds() {
+        return borrowedBookIds;
     }
 }
