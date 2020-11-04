@@ -7,6 +7,7 @@
 * [Andrews Essilfie](https://github.com/essilfie)
 * [Kyle McLean](https://github.com/kylemclean)
 * [Isaac Mensah](https://github.com/nsmensah)
+* [Shohan Islam](https://github.com/sohanislam001)
 
 ## Documentation
 [Product Backlog](https://github.com/CMPUT301F20T19/lendz/projects/1)
