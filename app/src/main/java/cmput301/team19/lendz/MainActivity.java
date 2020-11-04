@@ -11,6 +11,7 @@ import android.view.MenuItem;
 import android.view.View;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.auth.User;
 
 public class MainActivity extends AppCompatActivity {
@@ -27,7 +28,8 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        getUserID();
+//        getUserID();
+        uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
         bottomNavigationView = findViewById(R.id.bottomNav);
 

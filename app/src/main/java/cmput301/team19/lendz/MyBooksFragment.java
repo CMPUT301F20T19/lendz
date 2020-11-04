@@ -131,7 +131,6 @@ public class MyBooksFragment extends Fragment implements OnBookClickListener {
     }
 
     private void loadBooks() {
-        final String currentUserID = "gBDk9Ex6KTUcjIgP9LNBLIlJ6h72";
 
         booksRef
                 .whereEqualTo("owner", User.documentOf(userID))
