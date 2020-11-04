@@ -64,5 +64,6 @@
     <string name="notifications_tab">Notifications</string>
     <string name="profile_tab">Profile</string>
     <string name="book_deletion_failed">Book Deletion Failed</string>
+    <string name="hide_password">Hide Password</string>
 
 </resources>

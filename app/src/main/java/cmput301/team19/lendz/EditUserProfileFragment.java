@@ -38,6 +38,7 @@ public class EditUserProfileFragment extends Fragment {
     private EditText emailEditText;
     private EditText phoneNumberEditText;
 
+
     public EditUserProfileFragment() {
         // Required empty public constructor
     }

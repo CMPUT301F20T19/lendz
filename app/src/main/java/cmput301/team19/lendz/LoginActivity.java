@@ -12,6 +12,7 @@ import android.text.method.LinkMovementMethod;
 import android.text.method.PasswordTransformationMethod;
 import android.text.style.ClickableSpan;
 import android.util.Log;
+import android.util.Patterns;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -44,6 +45,7 @@ public class LoginActivity extends AppCompatActivity {
     private EditText password;
     private ImageView imageView;
     final FirebaseAuth mFirebaseAuth = FirebaseAuth.getInstance();
+    private FirebaseAuth.AuthStateListener mAuthStateListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,11 +54,26 @@ public class LoginActivity extends AppCompatActivity {
         setImageView();
         showPassword();
         signUpClick();
+        mAuthStateListener = new FirebaseAuth.AuthStateListener() {
+            @Override
+            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+                FirebaseUser mFirebaseUser = mFirebaseAuth.getCurrentUser();
+
+                if(mFirebaseUser != null){
+                    Intent i = new Intent(LoginActivity.this,MainActivity.class);
+                    startActivity(i);
+
+                }
+            }
+        };
         login();
     }
 
-
-
+    @Override
+    protected void onStart() {
+        super.onStart();
+        mFirebaseAuth.addAuthStateListener(mAuthStateListener);
+    }
 
     /**
      * method that handles showing password
@@ -139,10 +156,14 @@ public class LoginActivity extends AppCompatActivity {
         loginBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String emailStr = email.getText().toString();
-                String pwd = password.getText().toString();
+                final String emailStr = email.getText().toString();
+                final String pwd = password.getText().toString();
                 if(emailStr.isEmpty()||pwd.isEmpty()){
                     Toast.makeText(LoginActivity.this,"All Fields must be filled",Toast.LENGTH_SHORT).show();
+                }
+                else if(!isValidEmail(emailStr))
+                {
+                    Toast.makeText(LoginActivity.this,"InValid email",Toast.LENGTH_SHORT).show();
                 }
                 else {
                     mFirebaseAuth.signInWithEmailAndPassword(emailStr,pwd)
@@ -154,6 +175,12 @@ public class LoginActivity extends AppCompatActivity {
                             }
                             else {
                                 Toast.makeText(LoginActivity.this,"Log in SuccessFul",Toast.LENGTH_SHORT).show();
+//                                PreferenceUtils.saveEmail(emailStr,LoginActivity.this);
+//                                PreferenceUtils.savePassword(pwd,LoginActivity.this);
+//                                Intent data = new Intent(LoginActivity.this,MainActivity.class);
+//                                data.putExtra("EMAIL",emailStr);
+//                                startActivity(data);
+//                                finish();
                                 FirebaseUser mFirebaseUser = mFirebaseAuth.getCurrentUser();
                                 Bundle bundle = new Bundle();
                                 bundle.putSerializable("userID", mFirebaseUser.getUid());
@@ -167,8 +194,10 @@ public class LoginActivity extends AppCompatActivity {
                 }
             }
         });
-
-
     }
+
+    private Boolean isValidEmail(CharSequence target){
+        return Patterns.EMAIL_ADDRESS.matcher(target).matches();
+    };
 
 }
