@@ -57,8 +57,8 @@ public class User {
      */
     public static DocumentReference documentOf(@NonNull String userId) {
         return FirebaseFirestore.getInstance()
-            .collection("users")
-            .document(userId.toString());
+                .collection("users")
+                .document(userId.toString());
     }
 
     /**
@@ -171,6 +171,7 @@ public class User {
      */
     public boolean isLoaded() {
         return loaded;
+    }
 
     public ArrayList<String> getOwnedBookIds() {
         return ownedBookIds;
