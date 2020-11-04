@@ -118,11 +118,8 @@ public class LoginActivity extends AppCompatActivity {
                     @Override
                     public void onSuccess(Uri uri) {
                         Picasso.get().load(uri).into(imageView);
-
                     }
                 }
-
-
         )
                 .addOnFailureListener(new OnFailureListener() {
             @Override
@@ -130,7 +127,6 @@ public class LoginActivity extends AppCompatActivity {
                 Log.e("error","Did not work",e);
             }
         });
-
     }
 
 
