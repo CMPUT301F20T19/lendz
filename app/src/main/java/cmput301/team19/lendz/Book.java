@@ -16,6 +16,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -27,22 +28,26 @@ public class Book {
     private static final String PENDING_REQUESTS_KEY = "pendingRequests";
     private static final String PHOTO_KEY = "photo";
     private static final String STATUS_KEY = "status";
+    private static final String KEYWORDS_KEY = "keywords";
+
 
     // Maps book ID to Book object, guaranteeing at most
     // one Book object for each book.
-    private static final HashMap<UUID, Book> books = new HashMap<>();
+    private static final HashMap<String, Book> books = new HashMap<>();
 
-    private UUID id;
-    private URL photo;
+    private String id;
+    private String photo;
     private User owner;
     private BookStatus status;
     private Location location;
     private BookDescription description;
-
     private final ArrayList<Request> pendingRequests;
+    private List<String> keywords;
+
+
     private Request acceptedRequest;
 
-    private Book(@NonNull UUID id) {
+    private Book(@NonNull String id) {
         this.id = id;
         pendingRequests = new ArrayList<>();
     }
@@ -50,7 +55,7 @@ public class Book {
     /**
      * Get or create the unique Book object with the given book ID.
      */
-    public static Book getOrCreate(@NonNull UUID bookId) {
+    public static Book getOrCreate(@NonNull String bookId) {
         Book book = books.get(bookId);
         if (book == null) {
             book = new Book(bookId);
@@ -62,7 +67,7 @@ public class Book {
     /**
      * @return document of book with ID bookId
      */
-    public static DocumentReference documentOf(@NonNull UUID bookId) {
+    public static DocumentReference documentOf(@NonNull String bookId) {
         return FirebaseFirestore.getInstance()
                 .collection("books")
                 .document(bookId.toString());
@@ -94,14 +99,13 @@ public class Book {
         setOwner(owner);
 
 
-        // TODO: get pendingRequests and acceptedRequest data
+
         /*
         List<DocumentReference> pendingRequestsData =
                 (List<DocumentReference>) doc.get(PENDING_REQUESTS_KEY);
         for (DocumentReference pendingRequest : pendingRequestsData) {
             // TODO
         }
-
         DocumentReference acceptedRequestData = doc.getDocumentReference(ACCEPTED_REQUEST_KEY);
         // TODO
          */
@@ -110,13 +114,7 @@ public class Book {
         if (photoUrlString == null) {
             setPhoto(null);
         } else {
-            try {
-                setPhoto(new URL(photoUrlString));
-            } catch (MalformedURLException e) {
-                setPhoto(null);
-                Log.e("Book", "Failed to parse book photo URL " +
-                        photoUrlString + ": " + e);
-            }
+            setPhoto(photoUrlString);
         }
 
         Long bookStatusLong = doc.getLong(STATUS_KEY);
@@ -132,17 +130,15 @@ public class Book {
     private Map<String, Object> toData() {
         Map<String, Object> map = new HashMap<>();
         map.put(DESCRIPTION_KEY, description.toData());
-        GeoPoint geoPoint = new GeoPoint(location.getLat(), location.getLon());
-        map.put(LOCATION_KEY, geoPoint);
+
         map.put(OWNER_KEY, User.documentOf(owner.getId()));
-        // TODO: set pendingRequests data
-        // TODO: set acceptedRequest data
+
         if (photo == null)
             map.put(PHOTO_KEY, null);
         else
             map.put(PHOTO_KEY, photo.toString());
-
         map.put(STATUS_KEY, status.ordinal());
+        map.put(KEYWORDS_KEY, keywords);
         return map;
     }
 
@@ -166,19 +162,27 @@ public class Book {
         this.acceptedRequest = acceptedRequest;
     }
 
-    public UUID getId() {
+    public ArrayList<Request> getPendingRequests() {
+        return pendingRequests;
+    }
+
+    public Request getAcceptedRequest() {
+        return acceptedRequest;
+    }
+
+    public String getId() {
         return id;
     }
 
-    public void setId(@NonNull UUID id) {
+    public void setId(@NonNull String id) {
         this.id = id;
     }
 
-    public URL getPhoto() {
+    public String getPhoto() {
         return photo;
     }
 
-    public void setPhoto(@Nullable URL photo) {
+    public void setPhoto(@Nullable String photo) {
         this.photo = photo;
     }
 
@@ -217,4 +221,13 @@ public class Book {
     public void addPendingRequest(@NonNull Request request) {
         this.pendingRequests.add(request);
     }
+
+    public List<String> getKeywords() {
+        return keywords;
+    }
+
+    public void setKeywords(List<String> keywords) {
+        this.keywords = keywords;
+    }
+
 }
