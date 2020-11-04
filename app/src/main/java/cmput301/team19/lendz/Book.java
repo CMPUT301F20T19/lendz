@@ -16,6 +16,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -24,9 +25,12 @@ public class Book {
     private static final String DESCRIPTION_KEY = "description";
     private static final String LOCATION_KEY = "location";
     private static final String OWNER_KEY = "owner";
+    private static final String OWNER_USERNAME_KEY = "ownerUsername";
     private static final String PENDING_REQUESTS_KEY = "pendingRequests";
     private static final String PHOTO_KEY = "photo";
     private static final String STATUS_KEY = "status";
+    private static final String KEYWORDS_KEY = "keywords";
+
 
     // Maps book ID to Book object, guaranteeing at most
     // one Book object for each book.
@@ -39,8 +43,14 @@ public class Book {
     private Location location;
     private BookDescription description;
     private final ArrayList<Request> pendingRequests;
+    private List<String> keywords;
+
 
     private Request acceptedRequest;
+
+    private String ownerUsername;
+
+    private boolean loaded;
 
     private Book(@NonNull String id) {
         this.id = id;
@@ -73,12 +83,16 @@ public class Book {
      * @param doc DocumentSnapshot to load from
      */
     public void load(@NonNull DocumentSnapshot doc) {
+        loaded = true;
+
+        // Load BookDescription
         Map<String, Object> descriptionMap = (Map<String, Object>) doc.get(DESCRIPTION_KEY);
         if (descriptionMap == null) {
             throw new NullPointerException("description cannot be null");
         }
         setDescription(new BookDescription(descriptionMap));
 
+        // Load location
         GeoPoint geoPoint = doc.getGeoPoint(LOCATION_KEY);
         if (geoPoint == null) {
             setLocation(null);
@@ -86,6 +100,7 @@ public class Book {
             setLocation(new Location(geoPoint));
         }
 
+        // Load owner
         DocumentReference ownerReference = doc.getDocumentReference(OWNER_KEY);
         if (ownerReference == null) {
             throw new NullPointerException("owner cannot be null");
@@ -93,8 +108,10 @@ public class Book {
         User owner = User.getOrCreate(ownerReference.getId());
         setOwner(owner);
 
+        // Load owner username
+        ownerUsername = doc.getString(OWNER_USERNAME_KEY);
 
-        // TODO: get pendingRequests and acceptedRequest data
+
         /*
         List<DocumentReference> pendingRequestsData =
                 (List<DocumentReference>) doc.get(PENDING_REQUESTS_KEY);
@@ -126,16 +143,14 @@ public class Book {
         Map<String, Object> map = new HashMap<>();
         map.put(DESCRIPTION_KEY, description.toData());
 
-//        GeoPoint geoPoint = new GeoPoint(location.getLat(), location.getLon());
-        map.put(LOCATION_KEY, null);
         map.put(OWNER_KEY, User.documentOf(owner.getId()));
-        // TODO: set pendingRequests data
-        // TODO: set acceptedRequest data
+
         if (photo == null)
             map.put(PHOTO_KEY, null);
         else
             map.put(PHOTO_KEY, photo.toString());
         map.put(STATUS_KEY, status.ordinal());
+        map.put(KEYWORDS_KEY, keywords);
         return map;
     }
 
@@ -151,9 +166,9 @@ public class Book {
      * Delete this Book from the Firestore database.
      * @return Task of the deletion
      */
-//    public Task<Void> delete(id) {
-//        return documentOf(id).delete();
-//    }
+    public Task<Void> delete() {
+        return documentOf(id).delete();
+    }
 
     public void setAcceptedRequest(@Nullable Request acceptedRequest) {
         this.acceptedRequest = acceptedRequest;
@@ -191,6 +206,10 @@ public class Book {
         this.owner = owner;
     }
 
+    public String getOwnerUsername() {
+        return ownerUsername;
+    }
+
     public BookStatus getStatus() {
         return status;
     }
@@ -218,4 +237,20 @@ public class Book {
     public void addPendingRequest(@NonNull Request request) {
         this.pendingRequests.add(request);
     }
+
+    /**
+     * @return true if this Book has loaded data from Firestore, false otherwise
+     */
+    public boolean isLoaded() {
+        return loaded;
+    }
+
+    public List<String> getKeywords() {
+        return keywords;
+    }
+
+    public void setKeywords(List<String> keywords) {
+        this.keywords = keywords;
+    }
+
 }

@@ -83,7 +83,7 @@ public class ViewBooksSectionAdapter extends RecyclerView.Adapter<ViewBooksSecti
                                           {
                                               @Override
                                               public void onSuccess(Uri uri) {
-                                                  Picasso.with(context).load(uri).into(holderCopy.book_photo);
+                                                  Picasso.get().load(uri).into(holderCopy.book_photo);
                                               }
                                           }
                     )
