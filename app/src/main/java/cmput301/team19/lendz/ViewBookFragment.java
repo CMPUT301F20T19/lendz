@@ -131,7 +131,7 @@ public class ViewBookFragment extends Fragment {
                         bookBorrowerTextView.setText(null);
                         book.setPhoto("http://abcd");
                         Picasso.get().load(book.getPhoto()).into(bookImage);
-                        getFragmentManager().popBackStack();;
+                        getParentFragmentManager().popBackStack();;
                     }
                 }).addOnFailureListener(new OnFailureListener() {
                     @Override
