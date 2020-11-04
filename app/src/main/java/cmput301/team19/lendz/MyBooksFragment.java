@@ -11,8 +11,6 @@ import android.view.ViewGroup;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
-import java.net.Inet4Address;
-
 /**
  * A simple {@link Fragment} subclass.
  * Use the {@link MyBooksFragment#newInstance} factory method to
@@ -54,11 +52,6 @@ public class MyBooksFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-//        if (getArguments() != null) {
-//            mParam1 = getArguments().getString(ARG_PARAM1);
-//            mParam2 = getArguments().getString(ARG_PARAM2);
-//        }
     }
 
     @Override
@@ -80,5 +73,4 @@ public class MyBooksFragment extends Fragment {
             }
         });
     }
-
 }

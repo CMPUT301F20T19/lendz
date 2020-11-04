@@ -127,7 +127,7 @@ public class ViewUserProfileFragment extends Fragment {
                 user.getFullName(),
                 user.getEmail(),
                 user.getPhoneNumber());
-        FragmentTransaction transaction = getFragmentManager().beginTransaction();
+        FragmentTransaction transaction = getParentFragmentManager().beginTransaction();
         transaction.setCustomAnimations(
                 R.anim.slide_in,
                 R.anim.fade_out,
@@ -135,7 +135,7 @@ public class ViewUserProfileFragment extends Fragment {
                 R.anim.slide_out
         );
 
-        transaction.replace(R.id.fragment_container, editUserProfileFragment);
+        transaction.replace(R.id.container, editUserProfileFragment);
         transaction.addToBackStack(null);
 
         transaction.commit();

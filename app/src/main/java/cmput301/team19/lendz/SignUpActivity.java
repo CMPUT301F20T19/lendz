@@ -155,7 +155,7 @@ public class SignUpActivity extends AppCompatActivity {
                       {
                           @Override
                           public void onSuccess(Uri uri) {
-                              Picasso.with(SignUpActivity.this).load(uri).into(imageView);
+                              Picasso.get().load(uri).into(imageView);
                           }
                       }
                 )
