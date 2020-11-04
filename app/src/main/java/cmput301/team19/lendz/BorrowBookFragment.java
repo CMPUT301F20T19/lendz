@@ -41,34 +41,15 @@ import static android.content.ContentValues.TAG;
  * A simple {@link Fragment} subclass.
  * create an instance of this fragment.
  */
-public class BorrowBookFragment extends Fragment implements  OnBookClickListener {
+public class BorrowBookFragment extends Fragment{
 
-    private static final String ARG_USER_ID = "userId";
-
-
-    private String userID;
-
-    private RecyclerView viewBooksRecyclerView;
-    private ArrayList<Book> availableBooks;
-    private ArrayList<Book> requestedBooks;
-    private ArrayList<Book> acceptedBooks;
-    private ArrayList<Book> borrowedBooks;
-    private ViewBooksAdapter viewBooksAdapter;
-    private ArrayList<ViewBooksSection> sections;
-    private View borrowView;
-    FirebaseFirestore db;
-    CollectionReference booksRef;
-    ProgressDialog progressDialog;
 
     public BorrowBookFragment() {
         // Required empty public constructor
     }
 
-    public static BorrowBookFragment newInstance(String userId) {
+    public static BorrowBookFragment newInstance() {
         BorrowBookFragment fragment = new BorrowBookFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_USER_ID, userId);
-        fragment.setArguments(args);
         return fragment;
     }
 
@@ -83,15 +64,6 @@ public class BorrowBookFragment extends Fragment implements  OnBookClickListener
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_borrow_book, container, false);
-        if (getArguments() == null)
-            throw new IllegalArgumentException("no arguments");
-
-        borrowView = view;
-        userID = getArguments().getString(ARG_USER_ID);
-        db = FirebaseFirestore.getInstance();
-        booksRef = db.collection("books");
-        setUp();
-        loadBooks();
         return view;
     }
 
@@ -118,85 +90,4 @@ public class BorrowBookFragment extends Fragment implements  OnBookClickListener
         startActivity(intent);
     }
 
-    private void setUp() {
-        progressDialog = new ProgressDialog(borrowView.getContext());
-        progressDialog.setTitle("Loading...");
-        progressDialog.show();
-        availableBooks = new ArrayList<>();
-        requestedBooks = new ArrayList<>();
-        acceptedBooks = new ArrayList<>();
-        borrowedBooks = new ArrayList<>();
-        sections = new ArrayList<>();
-    }
-
-    private void checkSections() {
-        if (availableBooks.size() > 0) {
-            sections.add(new ViewBooksSection("Available Books", availableBooks));
-        }
-        if (requestedBooks.size() > 0) {
-            sections.add(new ViewBooksSection("Requested Books", requestedBooks));
-        }
-        if (acceptedBooks.size() > 0) {
-            sections.add(new ViewBooksSection("Accepted Books", acceptedBooks));
-        }
-        if (borrowedBooks.size() > 0) {
-            sections.add(new ViewBooksSection("Borrowed Books", borrowedBooks));
-        }
-    }
-
-    private void initRecyclerView() {
-        viewBooksRecyclerView = borrowView.findViewById(R.id.borrowFrag_recyclerView);
-        viewBooksAdapter = new ViewBooksAdapter(borrowView.getContext(), sections,this);
-        viewBooksRecyclerView.setAdapter(viewBooksAdapter);
-        viewBooksRecyclerView.setLayoutManager(new LinearLayoutManager(borrowView.getContext()));
-        viewBooksRecyclerView.addItemDecoration(new DividerItemDecoration(borrowView.getContext(), DividerItemDecoration.VERTICAL));
-    }
-
-    private void loadBooks() {
-        final String currentUserID = "gBDk9Ex6KTUcjIgP9LNBLIlJ6h72";
-
-        booksRef
-                .whereEqualTo("owner", User.documentOf(userID))
-                .get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
-                            progressDialog.dismiss();
-                            for (QueryDocumentSnapshot document : task.getResult()) {
-                                addBooks(document.getId(),document);
-                            }
-                            checkSections();
-                            initRecyclerView();
-                        } else {
-                            Log.d(TAG, "Error getting book ID: ", task.getException());
-                        }
-                    }
-                });
-    }
-
-    private void addBooks(String id, DocumentSnapshot snapshot) {
-        Book book = Book.getOrCreate(id);
-        book.load(snapshot);
-        BookStatus bookStatus = book.getStatus();
-        Request bookAcceptedRequest = book.getAcceptedRequest();
-        if (bookStatus == BookStatus.BORROWED) {
-            borrowedBooks.add(borrowedBooks.size(), book);
-        } else if (bookStatus == BookStatus.AVAILABLE) {
-            availableBooks.add(availableBooks.size(),book);
-        } else if (bookAcceptedRequest != null) {
-            RequestStatus bookRequestStatus = bookAcceptedRequest.getStatus();
-            if (bookRequestStatus == RequestStatus.SENT) {
-                requestedBooks.add(requestedBooks.size(),book);
-            } else if (bookRequestStatus == RequestStatus.ACCEPTED) {
-                acceptedBooks.add(acceptedBooks.size(),book);
-            }
-        }
-    }
-
-    @Override
-    public void onBookClick(int position) {
-        Intent intent = new Intent(getActivity(),AddBookActivity.class);
-        startActivity(intent);
-    }
 }

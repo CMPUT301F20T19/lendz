@@ -32,7 +32,7 @@ public class MainActivity extends AppCompatActivity {
         bottomNavigationView = findViewById(R.id.bottomNav);
 
         bottomNavigationView.setOnNavigationItemSelectedListener(tabSelected);
-        getSupportFragmentManager().beginTransaction().replace(R.id.container, BorrowBookFragment.newInstance(uid)).commit();
+        getSupportFragmentManager().beginTransaction().replace(R.id.container, new BorrowBookFragment()).commit();
     }
 
     private void getUserID() {
@@ -52,9 +52,9 @@ public class MainActivity extends AppCompatActivity {
                     Fragment fragment = null;
                     int itemID = item.getItemId();
                     if (itemID == R.id.borrow) {
-                        fragment = BorrowBookFragment.newInstance(uid);
+                        fragment = new BorrowBookFragment();
                     }else if (itemID == R.id.my_books) {
-                        fragment = new MyBooksFragment();
+                        fragment = MyBooksFragment.newInstance(uid);
                     }else if (itemID == R.id.notifications) {
                         fragment = new NotificationsFragment();
                     } else if(itemID == R.id.profile) {
