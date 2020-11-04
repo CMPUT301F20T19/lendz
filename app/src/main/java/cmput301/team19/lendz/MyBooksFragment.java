@@ -6,6 +6,7 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -173,8 +174,25 @@ public class MyBooksFragment extends Fragment implements OnBookClickListener {
 
     @Override
     public void onBookClick(int position) {
-        Intent intent = new Intent(getActivity(),AddBookActivity.class);
-        startActivity(intent);
+
+    }
+
+    @Override
+    public void onBookClick(Book book) {
+        Log.e("BookTitle", book.getDescription().getTitle());
+        Fragment viewBookFragment = ViewBookFragment.newInstance(book.getId());
+        FragmentTransaction transaction = getParentFragmentManager().beginTransaction();
+        transaction.setCustomAnimations(
+                R.anim.slide_in,
+                R.anim.fade_out,
+                R.anim.fade_in,
+                R.anim.slide_out
+        );
+
+        transaction.replace(R.id.container, viewBookFragment);
+        transaction.addToBackStack(null);
+
+        transaction.commit();
     }
 
 }

@@ -130,4 +130,9 @@ public class ViewBooksActivity extends AppCompatActivity implements OnBookClickL
         Intent intent = new Intent(this,AddBookActivity.class);
         startActivity(intent);
     }
+
+    @Override
+    public void onBookClick(Book book) {
+
+    }
 }

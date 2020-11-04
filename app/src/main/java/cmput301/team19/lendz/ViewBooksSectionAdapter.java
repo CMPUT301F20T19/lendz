@@ -26,7 +26,7 @@ public class ViewBooksSectionAdapter extends RecyclerView.Adapter<ViewBooksSecti
     private ArrayList<Book> books;
     private OnBookClickListener onBookClickListener;
 
-    public static class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+    public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         ImageView book_photo;
         TextView book_title;
         TextView book_author;
@@ -46,7 +46,7 @@ public class ViewBooksSectionAdapter extends RecyclerView.Adapter<ViewBooksSecti
 
         @Override
         public void onClick(View v) {
-            onBookClickListener.onBookClick(getAdapterPosition());
+            onBookClickListener.onBookClick(ViewBooksSectionAdapter.this.books.get(getAdapterPosition()));
         }
     }
 

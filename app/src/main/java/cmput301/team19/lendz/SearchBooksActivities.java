@@ -105,4 +105,9 @@ public class SearchBooksActivities extends AppCompatActivity implements OnBookCl
         Intent intent = new Intent();
         startActivity(intent);
     }
+
+    @Override
+    public void onBookClick(Book book) {
+
+    }
 }
