@@ -34,10 +34,7 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
 import com.squareup.picasso.Picasso;
-
-import java.io.Serializable;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -46,6 +43,7 @@ public class LoginActivity extends AppCompatActivity {
     private ImageView imageView;
     final FirebaseAuth mFirebaseAuth = FirebaseAuth.getInstance();
     private FirebaseAuth.AuthStateListener mAuthStateListener;
+    TextView signupText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,7 +51,6 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(R.layout.activity_login);
         setImageView();
         showPassword();
-        signUpClick();
         mAuthStateListener = new FirebaseAuth.AuthStateListener() {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
@@ -66,6 +63,13 @@ public class LoginActivity extends AppCompatActivity {
                 }
             }
         };
+        signupText = findViewById(R.id.login_signUp_message);
+        signupText.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(LoginActivity.this,SignUpActivity.class));
+            }
+        });
         login();
     }
 
@@ -94,32 +98,6 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
-    /**
-     * method that handles clicking of the signup text
-     */
-    public void signUpClick()
-    {
-        TextView signupText = findViewById(R.id.login_signUp_message);
-        String text = "Don't have an account? SignUp";
-        SpannableString ss = new SpannableString(text);
-
-        ClickableSpan clickableSpan = new ClickableSpan() {
-            @Override
-            public void onClick(@NonNull View view) {
-                startActivity(new Intent(LoginActivity.this,SignUpActivity.class));
-            }
-
-            @Override
-            public void updateDrawState(@NonNull TextPaint ds) {
-                super.updateDrawState(ds);
-                ds.setColor(Color.MAGENTA);
-                ds.setUnderlineText(false);
-            }
-        };
-        ss.setSpan(clickableSpan,23,29, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-        signupText.setText(ss);
-        signupText.setMovementMethod(LinkMovementMethod.getInstance());
-    }
 
     /**
      * sets image view to an image stored in firestore
@@ -146,10 +124,9 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
-
     public void login()
     {
-        email = findViewById(R.id.editText_login_username);
+        email = findViewById(R.id.editText_login_email);
         password = findViewById(R.id.editText_login_password);
         Button loginBtn = findViewById(R.id.login_button);
 
@@ -175,12 +152,6 @@ public class LoginActivity extends AppCompatActivity {
                             }
                             else {
                                 Toast.makeText(LoginActivity.this,"Log in SuccessFul",Toast.LENGTH_SHORT).show();
-//                                PreferenceUtils.saveEmail(emailStr,LoginActivity.this);
-//                                PreferenceUtils.savePassword(pwd,LoginActivity.this);
-//                                Intent data = new Intent(LoginActivity.this,MainActivity.class);
-//                                data.putExtra("EMAIL",emailStr);
-//                                startActivity(data);
-//                                finish();
                                 FirebaseUser mFirebaseUser = mFirebaseAuth.getCurrentUser();
                                 Bundle bundle = new Bundle();
                                 bundle.putSerializable("userID", mFirebaseUser.getUid());
