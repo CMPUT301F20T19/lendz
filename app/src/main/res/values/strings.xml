@@ -18,7 +18,7 @@
     <string name="login_password_editText_hint">Enter password</string>
     <string name="sign_password_editText_hint">Enter password(at least 6 characters!)</string>
     <string name="checkbox_text">Show Password</string>
-    <string name="login_page_signUp_messaage">Don\'t have an account? SignUp</string>
+    <string name="login_page_signUp_messaage">SignUp</string>
     <string name="login_button_text">LOGIN</string>
     <string name="sign_up_header">Sign Up</string>
     <string name="signup_full_name_hint">Enter full Name</string>

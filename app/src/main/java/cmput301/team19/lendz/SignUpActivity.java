@@ -41,7 +41,6 @@ public class SignUpActivity extends AppCompatActivity {
     private EditText passWordEditText;
     private EditText phoneNumberEditText;
     private ImageView imageView;
-    //private CheckBox showpassword;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,8 +54,6 @@ public class SignUpActivity extends AppCompatActivity {
         fullnameEditText = findViewById(R.id.editText_signup_full_name);
         phoneNumberEditText = findViewById(R.id.editText_signup_phone_number);
         emailEditText = findViewById(R.id.editText_signup_email);
-
-
 
         signUpBtn.setOnClickListener(new View.OnClickListener() {
             @Override

@@ -44,7 +44,7 @@
         app:layout_constraintTop_toBottomOf="@+id/welcome_message" />
 
     <EditText
-        android:id="@+id/editText_login_username"
+        android:id="@+id/editText_login_email"
         android:layout_width="383dp"
         android:layout_height="48dp"
         android:layout_marginTop="32dp"
@@ -67,7 +67,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.497"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/editText_login_username" />
+        app:layout_constraintTop_toBottomOf="@+id/editText_login_email" />
 
     <CheckBox
         android:id="@+id/checkbox_show_password"
@@ -84,18 +84,19 @@
         android:id="@+id/login_signUp_message"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="12dp"
+        android:layout_marginEnd="140dp"
+        android:layout_marginRight="140dp"
         android:text="@string/login_page_signUp_messaage"
+        android:textColor="#9C27B0"
         android:textSize="18sp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.045"
-        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/checkbox_show_password" />
 
     <Button
         android:id="@+id/login_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="94dp"
+        android:layout_height="46dp"
         android:layout_marginTop="32dp"
         android:background="#673AB7"
         android:text="@string/login_button_text"
@@ -104,6 +105,18 @@
         app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/login_signUp_message" />
+
+    <TextView
+        android:id="@+id/textView4"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="4dp"
+        android:layout_marginLeft="4dp"
+        android:layout_marginTop="12dp"
+        android:text="Don't have an account?"
+        android:textSize="18sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/checkbox_show_password" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
