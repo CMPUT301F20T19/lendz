@@ -4,7 +4,13 @@ import org.junit.Test;
 
 import static org.junit.Assert.*;
 
+/**
+ * Tests the User class.
+ */
 public class UserTest {
+    /**
+     * Test that getting User objects by ID results in the same object each time.
+     */
     @Test
     public void testUsersAreUnique() {
         User userA1 = User.getOrCreate("A");
