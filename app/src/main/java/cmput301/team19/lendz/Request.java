@@ -22,7 +22,7 @@ public class Request {
 
     // Maps request ID to Request object, guaranteeing at most
     // one Request object for each request.
-    public static HashMap<String, Request> requests;
+    public static HashMap<String, Request> requests = new HashMap<>();
 
     /**
      * Get or create the unique Request object with the given request ID.
