@@ -31,7 +31,7 @@ import java.util.List;
 /**
  * Activity that allows the user to search for books based on keywords
  */
-public class SearchBooksActivities extends AppCompatActivity implements OnBookClickListener{
+public class SearchBooksActivity extends AppCompatActivity implements OnBookClickListener{
 
     private static final String TAG = "Search created" ;
     private SearchViewAdapter adapter;

@@ -11,6 +11,9 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
 
+/**
+ * RecyclerAdapter for presenting the searchResults
+ */
 public class SearchViewAdapter extends RecyclerView.Adapter<SearchViewAdapter.ViewHolder> {
 
     private ArrayList<Book> searchResults;
@@ -31,9 +34,13 @@ public class SearchViewAdapter extends RecyclerView.Adapter<SearchViewAdapter.Vi
         return new ViewHolder(view,onBookClickListener);
     }
 
+    /**
+     * Sets the text value of the various textViews present on the item
+     * @param holder contains the various descriptive view for presenting a search result
+     * @param position the position of the item
+     */
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        //have to use stuff from a arraylist
         Book book = searchResults.get(position);
         holder.usernameTV.setText("Owned by: " + book.getOwnerUsername());
         holder.descriptionTV.setText(book.getDescription().getDescription());
@@ -59,12 +66,19 @@ public class SearchViewAdapter extends RecyclerView.Adapter<SearchViewAdapter.Vi
             itemView.setOnClickListener(this);
         }
 
+        /**
+         * sets a clickListener on each recyclerView item
+         * @param itemView contains details of the card
+         */
         @Override
         public void onClick(View itemView) {
             onBookClickListener.onBookClick(getAdapterPosition());
         }
     }
 
+    /**
+     * @return the size of the arrayList for searchResults
+     */
     @Override
     public int getItemCount() {
         return searchResults.size();

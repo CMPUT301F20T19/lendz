@@ -2,10 +2,13 @@ package cmput301.team19.lendz;
 
 import android.view.View;
 
+import androidx.test.espresso.Espresso;
 import androidx.test.espresso.UiController;
 import androidx.test.espresso.ViewAction;
 import androidx.test.espresso.action.ViewActions;
+import androidx.test.espresso.assertion.ViewAssertions;
 import androidx.test.espresso.contrib.RecyclerViewActions;
+import androidx.test.espresso.matcher.ViewMatchers;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.rule.ActivityTestRule;
@@ -33,10 +36,6 @@ public class EditBookTest {
     public ActivityScenarioRule<LoginActivity> rule =
             new ActivityScenarioRule<>(LoginActivity.class);
 
-    /**
-     * Makes sure that every test begins with an up-to date sign in .
-     * @throws Exception
-     */
     @Before
     public void logUserIn() throws Exception {
         // Ensure started logged out
@@ -44,97 +43,165 @@ public class EditBookTest {
 
         onView(withId(R.id.editText_login_email))
                 .perform(clearText())
-                .perform(typeText("seclosDev@gmail.com"));
+                .perform(typeText("me@you.com"));
 
         onView(withId(R.id.editText_login_password))
                 .perform(clearText())
-                .perform(typeText("123456"), ViewActions.closeSoftKeyboard());
+                .perform(typeText("1234567"), ViewActions.closeSoftKeyboard());
 
         onView(withId(R.id.login_button))
                 .perform(click());
         Thread.sleep(3000);
-
     }
 
     /**
-     * Tests the sequencial order in successfully navigating to the addbook activity.
-     * @throws Exception
+     * @throws Exception Switches the view to editing a book details
      */
     @Test
-    public void  Nagivate_To_Add_Book_Activity() throws Exception {
+    public void editBook() throws Exception {
         onView(withId(R.id.my_books))
                 .perform(ViewActions.click());
 
         Thread.sleep(2000);
 
-        //CHECK IF FLOATING BUTTON EXIST
-    onView(withId(R.id.add_book_button)).check(matches(isDisplayed()));
+        onView(withId(R.id.myBooksFrag_recyclerView)).
+                perform(RecyclerViewActions.actionOnItemAtPosition(0, click()));
+        Thread.sleep(10000);
 
-    onView(withId(R.id.add_book_button))
-            .perform(ViewActions.click());
+        // checks if the correct views for the book exist
+        check_if_ViewBook();
 
-    check_if_editViews_exist();
-    Fill_Book_details();
-
-
-    }
-
-//    @Test
-//    public void editBook() throws Exception{
-//        onView(withId(R.id.my_books))
-//                .perform(ViewActions.click());
-//
-//        Thread.sleep(2000);
-//
-//        onView(withId(R.id.myBooksFrag_recyclerView))
-//                .perform(RecyclerViewActions.actionOnItemAtPosition(0, click()));
-//
-//    }
-
-
-
-
-    /**
-     * Tests that all ui components in the add book activity are present.
-     * @throws Exception
-     */
-
-    public void check_if_editViews_exist(){
-        onView(withId(R.id.book_IV)).check(matches(isDisplayed()));
-        onView(withId(R.id.title_id)).check(matches(isDisplayed()));
-        onView(withId(R.id.ISBN_ID)).check(matches(isDisplayed()));
-        onView(withId(R.id.scanBTN)).check(matches(isDisplayed()));
-        onView(withId(R.id.author_id)).check(matches(isDisplayed()));
-        onView(withId(R.id.textView5)).check(matches(isDisplayed()));
-        onView(withId(R.id.description_id)).check(matches(isDisplayed()));
-        onView(withId(R.id.addImg)).check(matches(isDisplayed()));
-        onView(withId(R.id.save_id)).check(matches(isDisplayed()));
-        onView(withId(R.id.delImg)).check(matches(isDisplayed()));
-    }
-
-    /**
-     * Tests that a book object was successfully sent to firebase.
-     * @throws Exception
-     */
-    public void Fill_Book_details(){
-        onView(withId(R.id.title_id))
-                .perform(clearText())
-                .perform(typeText("Expresso Book Title"));
-        onView(withId(R.id.ISBN_ID))
-                .perform(clearText())
-                .perform(typeText("Expresso isbn"));
-        onView(withId(R.id.author_id))
-                .perform(clearText())
-                .perform(typeText("Expresso Author"), ViewActions.closeSoftKeyboard());
-        onView(withId(R.id.description_id))
-                .perform(clearText())
-                .perform(typeText("Expresso Description"), ViewActions.closeSoftKeyboard());
-        onView(withId(R.id.save_id))
+        // Checking if the strings here match the book details displayed
+        checkBookDetails("Sun",
+                "hello there",
+                "Me",
+                "45");
+        onView(withId(R.id.editBookDetails))
                 .perform(ViewActions.click());
 
+        // Test that the new values are reflected in the AddBookActivity,
+        // then replace them with the original values
+        checkAndReplaceBookDetails("Sun", "Moon",
+                "hello there", "Hi there",
+                "Me", "You",
+                "45", "54");
+
+        onView(withId(R.id.save_id))
+                .perform(ViewActions.click());
+        Thread.sleep(2000);
+
+        Espresso.pressBack();
+        Thread.sleep(5000);
+
+        onView(withId(R.id.my_books))
+                .perform(ViewActions.click());
+        Thread.sleep(8500);
+
+        onView(withId(R.id.myBooksFrag_recyclerView)).
+                perform(RecyclerViewActions.actionOnItemAtPosition(0, click()));
+        Thread.sleep(8500);
+
+
+        // checks if the correct views for the book exist
+        check_if_ViewBook();
+
+        onView(withId(R.id.editBookDetails))
+                .perform(ViewActions.click());
+
+        //Setting old book details back
+        setOldDetailsBack("Sun",
+                "hello there",
+                "Me",
+                "45");
+        onView(withId(R.id.save_id))
+                .perform(ViewActions.click());
+        Thread.sleep(2000);
+
+        Espresso.pressBack();
+        Thread.sleep(2000);
+        onView(withId(R.id.my_books))
+                .perform(ViewActions.click());
+        Thread.sleep(3000);
+
+
     }
 
 
+    /**
+     * Checking to see if the correct details exits
+     */
+    public void check_if_ViewBook() {
+        onView(withId(R.id.bookImge)).check(matches(isDisplayed()));
+        onView(withId(R.id.bookViewTitle)).check(matches(isDisplayed()));
+        onView(withId(R.id.bookViewDescription)).check(matches(isDisplayed()));
+        onView(withId(R.id.bookViewAuthor)).check(matches(isDisplayed()));
+        onView(withId(R.id.bookViewISBN)).check(matches(isDisplayed()));
+
+    }
+
+
+    /**
+     * Checking if the strings here match the book details displayed
+     */
+    private void checkBookDetails(String bookTitle,
+                                  String bookDescription,
+                                  String bookAuthor,
+                                  String bookISBN) {
+        onView(withId(R.id.bookViewTitle))
+                .check(ViewAssertions.matches(ViewMatchers.withText(bookTitle)));
+        onView(withId(R.id.bookViewDescription))
+                .check(ViewAssertions.matches(ViewMatchers.withText(bookDescription)));
+        onView(withId(R.id.bookViewAuthor))
+                .check(ViewAssertions.matches(ViewMatchers.withText(bookAuthor)));
+        onView(withId(R.id.bookViewISBN))
+                .check(ViewAssertions.matches(ViewMatchers.withText(bookISBN)));
+    }
+
+    /**
+     * Checks if the displayed details in the AddBookActivity matches the expected values,
+     * then replaces them with the new values.
+     */
+    private void checkAndReplaceBookDetails(
+            String bookTitle, String newBookTitle,
+            String bookDescription, String newBookDesc,
+            String bookAuthor, String newBookAuthor,
+            String bookISBN, String newBookISBN) {
+        onView(withId(R.id.title_id))
+                .check(ViewAssertions.matches(ViewMatchers.withText(bookTitle)))
+                .perform(clearText())
+                .perform(typeText(newBookTitle));
+        onView(withId(R.id.ISBN_ID))
+                .check(ViewAssertions.matches(ViewMatchers.withText(bookISBN)))
+                .perform(clearText())
+                .perform(typeText(newBookISBN));
+        onView(withId(R.id.author_id))
+                .check(ViewAssertions.matches(ViewMatchers.withText(bookAuthor)))
+                .perform(clearText())
+                .perform(typeText(newBookAuthor), ViewActions.closeSoftKeyboard());
+        onView(withId(R.id.description_id))
+                .check(ViewAssertions.matches(ViewMatchers.withText(bookDescription)))
+                .perform(clearText())
+                .perform(typeText(newBookDesc), ViewActions.closeSoftKeyboard());
+    }
+
+    private void setOldDetailsBack(String oldBookTitle,
+                                   String oldDesc,
+                                   String oldAuthor,
+                                   String oldISBN) {
+        onView(withId(R.id.title_id))
+                .perform(clearText())
+                .perform(typeText(oldBookTitle));
+        onView(withId(R.id.ISBN_ID))
+                .perform(clearText())
+                .perform(typeText(oldISBN));
+        onView(withId(R.id.author_id))
+                .perform(clearText())
+                .perform(typeText(oldAuthor), ViewActions.closeSoftKeyboard());
+        onView(withId(R.id.description_id))
+                .perform(clearText())
+                .perform(typeText(oldDesc), ViewActions.closeSoftKeyboard());
+
+    }
 
 
 }
