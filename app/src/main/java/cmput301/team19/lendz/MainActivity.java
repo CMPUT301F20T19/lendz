@@ -14,6 +14,9 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.auth.User;
 
+/**
+ * this activity contains the bottom navigation of the app
+ */
 public class MainActivity extends AppCompatActivity {
 
 

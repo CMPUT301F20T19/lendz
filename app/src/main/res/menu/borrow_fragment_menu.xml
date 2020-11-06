@@ -9,7 +9,3 @@
         app:showAsAction="ifRoom|collapseActionView"/>
 
 </menu>
-
-
-    <!--        app:actionViewClass="androidx.appcompat.widget.SearchView"-->
-    <!--        />-->

@@ -2,9 +2,11 @@ package cmput301.team19.lendz;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.app.FragmentTransaction;
 import android.app.ProgressDialog;
 import android.app.SearchManager;
 import android.content.Intent;
@@ -26,7 +28,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class SearchBooksActivities extends AppCompatActivity implements OnBookClickListener{
+/**
+ * Activity that allows the user to search for books based on keywords
+ */
+public class SearchBooksActivity extends AppCompatActivity implements OnBookClickListener{
 
     private static final String TAG = "Search created" ;
     private SearchViewAdapter adapter;
@@ -50,12 +55,18 @@ public class SearchBooksActivities extends AppCompatActivity implements OnBookCl
 
     }
 
+    /**
+     * Initializes and shows the progress dialog
+     */
     private void setUp() {
         progressDialog = new ProgressDialog(this);
         progressDialog.setTitle("Loading...");
         progressDialog.show();
     }
 
+    /**
+     * initializes and sets up the recycler view to be used for displaying search results
+     */
     private void initRecyclerView() {
         adapter = new SearchViewAdapter(books,this, this);
         recyclerView.setAdapter(adapter);
@@ -63,6 +74,10 @@ public class SearchBooksActivities extends AppCompatActivity implements OnBookCl
     }
 
 
+    /**
+     * Listens for a click on the search button and triggers the assigned function for performing searches
+     * @param view the current view being displayed.i.e the searchBookActivities
+     */
     public void onSearchButtonClicked(View view) {
         books.clear();
         adapter.notifyDataSetChanged();
@@ -71,6 +86,10 @@ public class SearchBooksActivities extends AppCompatActivity implements OnBookCl
         performSearch(searchText);
     }
 
+    /**
+     * Receives a query and perform a search based on the query in the database
+     * @param query the keyword the user typed which is used for searching the db
+     */
     private void performSearch(String query ) {
         setUp();
         booksRef
@@ -84,7 +103,9 @@ public class SearchBooksActivities extends AppCompatActivity implements OnBookCl
                     progressDialog.dismiss();
                     for (QueryDocumentSnapshot document : task.getResult()) {
 //                        Log.d(TAG, document.getId() + " => " + document.getData());
-                        addBook(document.getId(),document);
+                        if(document != null) {
+                            addBook(document.getId(),document);
+                        }
                     }
                 } else {
                     Log.d(TAG, "Error getting documents: ", task.getException());
@@ -93,6 +114,11 @@ public class SearchBooksActivities extends AppCompatActivity implements OnBookCl
         });
     }
 
+    /**
+     * Creates and adds a book object to the search results recyclerView from a snapshot and book id
+     ** @param id of the Book to be added to the respective arrayList
+     ** @param snapshot of the book from the database
+     */
     private void addBook(String id, DocumentSnapshot snapshot) {
         Book book = Book.getOrCreate(id);
         book.load(snapshot);
@@ -100,10 +126,13 @@ public class SearchBooksActivities extends AppCompatActivity implements OnBookCl
         adapter.notifyItemInserted(books.size());
     }
 
+    /**
+     * Listens for a book click and starts an intent to view the book details
+     * @param position the position in the recycler view that was clicked
+     */
     @Override
     public void onBookClick(int position) {
-        Intent intent = new Intent();
-        startActivity(intent);
+
     }
 
     @Override

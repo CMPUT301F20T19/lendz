@@ -46,6 +46,9 @@ public class ViewUserProfileFragment extends Fragment {
         // Required empty public constructor
     }
 
+    /**
+     * Create a new instance of the ViewUserProfileFragment, viewing the user with the given ID.
+     */
     public static ViewUserProfileFragment newInstance(String userId) {
         ViewUserProfileFragment fragment = new ViewUserProfileFragment();
         Bundle args = new Bundle();

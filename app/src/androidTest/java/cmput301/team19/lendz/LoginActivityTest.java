@@ -53,7 +53,7 @@ public class LoginActivityTest {
      */
     @Test
     public void testLogin() throws InterruptedException {
-        //​Asserts that the current activity is the LoginActivity. Otherwise, show “Wrong Activity”
+        //​Asserts that the current activity is the LoginActivity. Otherwise, show "Wrong Activity"
         solo.assertCurrentActivity("Wrong Activity",LoginActivity.class);
 
         //Get view for email EditText and enter email
@@ -67,7 +67,7 @@ public class LoginActivityTest {
         //Click on login button
         solo.clickOnButton("LOGIN");
 
-        //​Asserts that the current activity is the SignUp. Otherwise, show “Wrong Activity”
+        //​Asserts that the current activity is the SignUp. Otherwise, show "Wrong Activity"
         solo.assertCurrentActivity("Wrong Activity",MainActivity.class);
 
         //Get the bottom navigation bar
@@ -79,7 +79,7 @@ public class LoginActivityTest {
         //Click of LogOut
         solo.clickOnButton("Log Out");
 
-        //​Asserts that the current activity is the LoginActivity Otherwise, show “Wrong Activity”
+        //​Asserts that the current activity is the LoginActivity Otherwise, show "Wrong Activity"
         solo.assertCurrentActivity("Wrong Activity",LoginActivity.class);
 
     }

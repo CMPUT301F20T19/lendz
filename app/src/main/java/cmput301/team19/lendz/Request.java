@@ -11,6 +11,10 @@ import com.google.firebase.firestore.SetOptions;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Stores information about a request for a book.
+ * Provides methods for synchronization with Firestore.
+ */
 public class Request {
     private static final String BOOK_KEY = "book";
     private static final String REQUESTER_KEY = "requester";
@@ -18,10 +22,11 @@ public class Request {
 
     // Maps request ID to Request object, guaranteeing at most
     // one Request object for each request.
-    public static HashMap<String, Request> requests;
+    public static HashMap<String, Request> requests = new HashMap<>();
 
     /**
      * Get or create the unique Request object with the given request ID.
+     * @return the Request object
      */
     public static Request getOrCreate(@NonNull String id) {
         Request request = requests.get(id);
@@ -48,11 +53,6 @@ public class Request {
      */
     public DocumentReference getDocumentReference() {
         return FirebaseFirestore.getInstance().collection("requests").document(id);
-    }
-
-
-    public void setStatus(RequestStatus status) {
-        this.status = status;
     }
 
     /**
@@ -90,27 +90,50 @@ public class Request {
         return getDocumentReference().set(toData(), SetOptions.merge());
     }
 
+    /**
+     * @return the User who made this request
+     */
     public User getRequester() {
         return requester;
     }
 
+    /**
+     * Sets the User who made this request
+     * @param requester User to use
+     */
     public void setRequester(User requester) {
         this.requester = requester;
     }
 
     public RequestStatus getStatus() { return status; }
 
+    /**
+     * Set the current status of this Request
+     * @param status status to use
+     */
+    public void setStatus(RequestStatus status) {
+        this.status = status;
+    }
 
+    /**
+     * @return the Book being requested by this Request
+     */
     public Book getBook() {
         return book;
     }
 
+    /**
+     * Set the Book being requested by this Request
+     * @param book Book to use
+     */
     public void setBook(Book book) {
         this.book = book;
     }
 
+    /**
+     * @return true if this Request object has loaded from Firestore, false otherwise
+     */
     public boolean isLoaded() {
         return loaded;
     }
-
 }

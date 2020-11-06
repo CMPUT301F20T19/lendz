@@ -59,6 +59,10 @@ public class ViewBookFragment extends Fragment {
         return fragment;
     }
 
+    /**
+     * @param savedInstanceState
+     * set the menu option to true so icons are visible
+     */
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -81,6 +85,12 @@ public class ViewBookFragment extends Fragment {
         }
     }
 
+    /**
+     * @param inflater
+     * @param container
+     * @param savedInstanceState
+     * @return the view that the works was done in
+     */
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -162,6 +172,12 @@ public class ViewBookFragment extends Fragment {
         inflater.inflate(R.menu.view_book_details, menu);
     }
 
+    /**
+     * switches to the appropriate view
+     * and perform actions
+     * @param item
+     * @return
+     */
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()){
@@ -178,7 +194,7 @@ public class ViewBookFragment extends Fragment {
                         bookBorrowerTextView.setText(null);
                         book.setPhoto("http://abcd");
                         Picasso.get().load(book.getPhoto()).into(bookImage);
-                        getFragmentManager().popBackStack();;
+                        getParentFragmentManager().popBackStack();
                     }
                 }).addOnFailureListener(new OnFailureListener() {
                     @Override
@@ -193,9 +209,10 @@ public class ViewBookFragment extends Fragment {
             case R.id.editBookDetails:
                 Intent intent = new Intent(getActivity(), AddBookActivity.class);
                 final String bookId = getArguments().getString(ARG_BOOK_ID);
-                //Toast.makeText(getContext(),  bookId ,Toast.LENGTH_SHORT).show();
                 intent.putExtra("bookId", bookId);
                 startActivity(intent);
+            case R.id.viewBookBack:
+                getParentFragmentManager().popBackStack();
             default:
                 return super.onOptionsItemSelected(item);
         }

@@ -36,6 +36,11 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.storage.FirebaseStorage;
 import com.squareup.picasso.Picasso;
 
+/**
+ * This is this Class that handles logging in of the user.
+ * It grabs data input by the user and logs them in using firebase inbuilt authentication then stores their data
+ * After this is successfully done it directs them to the Main Activity where they can use the app as they desire
+ */
 public class LoginActivity extends AppCompatActivity {
 
     private EditText email;
