@@ -194,7 +194,7 @@ public class ViewBookFragment extends Fragment {
                         bookBorrowerTextView.setText(null);
                         book.setPhoto("http://abcd");
                         Picasso.get().load(book.getPhoto()).into(bookImage);
-                        getParentFragmentManager().popBackStack();;
+                        getParentFragmentManager().popBackStack();
                     }
                 }).addOnFailureListener(new OnFailureListener() {
                     @Override
@@ -211,6 +211,8 @@ public class ViewBookFragment extends Fragment {
                 final String bookId = getArguments().getString(ARG_BOOK_ID);
                 intent.putExtra("bookId", bookId);
                 startActivity(intent);
+            case R.id.viewBookBack:
+                getParentFragmentManager().popBackStack();
             default:
                 return super.onOptionsItemSelected(item);
         }

@@ -15,14 +15,16 @@ android {
         vectorDrawables.useSupportLibrary = true
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
-    testOptions {
-        animationsDisabled = true
-    }
+
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
+    }
+
+    testOptions {
+        animationsDisabled = true
     }
 }
 
@@ -45,11 +47,9 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
     androidTestImplementation 'com.android.support.test.espresso:espresso-contrib:3.3.0'
-    androidTestImplementation 'com.android.support.test.espresso:espresso-intents:3.3.0'
     implementation 'com.journeyapps:zxing-android-embedded:3.6.0'
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
     androidTestImplementation 'com.jayway.android.robotium:robotium-solo:5.6.3'
     androidTestImplementation 'androidx.test:runner:1.2.0'
     androidTestImplementation 'androidx.test:rules:1.2.0'
-
 }

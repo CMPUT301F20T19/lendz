@@ -315,8 +315,8 @@ public class AddBookActivity extends AppCompatActivity implements View.OnClickLi
     }
 
     /**
-     *takes bookcollection reference and book id as arguments
-     *creates a book object and optionally removes a photo attached to a bookobject in Firestore.
+     *takes bookCollection reference and book id as arguments
+     *creates a book object and optionally removes a photo attached to a bookObject in Firestore.
      */
     public void sendToFirestore(final CollectionReference BookCollection, final String id){
         tempId = id;
