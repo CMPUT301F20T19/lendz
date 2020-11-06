@@ -77,14 +77,12 @@ public class EditBookTest {
             .perform(typeText("Expresso isbn"));
     onView(withId(R.id.author_id))
             .perform(clearText())
-            .perform(typeText("Expresso Author"));
+            .perform(typeText("Expresso Author"), ViewActions.closeSoftKeyboard());
     onView(withId(R.id.description_id))
             .perform(clearText())
-            .perform(typeText("Expresso Description"));
+            .perform(typeText("Expresso Description woooow"), ViewActions.closeSoftKeyboard());
     onView(withId(R.id.save_id))
-            .perform(ViewActions.click());
-
-
+            .perform(ViewActions.click(), ViewActions.closeSoftKeyboard());
 
 
 }
