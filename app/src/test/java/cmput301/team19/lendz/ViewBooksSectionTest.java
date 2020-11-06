@@ -9,14 +9,14 @@ import static org.junit.Assert.assertSame;
 
 public class ViewBooksSectionTest {
     @Test
-    void testGetSectionHeader() {
+    public void testGetSectionHeader() {
         ViewBooksSection mockSection = new ViewBooksSection("mock section",
                 new ArrayList<Book>());
         assertEquals("mock section", mockSection.getSectionHeader());
     }
 
     @Test
-    void testGetBooks() {
+    public void testGetBooks() {
         Book book1 = Book.getOrCreate("123");
         Book book2 = Book.getOrCreate("456");
 
