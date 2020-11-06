@@ -34,6 +34,9 @@ import com.squareup.picasso.Picasso;
 
 /**
  * This is the class that handles signing up a new user
+ * It grabs data input by the user and signs them up using firebase inbuilt authentication then stores their data
+ * in Firestore.
+ * After this is successfully done it directs them to the Main Activity where they can use the app as they desire
  */
 public class SignUpActivity extends AppCompatActivity {
 
