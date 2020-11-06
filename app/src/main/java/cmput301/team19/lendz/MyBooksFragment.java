@@ -105,10 +105,15 @@ public class MyBooksFragment extends Fragment implements OnBookClickListener {
         });
     }
 
+    /**
+     * Initializes the array lists availableBooks, requestedBooks, acceptedBooks,
+     * borrowedBooks and sections.
+     */
     private void setUp() {
         progressDialog = new ProgressDialog(myBooksView.getContext());
         progressDialog.setTitle("Loading...");
         progressDialog.show();
+
         availableBooks = new ArrayList<>();
         requestedBooks = new ArrayList<>();
         acceptedBooks = new ArrayList<>();
@@ -117,7 +122,13 @@ public class MyBooksFragment extends Fragment implements OnBookClickListener {
     }
 
     /**
+<<<<<<< HEAD
+     * Creates a new ViewBooksSection if there is any book in a section
+     * (i.e. available books, requested books, accepted books or borrowed books)
+     * and adds it to the array list sections.
+=======
      * Check if the sections contains books to be displayed
+>>>>>>> dev
      */
     private void checkSections() {
         if (availableBooks.size() > 0) {
@@ -135,7 +146,11 @@ public class MyBooksFragment extends Fragment implements OnBookClickListener {
     }
 
     /**
+<<<<<<< HEAD
+     * Initializes the recycler view that shows sections and the books in them.
+=======
      * initializes and sets up the recycler view to be used for displaying books
+>>>>>>> dev
      */
     private void initRecyclerView() {
         viewBooksRecyclerView = myBooksView.findViewById(R.id.myBooksFrag_recyclerView);
@@ -146,11 +161,15 @@ public class MyBooksFragment extends Fragment implements OnBookClickListener {
     }
 
     /**
+<<<<<<< HEAD
+     * Finds books owned by a user and
+     * calls checkSections and initRecyclerView.
+=======
      * Searches firebase for the current user's books
      * and sorts them
+>>>>>>> dev
      */
     private void loadBooks() {
-
         booksRef
                 .whereEqualTo("owner", User.documentOf(userID))
 //                .orderBy("description.title")
@@ -173,22 +192,34 @@ public class MyBooksFragment extends Fragment implements OnBookClickListener {
     }
 
     /**
+<<<<<<< HEAD
+     * Loads data about book and adds the book object to
+     * one of the following array lists: availableBooks,
+     * requestedBooks, acceptedBooks or borrowedBooks.
+     * @param id   ID of the book
+     * @param snapshot document snapshot corresponding to the book
+=======
      * this functions loads book from the snapshot and id given
      * and adds them to their respective arrayList
      * @param id of the Book to be added to the respective arrayList
      * @param snapshot of the book from the database
+>>>>>>> dev
      */
     private void addBooks(String id, DocumentSnapshot snapshot) {
+        // loading book data
         Book book = Book.getOrCreate(id);
         book.load(snapshot);
         BookStatus bookStatus = book.getStatus();
         Request bookAcceptedRequest = book.getAcceptedRequest();
+
+        // adding book to the appropriate array list
         if (bookStatus == BookStatus.BORROWED) {
             borrowedBooks.add(borrowedBooks.size(), book);
         } else if (bookStatus == BookStatus.AVAILABLE) {
             availableBooks.add(availableBooks.size(),book);
         } else if (bookAcceptedRequest != null) {
             RequestStatus bookRequestStatus = bookAcceptedRequest.getStatus();
+
             if (bookRequestStatus == RequestStatus.SENT) {
                 requestedBooks.add(requestedBooks.size(),book);
             } else if (bookRequestStatus == RequestStatus.ACCEPTED) {
@@ -203,9 +234,14 @@ public class MyBooksFragment extends Fragment implements OnBookClickListener {
     }
 
     /**
+<<<<<<< HEAD
+     * Shows data about the book clicked on.
+     * @param book the book clicked on
+=======
      * Receives the book that was clicked and passes it on
      * to the viewFragment; to view the book details
      * @param book clicked from the recycler view
+>>>>>>> dev
      */
     @Override
     public void onBookClick(Book book) {
