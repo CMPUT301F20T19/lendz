@@ -33,6 +33,10 @@ public class EditBookTest {
     public ActivityScenarioRule<LoginActivity> rule =
             new ActivityScenarioRule<>(LoginActivity.class);
 
+    /**
+     * Makes sure that every test begins with an up-to date sign in .
+     * @throws Exception
+     */
     @Before
     public void logUserIn() throws Exception {
         // Ensure started logged out
@@ -52,6 +56,10 @@ public class EditBookTest {
 
     }
 
+    /**
+     * Tests the sequencial order in successfully navigating to the addbook activity.
+     * @throws Exception
+     */
     @Test
     public void  Nagivate_To_Add_Book_Activity() throws Exception {
         onView(withId(R.id.my_books))
@@ -86,6 +94,10 @@ public class EditBookTest {
 
 
 
+    /**
+     * Tests that all ui components in the add book activity are present.
+     * @throws Exception
+     */
 
     public void check_if_editViews_exist(){
         onView(withId(R.id.book_IV)).check(matches(isDisplayed()));
@@ -100,7 +112,10 @@ public class EditBookTest {
         onView(withId(R.id.delImg)).check(matches(isDisplayed()));
     }
 
-
+    /**
+     * Tests that a book object was successfully sent to firebase.
+     * @throws Exception
+     */
     public void Fill_Book_details(){
         onView(withId(R.id.title_id))
                 .perform(clearText())
