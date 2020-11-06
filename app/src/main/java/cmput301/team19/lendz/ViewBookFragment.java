@@ -9,6 +9,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -20,11 +21,17 @@ import androidx.fragment.app.FragmentTransaction;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.squareup.picasso.Picasso;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -34,8 +41,9 @@ import java.util.UUID;
 public class ViewBookFragment extends Fragment {
     // Parameter names
     private static final String ARG_BOOK_ID = "bookId";
-
+    Button requestBtn;
     private Book book;
+    FirebaseFirestore firestoreRef;
 
     private TextView bookTitleTextView, bookStatusTextView, bookDescriptionTextView, bookAuthorTextView,
     bookISBNTextVIew, bookOwnerTextView, bookBorrowerTextView;
@@ -86,6 +94,45 @@ public class ViewBookFragment extends Fragment {
         bookOwnerTextView = view.findViewById(R.id.bookViewOwner);
         bookBorrowerTextView = view.findViewById(R.id.bookViewUsername);
         bookImage = view.findViewById(R.id.bookImge);
+        requestBtn = view.findViewById(R.id.request_book);
+        requestBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Toast.makeText(getContext(),"request btn tapped",Toast.LENGTH_SHORT).show();
+                firestoreRef = FirebaseFirestore.getInstance();
+                final CollectionReference requestCollection = firestoreRef.collection("requests");
+
+                //generate id
+                String id = requestCollection.document().getId();
+//                Toast.makeText(getContext(), id, Toast.LENGTH_SHORT).show();
+                //cxreate request object
+
+
+                final String bid = getArguments().getString(ARG_BOOK_ID);
+                Toast.makeText(getContext(), bid, Toast.LENGTH_SHORT).show();
+//                Request requestObject = Request.getOrCreate(id);
+                //create a pointer to user details and store its reference in firestore
+
+//                Map<String, Object> map = new HashMap<>();
+//                map.put("book", Book.documentOf(bid));
+//                map.put("requester", User.documentOf(FirebaseAuth.getInstance().getCurrentUser().getUid()));
+//                map.put("status", 0);
+//
+//                //Send Request Object to Firestore
+//                requestCollection.document(id).set(map)
+//                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+//                            @Override
+//                            public void onSuccess(Void aVoid) {
+//                                Toast.makeText(getContext(), "request sent", Toast.LENGTH_SHORT).show();
+//                            }
+//                        }).addOnFailureListener(new OnFailureListener() {
+//                    @Override
+//                    public void onFailure(@NonNull Exception e) {
+//                        Toast.makeText(getContext(), "failed to send request", Toast.LENGTH_SHORT).show();
+//                    }
+//                });
+            }
+        });
 
         if (getArguments() == null)
             throw new IllegalArgumentException("no arguments");

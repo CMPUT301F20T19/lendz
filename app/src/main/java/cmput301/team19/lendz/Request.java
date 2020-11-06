@@ -50,13 +50,17 @@ public class Request {
         return FirebaseFirestore.getInstance().collection("requests").document(id);
     }
 
+
+    public void setStatus(RequestStatus status) {
+        this.status = status;
+    }
+
     /**
      * Updates this Request object with data from a Firebase DocumentSnapshot.
      * @param doc DocumentSnapshot to load from
      */
     public void load(@NonNull DocumentSnapshot doc) {
         loaded = true;
-
         book = Book.getOrCreate(doc.getDocumentReference(BOOK_KEY).getId());
         requester = User.getOrCreate(doc.getDocumentReference(REQUESTER_KEY).getId());
         Long statusLong = doc.getLong(STATUS_KEY);
@@ -96,7 +100,17 @@ public class Request {
 
     public RequestStatus getStatus() { return status; }
 
+
+    public Book getBook() {
+        return book;
+    }
+
+    public void setBook(Book book) {
+        this.book = book;
+    }
+
     public boolean isLoaded() {
         return loaded;
     }
+
 }
