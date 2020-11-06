@@ -2,6 +2,10 @@ package cmput301.team19.lendz;
 
 import java.util.ArrayList;
 
+/**
+ * Allows section and book data to be passed to
+ * recycler view adapter easily.
+ */
 public class ViewBooksSection {
     private String sectionHeader;
     private ArrayList<Book> books;

@@ -86,6 +86,10 @@ public class MyBooksFragment extends Fragment implements OnBookClickListener {
         return view;
     }
 
+    /**
+     * Opens activity for adding new book.
+     * @param view the current view
+     */
     private void addBook(View view) {
         FloatingActionButton button = view.findViewById(R.id.add_book_button);
         button.setOnClickListener(new View.OnClickListener() {
@@ -97,10 +101,15 @@ public class MyBooksFragment extends Fragment implements OnBookClickListener {
         });
     }
 
+    /**
+     * Initializes the array lists availableBooks, requestedBooks, acceptedBooks,
+     * borrowedBooks and sections.
+     */
     private void setUp() {
         progressDialog = new ProgressDialog(myBooksView.getContext());
         progressDialog.setTitle("Loading...");
         progressDialog.show();
+
         availableBooks = new ArrayList<>();
         requestedBooks = new ArrayList<>();
         acceptedBooks = new ArrayList<>();
@@ -108,6 +117,11 @@ public class MyBooksFragment extends Fragment implements OnBookClickListener {
         sections = new ArrayList<>();
     }
 
+    /**
+     * Creates a new ViewBooksSection if there is any book in a section
+     * (i.e. available books, requested books, accepted books or borrowed books)
+     * and adds it to the array list sections.
+     */
     private void checkSections() {
         if (availableBooks.size() > 0) {
             sections.add(new ViewBooksSection("Available Books", availableBooks));
@@ -123,6 +137,9 @@ public class MyBooksFragment extends Fragment implements OnBookClickListener {
         }
     }
 
+    /**
+     * Initializes the recycler view that shows sections and the books in them.
+     */
     private void initRecyclerView() {
         viewBooksRecyclerView = myBooksView.findViewById(R.id.myBooksFrag_recyclerView);
         viewBooksAdapter = new ViewBooksAdapter(myBooksView.getContext(), sections,this);
@@ -131,8 +148,11 @@ public class MyBooksFragment extends Fragment implements OnBookClickListener {
         viewBooksRecyclerView.addItemDecoration(new DividerItemDecoration(myBooksView.getContext(), DividerItemDecoration.VERTICAL));
     }
 
+    /**
+     * Finds books owned by a user and
+     * calls checkSections and initRecyclerView.
+     */
     private void loadBooks() {
-
         booksRef
                 .whereEqualTo("owner", User.documentOf(userID))
                 .get()
@@ -153,17 +173,28 @@ public class MyBooksFragment extends Fragment implements OnBookClickListener {
                 });
     }
 
+    /**
+     * Loads data about book and adds the book object to
+     * one of the following array lists: availableBooks,
+     * requestedBooks, acceptedBooks or borrowedBooks.
+     * @param id   ID of the book
+     * @param snapshot document snapshot corresponding to the book
+     */
     private void addBooks(String id, DocumentSnapshot snapshot) {
+        // loading book data
         Book book = Book.getOrCreate(id);
         book.load(snapshot);
         BookStatus bookStatus = book.getStatus();
         Request bookAcceptedRequest = book.getAcceptedRequest();
+
+        // adding book to the appropriate array list
         if (bookStatus == BookStatus.BORROWED) {
             borrowedBooks.add(borrowedBooks.size(), book);
         } else if (bookStatus == BookStatus.AVAILABLE) {
             availableBooks.add(availableBooks.size(),book);
         } else if (bookAcceptedRequest != null) {
             RequestStatus bookRequestStatus = bookAcceptedRequest.getStatus();
+
             if (bookRequestStatus == RequestStatus.SENT) {
                 requestedBooks.add(requestedBooks.size(),book);
             } else if (bookRequestStatus == RequestStatus.ACCEPTED) {
@@ -177,6 +208,10 @@ public class MyBooksFragment extends Fragment implements OnBookClickListener {
 
     }
 
+    /**
+     * Shows data about the book clicked on.
+     * @param book the book clicked on
+     */
     @Override
     public void onBookClick(Book book) {
         Log.e("BookTitle", book.getDescription().getTitle());
