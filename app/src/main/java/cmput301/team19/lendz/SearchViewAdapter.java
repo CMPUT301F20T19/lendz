@@ -35,7 +35,7 @@ public class SearchViewAdapter extends RecyclerView.Adapter<SearchViewAdapter.Vi
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         //have to use stuff from a arraylist
         Book book = searchResults.get(position);
-        holder.usernameTV.setText("Owned by: " + book.getOwner().getUsername());
+        holder.usernameTV.setText("Owned by: " + book.getOwnerUsername());
         holder.descriptionTV.setText(book.getDescription().getDescription());
         String status = book.getStatus() == BookStatus.AVAILABLE ? "Available": "Currently Requested";
         holder.statusTV.setText( "Status: " + status);
