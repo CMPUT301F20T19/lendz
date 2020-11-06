@@ -202,9 +202,7 @@ public class SignUpActivity extends AppCompatActivity {
     }
 
 
-    /**
-     * method that handles hiding password
-     */
+
     /**
      * method that handles hiding password
      */

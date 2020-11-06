@@ -124,6 +124,9 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * this methods handles the logging in of the user
+     */
     public void login()
     {
         email = findViewById(R.id.editText_login_email);
@@ -167,6 +170,13 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * this method checks the validity of an email
+     * @param target
+     * this is email to be checked
+     * @return
+     * returns true if the email is valid (matches the pattern of a generic email)
+     */
     private Boolean isValidEmail(CharSequence target){
         return Patterns.EMAIL_ADDRESS.matcher(target).matches();
     };

@@ -45,6 +45,9 @@ public class SignUpActivityTest {
         solo = new Solo(InstrumentationRegistry.getInstrumentation(), rule.getActivity());
     }
 
+    /**
+     * test for signing up
+     */
     @Test
     public void testSignup()
     {
