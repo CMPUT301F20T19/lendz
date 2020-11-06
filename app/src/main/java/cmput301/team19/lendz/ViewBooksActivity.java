@@ -14,10 +14,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FirebaseFirestoreException;
-import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
@@ -25,102 +22,134 @@ import java.util.ArrayList;
 
 public class ViewBooksActivity extends AppCompatActivity implements OnBookClickListener {
     private static final String TAG = "ViewBooksActivity";
+    FirebaseFirestore database;
+    CollectionReference booksReference;
 
-    private RecyclerView viewBooksRecyclerView;
     private ArrayList<Book> availableBooks;
     private ArrayList<Book> requestedBooks;
     private ArrayList<Book> acceptedBooks;
     private ArrayList<Book> borrowedBooks;
-    private ViewBooksAdapter viewBooksAdapter;
     private ArrayList<ViewBooksSection> sections;
-    FirebaseFirestore db;
-    CollectionReference booksRef;
+
+    private RecyclerView viewBooksRecyclerView;
+    private ViewBooksAdapter viewBooksAdapter;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_view_books);
 
-        db = FirebaseFirestore.getInstance();
-        booksRef = db.collection("books");
-        setUp();
+        database = FirebaseFirestore.getInstance();
+        booksReference = database.collection("books");
+
+        initializeArrayLists();
         loadBooks();
     }
 
-    private void setUp() {
+    /**
+    * Initializes the array lists availableBooks, requestedBooks, acceptedBooks,
+     * borrowedBooks and sections.
+     */
+    private void initializeArrayLists() {
         availableBooks = new ArrayList<>();
         requestedBooks = new ArrayList<>();
         acceptedBooks = new ArrayList<>();
         borrowedBooks = new ArrayList<>();
+
         sections = new ArrayList<>();
     }
 
-    private void checkSections() {
+    /**
+     * Creates a new ViewBooksSection if there is any book in a section
+     * (i.e. available books, requested books, accepted books or borrowed books)
+     * and adds it to the array list sections.
+     */
+    private void createSections() {
         if (availableBooks.size() > 0) {
             sections.add(new ViewBooksSection("Available Books", availableBooks));
         }
+
         if (requestedBooks.size() > 0) {
             sections.add(new ViewBooksSection("Requested Books", requestedBooks));
         }
+
         if (acceptedBooks.size() > 0) {
             sections.add(new ViewBooksSection("Accepted Books", acceptedBooks));
         }
+
         if (borrowedBooks.size() > 0) {
             sections.add(new ViewBooksSection("Borrowed Books", borrowedBooks));
         }
     }
 
-    private void initRecyclerView() {
+    /**
+     * Initializes the recycler view that shows sections and the books in them.
+     */
+    private void initializeRecyclerView() {
         viewBooksRecyclerView = findViewById(R.id.book_list);
         viewBooksAdapter = new ViewBooksAdapter(this, sections,this);
         viewBooksRecyclerView.setAdapter(viewBooksAdapter);
         viewBooksRecyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
     }
 
+    /**
+     * Finds books owned by a user and
+     * calls createSections and initializeRecyclerView.
+     */
     private void loadBooks() {
         // String currentUserID = FirebaseAuth.getInstance().getCurrentUser().getUid();
         // User currentUser = User.getOrCreate(currentUserID);
 
         // new code for loading books of user
-        final String currentUserID = "gBDk9Ex6KTUcjIgP9LNBLIlJ6h72";
+        final String currentUserId = "gBDk9Ex6KTUcjIgP9LNBLIlJ6h72";
 
-        booksRef
-            .whereEqualTo("owner", User.documentOf(currentUserID))
-        .get()
-        .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+        booksReference
+                .whereEqualTo("owner", User.documentOf(currentUserId))
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 if (task.isSuccessful()) {
                     for (QueryDocumentSnapshot document : task.getResult()) {
-//                        Log.d(TAG, document.getId() + " => " + document.getData());
-                        addBooks(document.getId(),document);
+                        addBook(document.getId(), document);
                     }
-                    checkSections();
-                    initRecyclerView();
+
+                    createSections();
+                    initializeRecyclerView();
                 } else {
                     Log.d(TAG, "Error getting book ID: ", task.getException());
                 }
             }
         });
 
-
     }
 
-    private void addBooks(String id, DocumentSnapshot snapshot) {
-        Book book = Book.getOrCreate(id);
+    /**
+     * Loads data about book and adds the book object to
+     * one of the following array lists: availableBooks,
+     * requestedBooks, acceptedBooks or borrowedBooks.
+     * @param bookId   ID of the book
+     * @param snapshot document snapshot corresponding to the book
+     */
+    private void addBook(String bookId, DocumentSnapshot snapshot) {
+        // loading book data
+        Book book = Book.getOrCreate(bookId);
         book.load(snapshot);
         BookStatus bookStatus = book.getStatus();
         Request bookAcceptedRequest = book.getAcceptedRequest();
+
+        // adding book to the appropriate array list
         if (bookStatus == BookStatus.BORROWED) {
             borrowedBooks.add(borrowedBooks.size(), book);
         } else if (bookStatus == BookStatus.AVAILABLE) {
-            availableBooks.add(availableBooks.size(),book);
+            availableBooks.add(availableBooks.size(), book);
         } else if (bookAcceptedRequest != null) {
             RequestStatus bookRequestStatus = bookAcceptedRequest.getStatus();
+
             if (bookRequestStatus == RequestStatus.SENT) {
-                requestedBooks.add(requestedBooks.size(),book);
+                requestedBooks.add(requestedBooks.size(), book);
             } else if (bookRequestStatus == RequestStatus.ACCEPTED) {
-                acceptedBooks.add(acceptedBooks.size(),book);
+                acceptedBooks.add(acceptedBooks.size(), book);
             }
         }
     }
