@@ -32,6 +32,9 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.squareup.picasso.Picasso;
 
+/**
+ * This is the class that handles signing up a new user
+ */
 public class SignUpActivity extends AppCompatActivity {
 
     private Button signUpBtn;

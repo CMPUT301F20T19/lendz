@@ -36,6 +36,9 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.storage.FirebaseStorage;
 import com.squareup.picasso.Picasso;
 
+/**
+ * This is this Class that handle logging in of the user.
+ */
 public class LoginActivity extends AppCompatActivity {
 
     private EditText email;
