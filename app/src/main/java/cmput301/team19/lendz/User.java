@@ -16,6 +16,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+/**
+ * Stores information about a user and provides methods for synchronizing with Firestore.
+ */
 public class User {
     private static final String USERNAME_KEY = "username";
     private static final String FULL_NAME_KEY = "fullName";
@@ -28,18 +31,20 @@ public class User {
     // one User object for each user.
     private static final HashMap<String, User> users = new HashMap<>();
 
-    private String id;
+    private final String id;
     private String username;
 
     private String fullName;
     private String email;
     private String phoneNumber;
+    private final ArrayList<String> ownedBookIds = new ArrayList<>();
+    private final ArrayList<String> borrowedBookIds = new ArrayList<>();
 
-    private final ArrayList<UUID> ownedBookIds = new ArrayList<>();
-    private final ArrayList<UUID> borrowedBookIds = new ArrayList<>();
+    private boolean loaded;
 
     /**
      * Get or create the unique User object with the given user ID.
+     * @return the User object
      */
     public static User getOrCreate(String userId) {
         User user = users.get(userId);
@@ -52,12 +57,12 @@ public class User {
 
     /**
      * @return document of user with ID userId
-     * @param userId
+     * @param userId ID of User
      */
     public static DocumentReference documentOf(@NonNull String userId) {
         return FirebaseFirestore.getInstance()
-            .collection("users")
-            .document(userId.toString());
+                .collection("users")
+                .document(userId.toString());
     }
 
     /**
@@ -65,6 +70,8 @@ public class User {
      * @param doc DocumentSnapshot to load from
      */
     public void load(@NonNull DocumentSnapshot doc) {
+        loaded = true;
+
         setUsername(doc.getString(USERNAME_KEY));
         setFullName(doc.getString(FULL_NAME_KEY));
         setEmail(doc.getString(EMAIL_KEY));
@@ -74,14 +81,14 @@ public class User {
         Object ownedBookRefs = doc.get(OWNED_BOOKS_KEY);
         if (ownedBookRefs != null) {
             for (DocumentReference bookRef : (List<DocumentReference>) ownedBookRefs) {
-                ownedBookIds.add(UUID.fromString(bookRef.getId()));
+                ownedBookIds.add(bookRef.getId());
             }
         }
         borrowedBookIds.clear();
         Object borrowedBooksRefs = doc.get(BORROWED_BOOKS_KEY);
         if (borrowedBooksRefs != null) {
             for (DocumentReference bookRef : (List<DocumentReference>) borrowedBooksRefs) {
-                borrowedBookIds.add(UUID.fromString(bookRef.getId()));
+                borrowedBookIds.add(bookRef.getId());
             }
         }
     }
@@ -96,7 +103,7 @@ public class User {
         map.put(EMAIL_KEY, email);
         map.put(PHONE_NUMBER_KEY, phoneNumber);
         List<DocumentReference> ownedBookRefs = new ArrayList<>();
-        for (UUID bookId : ownedBookIds) {
+        for (String bookId : ownedBookIds) {
             ownedBookRefs.add(
                     FirebaseFirestore.getInstance()
                             .collection("books")
@@ -104,7 +111,7 @@ public class User {
         }
         map.put(OWNED_BOOKS_KEY, ownedBookRefs);
         List<DocumentReference> borrowedBookRefs = new ArrayList<>();
-        for (UUID bookId : borrowedBookIds) {
+        for (String bookId : borrowedBookIds) {
             borrowedBookRefs.add(
                     FirebaseFirestore.getInstance()
                             .collection("books")
@@ -127,47 +134,91 @@ public class User {
         this.id = id;
     }
 
+    /**
+     * @return the ID of this User
+     */
     public String getId() {
         return id;
     }
 
+    /**
+     * @return the username of this User
+     */
     public String getUsername() {
         return username;
     }
 
+    /**
+     * Set the username of this User
+     * @param username username to use
+     */
     public void setUsername(String username) {
         this.username = username;
     }
 
+    /**
+     * @return the full name of this User
+     */
     public String getFullName() {
         return fullName;
     }
 
+    /**
+     * Set the full name of this User
+     * @param fullName full name to use
+     */
     public void setFullName(String fullName) {
         this.fullName = fullName;
     }
 
+    /**
+     * @return the email address of this User
+     */
     public String getEmail() {
         return email;
     }
 
+    /**
+     * Set the email address of this User
+     * @param email email address to use
+     */
     public void setEmail(String email) {
         this.email = email;
     }
 
+    /**
+     * @return the phone number of this User
+     */
     public String getPhoneNumber() {
         return phoneNumber;
     }
 
+    /**
+     * Set the phone number of this User
+     * @param phoneNumber the phne number to use
+     */
     public void setPhoneNumber(String phoneNumber) {
         this.phoneNumber = phoneNumber;
     }
 
-    public ArrayList<UUID> getOwnedBookIds() {
+    /**
+     * @return true if this User has loaded data from Firestore, false otherwise
+     */
+    public boolean isLoaded() {
+        return loaded;
+    }
+
+    /**
+     * @return a list of IDs of Books this User owns
+     */
+    public ArrayList<String> getOwnedBookIds() {
         return ownedBookIds;
     }
 
-    public ArrayList<UUID> getBorrowedBookIds() {
+    /**
+     * @return a list of IDs of Books this User is currently borrowing
+     */
+    public ArrayList<String> getBorrowedBookIds() {
         return borrowedBookIds;
     }
 }

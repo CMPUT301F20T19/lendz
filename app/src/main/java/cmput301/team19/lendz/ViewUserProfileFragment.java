@@ -1,5 +1,6 @@
 package cmput301.team19.lendz;
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -14,8 +15,10 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
@@ -35,11 +38,17 @@ public class ViewUserProfileFragment extends Fragment {
     private User user;
 
     private TextView usernameTextView, fullNameTextView, emailTextView, phoneNumberTextView;
+    private Button logout_button;
+    FirebaseAuth mFirebaseAuth;
+    private FirebaseAuth.AuthStateListener mAuthStateListener;
 
     public ViewUserProfileFragment() {
         // Required empty public constructor
     }
 
+    /**
+     * Create a new instance of the ViewUserProfileFragment, viewing the user with the given ID.
+     */
     public static ViewUserProfileFragment newInstance(String userId) {
         ViewUserProfileFragment fragment = new ViewUserProfileFragment();
         Bundle args = new Bundle();
@@ -75,6 +84,7 @@ public class ViewUserProfileFragment extends Fragment {
         fullNameTextView = view.findViewById(R.id.fullNameTextView);
         emailTextView = view.findViewById(R.id.emailTextView);
         phoneNumberTextView = view.findViewById(R.id.phoneNumberTextView);
+        logout_button = view.findViewById(R.id.button_logout);
 
         if (getArguments() == null)
             throw new IllegalArgumentException("no arguments");
@@ -98,6 +108,14 @@ public class ViewUserProfileFragment extends Fragment {
             }
         });
         updateUserInfo();
+        logout_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                FirebaseAuth.getInstance().signOut();
+                Intent backToLogin = new Intent(getActivity(),LoginActivity.class);
+                startActivity(backToLogin);
+            }
+        });
         return view;
     }
 
@@ -127,7 +145,7 @@ public class ViewUserProfileFragment extends Fragment {
                 user.getFullName(),
                 user.getEmail(),
                 user.getPhoneNumber());
-        FragmentTransaction transaction = getFragmentManager().beginTransaction();
+        FragmentTransaction transaction = getParentFragmentManager().beginTransaction();
         transaction.setCustomAnimations(
                 R.anim.slide_in,
                 R.anim.fade_out,
@@ -135,7 +153,7 @@ public class ViewUserProfileFragment extends Fragment {
                 R.anim.slide_out
         );
 
-        transaction.replace(R.id.fragment_container, editUserProfileFragment);
+        transaction.replace(R.id.container, editUserProfileFragment);
         transaction.addToBackStack(null);
 
         transaction.commit();

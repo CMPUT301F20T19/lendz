@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/borrow"
+        android:title="@string/borrow_tab"
+        android:icon="@drawable/ic_borrow"/>
+
+    <item
+        android:id="@+id/my_books"
+        android:title="@string/myBooks_tab"
+        android:icon="@drawable/ic_baseline_collections_bookmark_24"/>
+
+    <item
+        android:id="@+id/notifications"
+        android:title="@string/notifications_tab"
+        android:icon="@drawable/ic_notifications"/>
+
+    <item
+        android:id="@+id/profile"
+        android:title="@string/profile_tab"
+        android:icon="@drawable/ic_profile"/>
+
+</menu>

@@ -38,11 +38,16 @@ public class EditUserProfileFragment extends Fragment {
     private EditText emailEditText;
     private EditText phoneNumberEditText;
 
+
     public EditUserProfileFragment() {
         // Required empty public constructor
     }
 
-    public static EditUserProfileFragment newInstance(String id, String username, String fullName, String email, String phoneNumber) {
+    /**
+     * Create and return a new instance of EditUserProfileFragment with the given arguments.
+     */
+    public static EditUserProfileFragment newInstance(
+            String id, String username, String fullName, String email, String phoneNumber) {
         EditUserProfileFragment fragment = new EditUserProfileFragment();
         Bundle args = new Bundle();
         args.putString(ARG_USER_ID, id);
@@ -119,7 +124,7 @@ public class EditUserProfileFragment extends Fragment {
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                        getFragmentManager().popBackStack();
+                        getParentFragmentManager().popBackStack();
                     }
                 }).addOnFailureListener(new OnFailureListener() {
                     @Override

@@ -6,9 +6,16 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.text.BoringLayout;
+import android.text.TextUtils;
+import android.text.method.HideReturnsTransformationMethod;
+import android.text.method.PasswordTransformationMethod;
 import android.util.Log;
+import android.util.Patterns;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
@@ -25,6 +32,12 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.squareup.picasso.Picasso;
 
+/**
+ * This is the class that handles signing up a new user
+ * It grabs data input by the user and signs them up using firebase inbuilt authentication then stores their data
+ * in Firestore.
+ * After this is successfully done it directs them to the Main Activity where they can use the app as they desire
+ */
 public class SignUpActivity extends AppCompatActivity {
 
     private Button signUpBtn;
@@ -40,14 +53,13 @@ public class SignUpActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_up);
         setImageView();
+        hidePassword();
         signUpBtn = findViewById(R.id.signUp_button);
         usernameEditText = findViewById(R.id.editText_signup_username);
         passWordEditText = findViewById(R.id.editText_signup_password);
         fullnameEditText = findViewById(R.id.editText_signup_full_name);
         phoneNumberEditText = findViewById(R.id.editText_signup_phone_number);
         emailEditText = findViewById(R.id.editText_signup_email);
-
-
 
         signUpBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -61,35 +73,51 @@ public class SignUpActivity extends AppCompatActivity {
                 final FirebaseAuth mFirebaseAuth= FirebaseAuth.getInstance();
                 final String email = emailEditText.getText().toString();
                 String pwd = passWordEditText.getText().toString();
-                if(!email.isEmpty()&&!pwd.isEmpty()&&!username.isEmpty()&&!fullname.isEmpty()&&!phonenumber.isEmpty())
+                if(!isValidEmail(email))
                 {
-                    mFirebaseAuth.createUserWithEmailAndPassword(email, pwd)
-                    .addOnCompleteListener(SignUpActivity.this,
-                    new OnCompleteListener<AuthResult>() {
-                        @Override
-                        public void onComplete(@NonNull Task<AuthResult> task) {
-                            if (!task.isSuccessful()) {
-
-                                Toast.makeText(SignUpActivity.this,task.getException().toString(), Toast.LENGTH_LONG).show();
-                                Log.e("Err","error",task.getException());
-                            }
-                            else {
-                                String uid = createUser(mFirebaseAuth);
-                                Toast.makeText(SignUpActivity.this, "SignUp successful", Toast.LENGTH_LONG).show();
-
-                                //Send Uid to Main Activity
-                                Bundle bundle = new Bundle();
-                                bundle.putSerializable("UserUID",uid);
-                                Intent intent = new Intent(SignUpActivity.this, MainActivity.class);
-                                intent.putExtras(bundle);
-                                startActivity(intent);
-
-                            }
-                        }
-                    });
+                    Toast.makeText(SignUpActivity.this, "Invalid Email", Toast.LENGTH_LONG).show();
+                }
+                else if(!(phonenumber.length() == 10))
+                {
+                    Toast.makeText(SignUpActivity.this, "Invalid Phone Number", Toast.LENGTH_LONG).show();
+                }
+                else if(!(pwd.length() >= 6))
+                {
+                    Toast.makeText(SignUpActivity.this, "Password Must be atleast 6 characters ", Toast.LENGTH_LONG).show();
+                }
+                else if(username.isEmpty())
+                {
+                    Toast.makeText(SignUpActivity.this, "Enter UserName", Toast.LENGTH_LONG).show();
+                }
+                else if(fullname.isEmpty())
+                {
+                    Toast.makeText(SignUpActivity.this, "Enter Full Name", Toast.LENGTH_LONG).show();
                 }
                 else {
-                    Toast.makeText(SignUpActivity.this, "One or more Fields is empty", Toast.LENGTH_LONG).show();
+                    mFirebaseAuth.createUserWithEmailAndPassword(email, pwd)
+                            .addOnCompleteListener(SignUpActivity.this,
+                                    new OnCompleteListener<AuthResult>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<AuthResult> task) {
+                                            if (!task.isSuccessful()) {
+
+                                                Toast.makeText(SignUpActivity.this,task.getException().toString(), Toast.LENGTH_LONG).show();
+                                                Log.e("Err","error",task.getException());
+                                            }
+                                            else {
+                                                String uid = createUser(mFirebaseAuth);
+                                                Toast.makeText(SignUpActivity.this, "SignUp successful", Toast.LENGTH_LONG).show();
+
+                                                //Send Uid to Main Activity
+                                                Bundle bundle = new Bundle();
+                                                bundle.putSerializable("userID",uid);
+                                                Intent intent = new Intent(SignUpActivity.this, MainActivity.class);
+                                                intent.putExtras(bundle);
+                                                startActivity(intent);
+
+                                            }
+                                        }
+                                    });
                 }
             }
         });
@@ -155,7 +183,7 @@ public class SignUpActivity extends AppCompatActivity {
                       {
                           @Override
                           public void onSuccess(Uri uri) {
-                              Picasso.with(SignUpActivity.this).load(uri).into(imageView);
+                              Picasso.get().load(uri).into(imageView);
                           }
                       }
                 )
@@ -167,6 +195,42 @@ public class SignUpActivity extends AppCompatActivity {
                 });
 
     }
+
+    /**
+     * this method validates email
+     * @param target
+     * the email to be validated
+     * @return
+     * returns true if valid
+     */
+    private Boolean isValidEmail(CharSequence target){
+        return (!TextUtils.isEmpty(target) && Patterns.EMAIL_ADDRESS.matcher(target).matches());
+    }
+
+
+
+    /**
+     * method that handles hiding password
+     */
+    public void hidePassword(){
+        passWordEditText = findViewById(R.id.editText_signup_password);//Get password editText
+        CheckBox passwordCheckBox = findViewById(R.id.signup_checkbox);//Get hidePassword CheckBox
+        passwordCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                if(b)//if checked hidePassword
+                {
+                    passWordEditText.setTransformationMethod(PasswordTransformationMethod.getInstance());
+
+                }
+                else {
+                    passWordEditText.setTransformationMethod(HideReturnsTransformationMethod.getInstance());
+                }
+            }
+        });
+    }
+
+
 }
 
 
