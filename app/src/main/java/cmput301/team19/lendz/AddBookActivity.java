@@ -105,7 +105,7 @@ public class AddBookActivity extends AppCompatActivity implements View.OnClickLi
                     book.load(documentSnapshot);
                     isbnTv.setText(book.getDescription().getIsbn());
                     titleTv.setText(book.getDescription().getTitle());
-                    authorTV.setText(book.getDescription().getTitle());
+                    authorTV.setText(book.getDescription().getAuthor());
                     descriptionTV.setText(book.getDescription().getDescription());
                     Toast.makeText(AddBookActivity.this,book.getPhoto(),Toast.LENGTH_SHORT).show();
                     if (book.getPhoto() != null){

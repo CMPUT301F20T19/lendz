@@ -1,12 +1,17 @@
 package cmput301.team19.lendz;
 
+import android.content.Intent;
+
 import androidx.test.espresso.action.ViewActions;
+import androidx.test.espresso.contrib.RecyclerViewActions;
+import androidx.test.espresso.intent.Intents;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.rule.ActivityTestRule;
 
 import com.google.firebase.auth.FirebaseAuth;
 
+import org.hamcrest.Matcher;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -17,6 +22,8 @@ import static androidx.test.espresso.action.ViewActions.clearText;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.action.ViewActions.typeText;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
+import static androidx.test.espresso.intent.matcher.IntentMatchers.hasAction;
+import static androidx.test.espresso.intent.matcher.IntentMatchers.hasData;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 
@@ -26,6 +33,10 @@ public class EditBookTest {
     public ActivityScenarioRule<LoginActivity> rule =
             new ActivityScenarioRule<>(LoginActivity.class);
 
+    /**
+     * Makes sure that every test begins with an up-to date sign in .
+     * @throws Exception
+     */
     @Before
     public void logUserIn() throws Exception {
         // Ensure started logged out
@@ -45,6 +56,10 @@ public class EditBookTest {
 
     }
 
+    /**
+     * Tests the sequencial order in successfully navigating to the addbook activity.
+     * @throws Exception
+     */
     @Test
     public void  Nagivate_To_Add_Book_Activity() throws Exception {
         onView(withId(R.id.my_books))
@@ -63,7 +78,10 @@ public class EditBookTest {
 
 }
 
-
+    /**
+     * Tests that all ui components in the add book activity are present.
+     * @throws Exception
+     */
     public void check_if_editViews_exist(){
         onView(withId(R.id.book_IV)).check(matches(isDisplayed()));
         onView(withId(R.id.title_id)).check(matches(isDisplayed()));
@@ -77,7 +95,10 @@ public class EditBookTest {
         onView(withId(R.id.delImg)).check(matches(isDisplayed()));
     }
 
-
+    /**
+     * Tests that a book object was successfully sent to firebase.
+     * @throws Exception
+     */
     public void Fill_Book_details(){
         onView(withId(R.id.title_id))
                 .perform(clearText())
@@ -95,6 +116,8 @@ public class EditBookTest {
                 .perform(ViewActions.click(), ViewActions.closeSoftKeyboard());
 
     }
+
+
 
 
 }
