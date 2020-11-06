@@ -126,8 +126,8 @@ public class MyBooksTest extends TestCase {
                 .check(matches(isDisplayed()));
 
         // test book data
-        testBookData(0, "Dune of Paul", "Dune");
-        testBookData(1, "New Title Trial", "Students");
-        testBookData(2, "kkk", "qqq");
+        testBookData(0, "Added", "Who");
+        testBookData(1, "Dune of Paul", "Dune");
+        testBookData(2, "New Title Trial", "Students");
     }
 }
