@@ -14,6 +14,9 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.auth.User;
 
+/**
+ * this activity contains the bottom navigation of the app
+ */
 public class MainActivity extends AppCompatActivity {
 
 
@@ -29,7 +32,9 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
 //        getUserID();
-        uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        if (FirebaseAuth.getInstance().getCurrentUser() != null) {
+            uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        }
 
         bottomNavigationView = findViewById(R.id.bottomNav);
 

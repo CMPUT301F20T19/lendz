@@ -45,6 +45,10 @@ import java.util.Map;
 import java.util.UUID;
 
 
+/**
+ *Activity where a book object is created and sent to firestore
+ * it also implements a view.Onclicklistener which opens a barcode scanner when the scan Button is pressed
+ */
 
 public class AddBookActivity extends AppCompatActivity implements View.OnClickListener{
     ImageView imgView;
@@ -89,7 +93,6 @@ public class AddBookActivity extends AppCompatActivity implements View.OnClickLi
         del_Img = findViewById(R.id.delImg);
 
         //some extra code
-
         Intent intent = getIntent();
 
 
@@ -105,7 +108,7 @@ public class AddBookActivity extends AppCompatActivity implements View.OnClickLi
                     book.load(documentSnapshot);
                     isbnTv.setText(book.getDescription().getIsbn());
                     titleTv.setText(book.getDescription().getTitle());
-                    authorTV.setText(book.getDescription().getTitle());
+                    authorTV.setText(book.getDescription().getAuthor());
                     descriptionTV.setText(book.getDescription().getDescription());
                     Toast.makeText(AddBookActivity.this,book.getPhoto(),Toast.LENGTH_SHORT).show();
                     if (book.getPhoto() != null){
@@ -164,6 +167,8 @@ public class AddBookActivity extends AppCompatActivity implements View.OnClickLi
             }
         });
     }
+
+
     private void pickImageFromGallery(){
         //intent to pick image
         Intent intent = new Intent(Intent.ACTION_PICK);
@@ -171,6 +176,9 @@ public class AddBookActivity extends AppCompatActivity implements View.OnClickLi
         startActivityForResult(intent,IMAGE_PICK_CODE);
     }
 
+    /**
+     *checks for external storage permissions
+     */
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -186,7 +194,9 @@ public class AddBookActivity extends AppCompatActivity implements View.OnClickLi
             }
         }
     }
-
+    /**
+     *Triggers the barcode scanner to open
+     */
     @Override
     public void onClick(View v){
         IntentIntegrator integrator  = new IntentIntegrator(this);
@@ -197,6 +207,10 @@ public class AddBookActivity extends AppCompatActivity implements View.OnClickLi
     }
 
 
+    /**
+     *method where image data is received and attached to an image view.
+     * it also recieves the barcode result.
+     */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -220,6 +234,12 @@ public class AddBookActivity extends AppCompatActivity implements View.OnClickLi
         }
     }
 
+    /**
+     *Triggered by the save button.
+     * receives an image uri and converts it to a downloadable image link
+     * calls the function "sendToFirestore"
+     *
+     */
     public void uploadBook() {
         firestoreRef = FirebaseFirestore.getInstance();
 
@@ -294,6 +314,10 @@ public class AddBookActivity extends AppCompatActivity implements View.OnClickLi
         }
     }
 
+    /**
+     *takes bookcollection reference and book id as arguments
+     *creates a book object and optionally removes a photo attached to a bookobject in Firestore.
+     */
     public void sendToFirestore(final CollectionReference BookCollection, final String id){
         tempId = id;
         Toast.makeText(AddBookActivity.this, "in Send to firestore", Toast.LENGTH_SHORT).show();
@@ -375,10 +399,11 @@ public class AddBookActivity extends AppCompatActivity implements View.OnClickLi
                 saveBook(bookObject);
             }
         }
-
-
     }
 
+    /**
+     * takes a bookobject as argument and sends it to firebase.
+     */
     public void saveBook(Book bookObject){
         bookObject.store()
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
