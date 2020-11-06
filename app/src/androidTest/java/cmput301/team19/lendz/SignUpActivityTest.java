@@ -9,8 +9,11 @@ import androidx.test.espresso.ViewAction;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
 
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.robotium.solo.Condition;
 import com.robotium.solo.Solo;
 
 import org.junit.After;
@@ -31,6 +34,8 @@ import static org.junit.Assert.assertEquals;
 public class SignUpActivityTest {
 
     private Solo solo;
+
+    private boolean finishedDeletingUser = false;
 
     @Rule
     public ActivityTestRule<LoginActivity> rule =
@@ -85,12 +90,29 @@ public class SignUpActivityTest {
         //Go to user profile
         solo.clickOnView(navigationBar.findViewById(R.id.profile));
 
+        // Get the created user
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+
         //Click on logOut
         solo.clickOnButton("Log Out");
 
         //​Asserts that the current activity is the LoginActivity Otherwise, show “Wrong Activity”
         solo.assertCurrentActivity("Wrong Activity",LoginActivity.class);
 
+        // Delete the created user
+        user.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                finishedDeletingUser = true;
+            }
+        });
+
+        solo.waitForCondition(new Condition() {
+            @Override
+            public boolean isSatisfied() {
+                return finishedDeletingUser;
+            }
+        }, 3000);
     }
 
     /**
