@@ -1,31 +1,31 @@
 package cmput301.team19.lendz;
 
-import android.content.Intent;
+        import android.content.Intent;
 
-import androidx.test.espresso.action.ViewActions;
-import androidx.test.espresso.contrib.RecyclerViewActions;
-import androidx.test.espresso.intent.Intents;
-import androidx.test.ext.junit.rules.ActivityScenarioRule;
-import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.rule.ActivityTestRule;
+        import androidx.test.espresso.action.ViewActions;
+        import androidx.test.espresso.contrib.RecyclerViewActions;
+        import androidx.test.espresso.intent.Intents;
+        import androidx.test.ext.junit.rules.ActivityScenarioRule;
+        import androidx.test.ext.junit.runners.AndroidJUnit4;
+        import androidx.test.rule.ActivityTestRule;
 
-import com.google.firebase.auth.FirebaseAuth;
+        import com.google.firebase.auth.FirebaseAuth;
 
-import org.hamcrest.Matcher;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+        import org.hamcrest.Matcher;
+        import org.junit.Before;
+        import org.junit.Rule;
+        import org.junit.Test;
+        import org.junit.runner.RunWith;
 
-import static androidx.test.espresso.Espresso.onView;
-import static androidx.test.espresso.action.ViewActions.clearText;
-import static androidx.test.espresso.action.ViewActions.click;
-import static androidx.test.espresso.action.ViewActions.typeText;
-import static androidx.test.espresso.assertion.ViewAssertions.matches;
-import static androidx.test.espresso.intent.matcher.IntentMatchers.hasAction;
-import static androidx.test.espresso.intent.matcher.IntentMatchers.hasData;
-import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
-import static androidx.test.espresso.matcher.ViewMatchers.withId;
+        import static androidx.test.espresso.Espresso.onView;
+        import static androidx.test.espresso.action.ViewActions.clearText;
+        import static androidx.test.espresso.action.ViewActions.click;
+        import static androidx.test.espresso.action.ViewActions.typeText;
+        import static androidx.test.espresso.assertion.ViewAssertions.matches;
+        import static androidx.test.espresso.intent.matcher.IntentMatchers.hasAction;
+        import static androidx.test.espresso.intent.matcher.IntentMatchers.hasData;
+        import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
+        import static androidx.test.espresso.matcher.ViewMatchers.withId;
 
 @RunWith(AndroidJUnit4.class)
 public class EditBookTest {
@@ -68,15 +68,15 @@ public class EditBookTest {
         Thread.sleep(2000);
 
         //CHECK IF FLOATING BUTTON EXIST
-    onView(withId(R.id.add_book_button)).check(matches(isDisplayed()));
+        onView(withId(R.id.add_book_button)).check(matches(isDisplayed()));
 
-    onView(withId(R.id.add_book_button))
-            .perform(ViewActions.click());
+        onView(withId(R.id.add_book_button))
+                .perform(ViewActions.click());
 
-    check_if_editViews_exist();
-    Fill_Book_details();
+        check_if_editViews_exist();
+        Fill_Book_details();
 
-}
+    }
 
     /**
      * Tests that all ui components in the add book activity are present.
@@ -116,6 +116,8 @@ public class EditBookTest {
                 .perform(ViewActions.click(), ViewActions.closeSoftKeyboard());
 
     }
+
+
 
 
 
