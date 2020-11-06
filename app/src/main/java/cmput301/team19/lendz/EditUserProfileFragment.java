@@ -120,7 +120,7 @@ public class EditUserProfileFragment extends Fragment {
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                        getFragmentManager().popBackStack();
+                        getParentFragmentManager().popBackStack();
                     }
                 }).addOnFailureListener(new OnFailureListener() {
                     @Override
