@@ -29,7 +29,6 @@
         <activity android:name=".AddBookActivity"
             android:parentActivityName=".MainActivity"/>
         <activity android:name=".MainActivity"/>
-        <activity android:name=".UserProfileActivity" />
         <activity android:name=".SearchBooksActivities"
             android:parentActivityName=".MainActivity">
         </activity>
