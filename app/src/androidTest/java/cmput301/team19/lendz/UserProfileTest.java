@@ -6,7 +6,10 @@ import androidx.test.espresso.matcher.ViewMatchers;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
+import com.google.firebase.auth.FirebaseAuth;
+
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -35,7 +38,11 @@ public class UserProfileTest {
      */
     @Before
     public void login() throws Exception {
-        onView(withId(R.id.editText_login_username))
+        // Ensure started logged out
+        FirebaseAuth.getInstance().signOut();
+
+        // Log in as test user
+        onView(withId(R.id.editText_login_email))
                 .perform(clearText())
                 .perform(typeText(TEST_USER_EMAIL));
         onView(withId(R.id.editText_login_password))

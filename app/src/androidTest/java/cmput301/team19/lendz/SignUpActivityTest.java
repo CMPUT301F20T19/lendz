@@ -18,6 +18,7 @@ import com.robotium.solo.Solo;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -35,11 +36,18 @@ public class SignUpActivityTest {
 
     private Solo solo;
 
-    private boolean finishedDeletingUser = false;
+    private FirebaseUser createdUser;
+    private boolean finishedDeletingUser;
 
     @Rule
     public ActivityTestRule<LoginActivity> rule =
             new ActivityTestRule<>(LoginActivity.class, true, true);
+
+    @BeforeClass
+    public static void signOut() {
+        // Start signed out
+        FirebaseAuth.getInstance().signOut();
+    }
 
     /**
      * Runs before all tests and creates solo instance.
@@ -49,7 +57,6 @@ public class SignUpActivityTest {
     @Before
     public void setUp() throws Exception {
         solo = new Solo(InstrumentationRegistry.getInstrumentation(), rule.getActivity());
-        FirebaseAuth.getInstance().signOut();
     }
 
     /**
@@ -91,36 +98,37 @@ public class SignUpActivityTest {
         solo.clickOnView(navigationBar.findViewById(R.id.profile));
 
         // Get the created user
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        createdUser = FirebaseAuth.getInstance().getCurrentUser();
 
         //Click on logOut
         solo.clickOnButton("Log Out");
 
         //​Asserts that the current activity is the LoginActivity Otherwise, show “Wrong Activity”
         solo.assertCurrentActivity("Wrong Activity",LoginActivity.class);
+    }
 
+    /**
+     * Closes the activity and delete the created user after each test
+     */
+    @After
+    public void tearDown() {
         // Delete the created user
-        user.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
-            @Override
-            public void onSuccess(Void aVoid) {
-                finishedDeletingUser = true;
-            }
-        });
+        if (createdUser != null) {
+            createdUser.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+                @Override
+                public void onSuccess(Void aVoid) {
+                    finishedDeletingUser = true;
+                }
+            });
+        }
 
         solo.waitForCondition(new Condition() {
             @Override
             public boolean isSatisfied() {
                 return finishedDeletingUser;
             }
-        }, 3000);
-    }
+        }, 5000);
 
-    /**
-     * Closes the activity after each test
-     * @throws Exception
-     */
-    @After
-    public void tearDown() throws Exception{
         solo.finishOpenedActivities();
     }
 }

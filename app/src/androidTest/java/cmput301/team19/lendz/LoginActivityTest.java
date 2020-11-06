@@ -13,6 +13,7 @@ import com.robotium.solo.Solo;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -31,6 +32,11 @@ public class LoginActivityTest {
     public ActivityTestRule<LoginActivity> rule =
             new ActivityTestRule<>(LoginActivity.class, true, true);
 
+    @BeforeClass
+    public static void signOut() {
+        // Start signed out
+        FirebaseAuth.getInstance().signOut();
+    }
 
     /**
      *Runs before all tests and creates solo instance.
@@ -39,7 +45,6 @@ public class LoginActivityTest {
     @Before
     public void setUp() throws Exception {
         solo = new Solo(InstrumentationRegistry.getInstrumentation(),rule.getActivity());
-        FirebaseAuth.getInstance().signOut();
     }
 
 
