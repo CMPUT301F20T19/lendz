@@ -31,9 +31,7 @@ import java.util.ArrayList;
 import static android.content.ContentValues.TAG;
 
 /**
- * A simple {@link Fragment} subclass.
- * Use the {@link MyBooksFragment#newInstance} factory method to
- * create an instance of this fragment.
+ * Fragment that displays all the books the current user owns
  */
 public class MyBooksFragment extends Fragment implements OnBookClickListener {
 
@@ -58,6 +56,11 @@ public class MyBooksFragment extends Fragment implements OnBookClickListener {
         // Required empty public constructor
     }
 
+    /**
+     * Receives the current user's id and creates a new instance of the myBookFragment
+     * @param userId the current user's id
+     * @return a new MyBooksFragment if successful
+     */
     public static MyBooksFragment newInstance(String userId) {
         MyBooksFragment fragment = new MyBooksFragment();
         Bundle args = new Bundle();
@@ -82,11 +85,16 @@ public class MyBooksFragment extends Fragment implements OnBookClickListener {
         booksRef = db.collection("books");
         setUp();
         loadBooks();
-        addBook(view);
+        onAddBook(view);
         return view;
     }
 
-    private void addBook(View view) {
+    /**
+     * sets a click listener of the add book button and
+     * starts an intent when the button is clicked
+     * @param view the current view the fragment is being displayed
+     */
+    private void onAddBook(View view) {
         FloatingActionButton button = view.findViewById(R.id.add_book_button);
         button.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -108,6 +116,9 @@ public class MyBooksFragment extends Fragment implements OnBookClickListener {
         sections = new ArrayList<>();
     }
 
+    /**
+     * Check if the sections contains books to be displayed
+     */
     private void checkSections() {
         if (availableBooks.size() > 0) {
             sections.add(new ViewBooksSection("Available Books", availableBooks));
@@ -123,6 +134,9 @@ public class MyBooksFragment extends Fragment implements OnBookClickListener {
         }
     }
 
+    /**
+     * initializes and sets up the recycler view to be used for displaying books
+     */
     private void initRecyclerView() {
         viewBooksRecyclerView = myBooksView.findViewById(R.id.myBooksFrag_recyclerView);
         viewBooksAdapter = new ViewBooksAdapter(myBooksView.getContext(), sections,this);
@@ -131,10 +145,15 @@ public class MyBooksFragment extends Fragment implements OnBookClickListener {
         viewBooksRecyclerView.addItemDecoration(new DividerItemDecoration(myBooksView.getContext(), DividerItemDecoration.VERTICAL));
     }
 
+    /**
+     * Searches firebase for the current user's books
+     * and sorts them
+     */
     private void loadBooks() {
 
         booksRef
                 .whereEqualTo("owner", User.documentOf(userID))
+//                .orderBy("description.title")
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
@@ -153,6 +172,12 @@ public class MyBooksFragment extends Fragment implements OnBookClickListener {
                 });
     }
 
+    /**
+     * this functions loads book from the snapshot and id given
+     * and adds them to their respective arrayList
+     * @param id of the Book to be added to the respective arrayList
+     * @param snapshot of the book from the database
+     */
     private void addBooks(String id, DocumentSnapshot snapshot) {
         Book book = Book.getOrCreate(id);
         book.load(snapshot);
@@ -177,9 +202,13 @@ public class MyBooksFragment extends Fragment implements OnBookClickListener {
 
     }
 
+    /**
+     * Receives the book that was clicked and passes it on
+     * to the viewFragment; to view the book details
+     * @param book clicked from the recycler view
+     */
     @Override
     public void onBookClick(Book book) {
-        Log.e("BookTitle", book.getDescription().getTitle());
         Fragment viewBookFragment = ViewBookFragment.newInstance(book.getId());
         FragmentTransaction transaction = getParentFragmentManager().beginTransaction();
         transaction.setCustomAnimations(

@@ -1,31 +1,30 @@
 package cmput301.team19.lendz;
 
-        import android.content.Intent;
+import android.view.View;
 
-        import androidx.test.espresso.action.ViewActions;
-        import androidx.test.espresso.contrib.RecyclerViewActions;
-        import androidx.test.espresso.intent.Intents;
-        import androidx.test.ext.junit.rules.ActivityScenarioRule;
-        import androidx.test.ext.junit.runners.AndroidJUnit4;
-        import androidx.test.rule.ActivityTestRule;
+import androidx.test.espresso.UiController;
+import androidx.test.espresso.ViewAction;
+import androidx.test.espresso.action.ViewActions;
+import androidx.test.ext.junit.rules.ActivityScenarioRule;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.rule.ActivityTestRule;
 
-        import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuth;
 
-        import org.hamcrest.Matcher;
-        import org.junit.Before;
-        import org.junit.Rule;
-        import org.junit.Test;
-        import org.junit.runner.RunWith;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
-        import static androidx.test.espresso.Espresso.onView;
-        import static androidx.test.espresso.action.ViewActions.clearText;
-        import static androidx.test.espresso.action.ViewActions.click;
-        import static androidx.test.espresso.action.ViewActions.typeText;
-        import static androidx.test.espresso.assertion.ViewAssertions.matches;
-        import static androidx.test.espresso.intent.matcher.IntentMatchers.hasAction;
-        import static androidx.test.espresso.intent.matcher.IntentMatchers.hasData;
-        import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
-        import static androidx.test.espresso.matcher.ViewMatchers.withId;
+import java.util.regex.Matcher;
+
+import static androidx.test.espresso.Espresso.onView;
+import static androidx.test.espresso.action.ViewActions.clearText;
+import static androidx.test.espresso.action.ViewActions.click;
+import static androidx.test.espresso.action.ViewActions.typeText;
+import static androidx.test.espresso.assertion.ViewAssertions.matches;
+import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
+import static androidx.test.espresso.matcher.ViewMatchers.withId;
 
 @RunWith(AndroidJUnit4.class)
 public class EditBookTest {
@@ -33,10 +32,6 @@ public class EditBookTest {
     public ActivityScenarioRule<LoginActivity> rule =
             new ActivityScenarioRule<>(LoginActivity.class);
 
-    /**
-     * Makes sure that every test begins with an up-to date sign in .
-     * @throws Exception
-     */
     @Before
     public void logUserIn() throws Exception {
         // Ensure started logged out
@@ -56,10 +51,6 @@ public class EditBookTest {
 
     }
 
-    /**
-     * Tests the sequencial order in successfully navigating to the addbook activity.
-     * @throws Exception
-     */
     @Test
     public void  Nagivate_To_Add_Book_Activity() throws Exception {
         onView(withId(R.id.my_books))
@@ -68,20 +59,33 @@ public class EditBookTest {
         Thread.sleep(2000);
 
         //CHECK IF FLOATING BUTTON EXIST
-        onView(withId(R.id.add_book_button)).check(matches(isDisplayed()));
+    onView(withId(R.id.add_book_button)).check(matches(isDisplayed()));
 
-        onView(withId(R.id.add_book_button))
-                .perform(ViewActions.click());
+    onView(withId(R.id.add_book_button))
+            .perform(ViewActions.click());
 
-        check_if_editViews_exist();
-        Fill_Book_details();
+    check_if_editViews_exist();
+    Fill_Book_details();
+
 
     }
 
-    /**
-     * Tests that all ui components in the add book activity are present.
-     * @throws Exception
-     */
+    @Test
+    public void editBook() throws Exception{
+        onView(withId(R.id.my_books))
+                .perform(ViewActions.click());
+
+        Thread.sleep(2000);
+
+        onView(withId(R.id.myBooksFrag_recyclerView))
+                .perform(RecyclerViewActions.actionOnItemAtPosition(0, click()));
+
+    }
+
+
+
+
+
     public void check_if_editViews_exist(){
         onView(withId(R.id.book_IV)).check(matches(isDisplayed()));
         onView(withId(R.id.title_id)).check(matches(isDisplayed()));
@@ -95,10 +99,7 @@ public class EditBookTest {
         onView(withId(R.id.delImg)).check(matches(isDisplayed()));
     }
 
-    /**
-     * Tests that a book object was successfully sent to firebase.
-     * @throws Exception
-     */
+
     public void Fill_Book_details(){
         onView(withId(R.id.title_id))
                 .perform(clearText())
@@ -113,11 +114,9 @@ public class EditBookTest {
                 .perform(clearText())
                 .perform(typeText("Expresso Description"), ViewActions.closeSoftKeyboard());
         onView(withId(R.id.save_id))
-                .perform(ViewActions.click(), ViewActions.closeSoftKeyboard());
+                .perform(ViewActions.click());
 
     }
-
-
 
 
 
