@@ -7,16 +7,20 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Immutable object that stores information about the
+ * ISBN, title, author, and description of a Book.
+ */
 public class BookDescription {
     private static final String ISBN_KEY = "isbn";
     private static final String TITLE_KEY = "title";
     private static final String AUTHOR_KEY = "author";
     private static final String DESCRIPTION_KEY = "description";
 
-    private String isbn;
-    private String title;
-    private String author;
-    private String description;
+    private final String isbn;
+    private final String title;
+    private final String author;
+    private final String description;
 
     public BookDescription(
             String isbn,
@@ -52,18 +56,30 @@ public class BookDescription {
         return data;
     }
 
+    /**
+     * @return the ISBN of the book
+     */
     public String getIsbn() {
         return isbn;
     }
 
+    /**
+     * @return the title of the book
+     */
     public String getTitle() {
         return title;
     }
 
+    /**
+     * @return the author of the book
+     */
     public String getAuthor() {
         return author;
     }
 
+    /**
+     * @return the description of the book
+     */
     public String getDescription() {
         return description;
     }

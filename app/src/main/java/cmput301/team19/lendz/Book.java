@@ -1,10 +1,5 @@
 package cmput301.team19.lendz;
 
-import android.util.Log;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -12,14 +7,17 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.SetOptions;
 
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
+/**
+ * Stores data about books and provides methods for synchronization with Firestore.
+ */
 public class Book {
     private static final String ACCEPTED_REQUEST_KEY = "acceptedRequest";
     private static final String DESCRIPTION_KEY = "description";
@@ -31,12 +29,11 @@ public class Book {
     private static final String STATUS_KEY = "status";
     private static final String KEYWORDS_KEY = "keywords";
 
-
     // Maps book ID to Book object, guaranteeing at most
     // one Book object for each book.
     private static final HashMap<String, Book> books = new HashMap<>();
 
-    private String id;
+    private final String id;
     private String photo;
     private User owner;
     private BookStatus status;
@@ -95,9 +92,9 @@ public class Book {
         // Load location
         GeoPoint geoPoint = doc.getGeoPoint(LOCATION_KEY);
         if (geoPoint == null) {
-            setLocation(null);
+            location = null;
         } else {
-            setLocation(new Location(geoPoint));
+            location = new Location(geoPoint);
         }
 
         // Load owner
@@ -111,7 +108,7 @@ public class Book {
         // Load owner username
         ownerUsername = doc.getString(OWNER_USERNAME_KEY);
 
-
+        // TODO load request data
         /*
         List<DocumentReference> pendingRequestsData =
                 (List<DocumentReference>) doc.get(PENDING_REQUESTS_KEY);
@@ -170,72 +167,114 @@ public class Book {
         return documentOf(id).delete();
     }
 
-    public void setAcceptedRequest(@Nullable Request acceptedRequest) {
-        this.acceptedRequest = acceptedRequest;
-    }
-
+    /**
+     * @return list of pending Requests for this Book
+     */
     public ArrayList<Request> getPendingRequests() {
         return pendingRequests;
     }
 
+    /**
+     * @return the accepted Request for this Book, may be null
+     */
     public Request getAcceptedRequest() {
         return acceptedRequest;
     }
 
+    /**
+     * @return the ID of this Book
+     */
     public String getId() {
         return id;
     }
 
-    public void setId(@NonNull String id) {
-        this.id = id;
-    }
-
+    /**
+     * @return the photo URL for this Book, may be null
+     */
     public String getPhoto() {
         return photo;
     }
 
+    /**
+     * Set the photo URL of this book.
+     * @param photo photo URL, may be null for no photo
+     */
     public void setPhoto(@Nullable String photo) {
         this.photo = photo;
     }
 
+    /**
+     * @return User object for the owner of this Book
+     */
     public User getOwner() {
         return owner;
     }
 
+    /**
+     * Sets the owner of this Book
+     * @param owner user object of the owner
+     */
     public void setOwner(@NonNull User owner) {
         this.owner = owner;
     }
 
+    /**
+     * @return the username of the owner of this Book
+     */
     public String getOwnerUsername() {
         return ownerUsername;
     }
 
+    /**
+     * @return the current BookStatus for this Book
+     */
     public BookStatus getStatus() {
         return status;
     }
 
+    /**
+     * Set the current BookStatus of this Book
+     * @param status status to use
+     */
     public void setStatus(@NonNull BookStatus status) {
         this.status = status;
     }
 
+    /**
+     * @return the current location of this Book
+     */
     public Location getLocation() {
         return location;
     }
 
-    public void setLocation(@Nullable Location location) {
-        this.location = location;
-    }
-
+    /**
+     * @return the BookDescription of this Book
+     */
     public BookDescription getDescription() {
         return description;
     }
 
+    /**
+     * Set the BookDescription of this Book
+     * @param description BookDescription to use
+     */
     public void setDescription(@NonNull BookDescription description) {
         this.description = description;
     }
 
-    public void addPendingRequest(@NonNull Request request) {
-        this.pendingRequests.add(request);
+    /**
+     * @return the list of keywords associated with this Book
+     */
+    public List<String> getKeywords() {
+        return keywords;
+    }
+
+    /**
+     * Set the list of keywords associated with this Book
+     * @param keywords the list to use
+     */
+    public void setKeywords(List<String> keywords) {
+        this.keywords = keywords;
     }
 
     /**
@@ -244,13 +283,4 @@ public class Book {
     public boolean isLoaded() {
         return loaded;
     }
-
-    public List<String> getKeywords() {
-        return keywords;
-    }
-
-    public void setKeywords(List<String> keywords) {
-        this.keywords = keywords;
-    }
-
 }

@@ -16,6 +16,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+/**
+ * Stores information about a user and provides methods for synchronizing with Firestore.
+ */
 public class User {
     private static final String USERNAME_KEY = "username";
     private static final String FULL_NAME_KEY = "fullName";
@@ -28,7 +31,7 @@ public class User {
     // one User object for each user.
     private static final HashMap<String, User> users = new HashMap<>();
 
-    private String id;
+    private final String id;
     private String username;
 
     private String fullName;
@@ -41,6 +44,7 @@ public class User {
 
     /**
      * Get or create the unique User object with the given user ID.
+     * @return the User object
      */
     public static User getOrCreate(String userId) {
         User user = users.get(userId);
@@ -53,7 +57,7 @@ public class User {
 
     /**
      * @return document of user with ID userId
-     * @param userId
+     * @param userId ID of User
      */
     public static DocumentReference documentOf(@NonNull String userId) {
         return FirebaseFirestore.getInstance()
@@ -130,38 +134,69 @@ public class User {
         this.id = id;
     }
 
+    /**
+     * @return the ID of this User
+     */
     public String getId() {
         return id;
     }
 
+    /**
+     * @return the username of this User
+     */
     public String getUsername() {
         return username;
     }
 
+    /**
+     * Set the username of this User
+     * @param username username to use
+     */
     public void setUsername(String username) {
         this.username = username;
     }
 
+    /**
+     * @return the full name of this User
+     */
     public String getFullName() {
         return fullName;
     }
 
+    /**
+     * Set the full name of this User
+     * @param fullName full name to use
+     */
     public void setFullName(String fullName) {
         this.fullName = fullName;
     }
 
+    /**
+     * @return the email address of this User
+     */
     public String getEmail() {
         return email;
     }
 
+    /**
+     * Set the email address of this User
+     * @param email email address to use
+     */
     public void setEmail(String email) {
         this.email = email;
     }
 
+    /**
+     * @return the phone number of this User
+     */
     public String getPhoneNumber() {
         return phoneNumber;
     }
 
+    /**
+     * Set the phone number of this User
+     * @param phoneNumber the phne number to use
+     */
     public void setPhoneNumber(String phoneNumber) {
         this.phoneNumber = phoneNumber;
     }
@@ -173,10 +208,16 @@ public class User {
         return loaded;
     }
 
+    /**
+     * @return a list of IDs of Books this User owns
+     */
     public ArrayList<String> getOwnedBookIds() {
         return ownedBookIds;
     }
 
+    /**
+     * @return a list of IDs of Books this User is currently borrowing
+     */
     public ArrayList<String> getBorrowedBookIds() {
         return borrowedBookIds;
     }

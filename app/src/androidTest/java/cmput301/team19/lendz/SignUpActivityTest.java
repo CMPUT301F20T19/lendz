@@ -65,7 +65,7 @@ public class SignUpActivityTest {
     @Test
     public void testSignup()
     {
-        //​Asserts that the current activity is the LoginActivity. Otherwise, show “Wrong Activity”
+        //​Asserts that the current activity is the LoginActivity. Otherwise, show "Wrong Activity"
         solo.assertCurrentActivity("Wrong Activity",LoginActivity.class);
 
         //Click on signUp text
@@ -89,7 +89,7 @@ public class SignUpActivityTest {
         //Click on SignUp
         solo.clickOnButton("Sign Up");
 
-        //​Asserts that the current activity is the SignUp. Otherwise, show “Wrong Activity”
+        //​Asserts that the current activity is the SignUp. Otherwise, show "Wrong Activity"
         solo.assertCurrentActivity("Wrong Activity",MainActivity.class);
 
         //Get the bottom navigation bar
@@ -103,7 +103,7 @@ public class SignUpActivityTest {
         //Click on logOut
         solo.clickOnButton("Log Out");
 
-        //​Asserts that the current activity is the LoginActivity Otherwise, show “Wrong Activity”
+        //​Asserts that the current activity is the LoginActivity Otherwise, show "Wrong Activity"
         solo.assertCurrentActivity("Wrong Activity",LoginActivity.class);
     }
 
