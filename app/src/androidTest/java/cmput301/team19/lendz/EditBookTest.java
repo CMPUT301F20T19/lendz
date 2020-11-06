@@ -5,6 +5,7 @@ import android.view.View;
 import androidx.test.espresso.UiController;
 import androidx.test.espresso.ViewAction;
 import androidx.test.espresso.action.ViewActions;
+import androidx.test.espresso.contrib.RecyclerViewActions;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.rule.ActivityTestRule;
@@ -70,17 +71,17 @@ public class EditBookTest {
 
     }
 
-    @Test
-    public void editBook() throws Exception{
-        onView(withId(R.id.my_books))
-                .perform(ViewActions.click());
-
-        Thread.sleep(2000);
-
-        onView(withId(R.id.myBooksFrag_recyclerView))
-                .perform(RecyclerViewActions.actionOnItemAtPosition(0, click()));
-
-    }
+//    @Test
+//    public void editBook() throws Exception{
+//        onView(withId(R.id.my_books))
+//                .perform(ViewActions.click());
+//
+//        Thread.sleep(2000);
+//
+//        onView(withId(R.id.myBooksFrag_recyclerView))
+//                .perform(RecyclerViewActions.actionOnItemAtPosition(0, click()));
+//
+//    }
 
 
 
