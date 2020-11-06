@@ -30,7 +30,7 @@
             android:parentActivityName=".MainActivity"/>
         <activity android:name=".MainActivity"/>
         <activity android:name=".UserProfileActivity" />
-        <activity android:name=".SearchBooksActivities"
+        <activity android:name=".SearchBooksActivity"
             android:parentActivityName=".MainActivity">
         </activity>
 

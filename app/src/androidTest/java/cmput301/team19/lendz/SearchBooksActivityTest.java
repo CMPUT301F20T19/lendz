@@ -27,7 +27,7 @@ import static androidx.test.espresso.matcher.ViewMatchers.withId;
 
 @LargeTest
 @RunWith(AndroidJUnit4.class)
-public class SearchBooksActivitiesTest extends TestCase {
+public class SearchBooksActivityTest extends TestCase {
 
     private String QUERY_STRING = "funny";
 
