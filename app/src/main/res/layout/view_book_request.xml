@@ -7,28 +7,79 @@
     android:layout_height="match_parent">
 
     <TextView
-        android:id="@+id/textView8"
+        android:id="@+id/n1"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="20dp"
-        android:layout_marginLeft="20dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginLeft="10dp"
         android:layout_marginTop="20dp"
-        android:layout_marginEnd="20dp"
-        android:layout_marginRight="20dp"
+        android:layout_marginEnd="10dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginBottom="10dp"
         android:text="fullName"
-        app:layout_constraintEnd_toStartOf="@+id/textView9"
-        app:layout_constraintStart_toStartOf="parent"
+        android:textSize="18sp"
+        app:layout_constraintBottom_toTopOf="@+id/n2"
+        app:layout_constraintEnd_toStartOf="@+id/acceptRequest"
+        app:layout_constraintStart_toEndOf="@+id/requestImage"
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
-        android:id="@+id/textView9"
+        android:id="@+id/n2"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:layout_marginEnd="20dp"
-        android:layout_marginRight="20dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="10dp"
+        android:layout_marginRight="10dp"
         android:text="timeStamp"
+        android:textSize="18sp"
+        app:layout_constraintEnd_toStartOf="@+id/acceptRequest"
+        app:layout_constraintStart_toEndOf="@+id/requestImage"
+        app:layout_constraintTop_toBottomOf="@+id/n1" />
+
+    <ImageView
+        android:id="@+id/requestImage"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/n1"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:srcCompat="@tools:sample/avatars" />
+
+    <androidx.constraintlayout.utils.widget.ImageFilterButton
+        android:id="@+id/declineRequest"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginTop="25dp"
+        android:layout_marginEnd="5dp"
+        android:layout_marginRight="5dp"
+        android:background="#F9F9F9"
+        android:focusable="false"
+        android:descendantFocusability="blocksDescendants"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/textView8"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintStart_toEndOf="@+id/acceptRequest"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/ic_action_name" />
+
+    <androidx.constraintlayout.utils.widget.ImageFilterButton
+        android:id="@+id/acceptRequest"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginTop="25dp"
+        android:layout_marginEnd="5dp"
+        android:layout_marginRight="5dp"
+        android:background="#F9F9F9"
+        android:focusable="false"
+
+        app:layout_constraintEnd_toStartOf="@+id/declineRequest"
+        app:layout_constraintStart_toEndOf="@+id/n1"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/ic_baseline_check_24" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

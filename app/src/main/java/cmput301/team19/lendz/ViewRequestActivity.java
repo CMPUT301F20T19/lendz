@@ -1,7 +1,11 @@
 package cmput301.team19.lendz;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -17,7 +21,7 @@ public class ViewRequestActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        setContentView(R.layout.activity_book_request);
         requestBookListView = findViewById(R.id.requestListView);
 
         BorrowerInfo newOne = new BorrowerInfo("Andrews", "https://firebasestorage.googleapis.com/v0/b/lendz-7eb71.appspot.com/o/BookImages%2FQQc5i9NnqjGSeT4Wxq41?alt=media&token=6b795d0d-d809-45e6-87e2-8a2502ceb664",
@@ -33,6 +37,16 @@ public class ViewRequestActivity extends AppCompatActivity {
         //connect ListView to its array content using a custom adapter
         adapter = new ViewRequestCustomAdapter(this, R.layout.view_book_request, BorrowerInfoArray.getInstance().getArray());
         requestBookListView.setAdapter(adapter);
+
+
+//        requestBookListView.setOnItemClickListener(new ListView.OnItemClickListener() {
+//
+//            @Override
+//            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+////                Toast.makeText(ViewRequestActivity.this,"woow",Toast.LENGTH_SHORT).show();
+//            }
+//        });
+
 
     }
 }
