@@ -17,7 +17,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity android:name=".SignUpActivity" android:parentActivityName=".LoginActivity"/>
-        <activity android:name=".LoginActivity">
+        <activity android:name=".ViewRequestActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -27,7 +27,6 @@
             android:parentActivityName=".MainActivity"/>
         <activity android:name=".MainActivity"/>
 
-        <activity android:name=".UserProfileActivity" />
         <activity android:name=".SearchBooksActivity"
             android:parentActivityName=".MainActivity">
         </activity>
