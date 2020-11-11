@@ -88,7 +88,12 @@ public class ViewRequestCustomAdapter extends ArrayAdapter<BorrowerInfo> {
                 notifyDataSetChanged();
             }
         });
-
+        viewHolder.full_name.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Toast.makeText(getContext(),"name tapped at "+ String.valueOf(position),Toast.LENGTH_SHORT).show();
+            }
+        });
         return v;
     };
 
