@@ -47,7 +47,7 @@ public class ViewRequestActivity extends AppCompatActivity {
         //connect ListView to its array content using a custom adapter
         adapter = new ViewRequestCustomAdapter(this, R.layout.view_book_request,requestObjectArray);
         requestBookListView.setAdapter(adapter);
-        final String bookId = "pDlGuW54HCSD0JdO7GOs";
+        final String bookId = "FTVxy59Hf0dGFD3FwibN";
         firestoreRef = FirebaseFirestore.getInstance();
         //create a pointer to book details
         final DocumentReference bookReference = firestoreRef.collection("books").document(bookId);
@@ -67,7 +67,8 @@ public class ViewRequestActivity extends AppCompatActivity {
                     if (doc.getId() != null){
                         DocumentReference requesterRef = doc.getDocumentReference("requester");
                         String RequestId = doc.getId();
-                        ReadDataFromFirebase(requesterRef,RequestId);
+                        long timeStamp = doc.getLong("timestamp");
+                        ReadDataFromFirebase(requesterRef,RequestId, timeStamp);
                     }
                 }
             }
@@ -76,7 +77,7 @@ public class ViewRequestActivity extends AppCompatActivity {
 
     //
 
-    public void ReadDataFromFirebase(DocumentReference u, final String id){
+    public void ReadDataFromFirebase(DocumentReference u, final String id, final long timeStamp){
        DocumentReference requesterRef = u;
        requesterRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
            @Override
@@ -84,7 +85,7 @@ public class ViewRequestActivity extends AppCompatActivity {
                //get username of requester
                String User_Name = documentSnapshot.getString("fullName");
                BorrowerInfo requesterInfo  = new BorrowerInfo(User_Name, "https://firebasestorage.googleapis.com/v0/b/lendz-7eb71.appspot.com/o/BookImages%2FQQc5i9NnqjGSeT4Wxq41?alt=media&token=6b795d0d-d809-45e6-87e2-8a2502ceb664",
-                       "23:21",id);
+                       timeStamp, id);
                requestObjectArray.add(requesterInfo);
                adapter.notifyDataSetChanged();
            }
@@ -102,7 +103,7 @@ public class ViewRequestActivity extends AppCompatActivity {
 
     }
 
-    public void calculateTimeDiffrence(){
+    public void calculateTimeDifference(){
 
     }
 

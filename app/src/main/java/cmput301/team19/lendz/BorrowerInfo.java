@@ -4,12 +4,12 @@ public class BorrowerInfo {
 
     private String fullName;
     private String photo;
-    private String timeStamp;
+    private long timeStamp;
     private String id;
     // General constructor
     public BorrowerInfo(){}
 
-    public BorrowerInfo(String fullName, String photo, String timeStamp,String id){
+    public BorrowerInfo(String fullName, String photo, long timeStamp, String id){
         this.fullName = fullName;
         this.photo = photo;
         this.timeStamp = timeStamp;
@@ -32,11 +32,11 @@ public class BorrowerInfo {
         this.photo = photo;
     }
 
-    public String getTimeStamp() {
+    public long getTimeStamp() {
         return timeStamp;
     }
 
-    public void setTimeStamp(String timeStamp) {
+    public void setTimeStamp(long timeStamp) {
         this.timeStamp = timeStamp;
     }
 

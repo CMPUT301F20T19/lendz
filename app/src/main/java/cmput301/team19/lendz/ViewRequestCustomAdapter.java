@@ -1,12 +1,10 @@
 package cmput301.team19.lendz;
 
-import android.app.Activity;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -14,7 +12,6 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.squareup.picasso.Picasso;
 
@@ -44,7 +41,7 @@ public class ViewRequestCustomAdapter extends ArrayAdapter<BorrowerInfo> {
     }
 
     /**
-     * custom array adapter getview.
+     * custom array adapter getView.
      * makes only accept request btn and decline btn clickable
      */
     @NonNull
@@ -69,10 +66,10 @@ public class ViewRequestCustomAdapter extends ArrayAdapter<BorrowerInfo> {
         }
         String fullName = getItem(position).getFullName();
         String photo = getItem(position).getPhoto();
-        String timeStamp = getItem(position).getTimeStamp();
+        long timeStamp = getItem(position).getTimeStamp();
 
         viewHolder.full_name.setText(fullName);
-        viewHolder.time_stamp.setText(timeStamp);
+        viewHolder.time_stamp.setText(String.valueOf(timeStamp));
         Picasso.get().load(photo).into(viewHolder.owner_image);
 
         //Handle buttons and add onClickListeners
