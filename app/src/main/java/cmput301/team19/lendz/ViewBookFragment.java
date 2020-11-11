@@ -187,9 +187,11 @@ public class ViewBookFragment extends Fragment {
 
         //generate id
         String id = requestCollection.document().getId();
+        long timeStamp = System.currentTimeMillis();
 
         Request requestObject = Request.getOrCreate(id);
         requestObject.setBook(bookObject);
+        requestObject.setTimestamp(timeStamp);
         requestObject.setRequester(requester);
         requestObject.setStatus(RequestStatus.SENT);
 

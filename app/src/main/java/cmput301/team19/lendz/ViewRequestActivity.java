@@ -28,6 +28,8 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.sql.Time;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -66,6 +68,7 @@ public class ViewRequestActivity extends AppCompatActivity {
                 for (QueryDocumentSnapshot doc : value) {
                     if (doc.getId() != null){
                         DocumentReference requesterRef = doc.getDocumentReference("requester");
+
                         String RequestId = doc.getId();
                         ReadDataFromFirebase(requesterRef,RequestId);
                     }
@@ -83,8 +86,7 @@ public class ViewRequestActivity extends AppCompatActivity {
            public void onSuccess(DocumentSnapshot documentSnapshot) {
                //get username of requester
                String User_Name = documentSnapshot.getString("fullName");
-               BorrowerInfo requesterInfo  = new BorrowerInfo(User_Name, "https://firebasestorage.googleapis.com/v0/b/lendz-7eb71.appspot.com/o/BookImages%2FQQc5i9NnqjGSeT4Wxq41?alt=media&token=6b795d0d-d809-45e6-87e2-8a2502ceb664",
-                       "23:21",id);
+               BorrowerInfo requesterInfo  = new BorrowerInfo(User_Name,id);
                requestObjectArray.add(requesterInfo);
                adapter.notifyDataSetChanged();
            }
