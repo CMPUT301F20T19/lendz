@@ -5,14 +5,15 @@ public class BorrowerInfo {
     private String fullName;
     private String photo;
     private String timeStamp;
-
+    private String id;
     // General constructor
     public BorrowerInfo(){}
 
-    public BorrowerInfo(String fullName, String photo, String timeStamp){
+    public BorrowerInfo(String fullName, String photo, String timeStamp,String id){
         this.fullName = fullName;
         this.photo = photo;
         this.timeStamp = timeStamp;
+        this.id = id;
     }
 
     public String getFullName() {
@@ -37,5 +38,13 @@ public class BorrowerInfo {
 
     public void setTimeStamp(String timeStamp) {
         this.timeStamp = timeStamp;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 }
