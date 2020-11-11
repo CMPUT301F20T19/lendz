@@ -18,8 +18,6 @@ import com.google.firebase.firestore.auth.User;
  * this activity contains the bottom navigation of the app
  */
 public class MainActivity extends AppCompatActivity {
-
-
     private static final String TAG = "USER_ID" ;
     private BottomNavigationView bottomNavigationView;
 

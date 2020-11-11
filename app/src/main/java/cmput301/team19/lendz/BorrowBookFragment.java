@@ -6,6 +6,7 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -99,16 +100,27 @@ public class BorrowBookFragment extends Fragment implements OnBookClickListener{
         Log.d(TAG, "onOptionsItemSelected: ff");
         int itemID = item.getItemId();
         if(itemID == R.id.search_item) {
-            openSearchActivity();
+            openSearchFragment();
             return true;
         }else{
             return super.onOptionsItemSelected(item);
         }
     }
 
-    private void openSearchActivity() {
-        Intent intent = new Intent(getActivity(), SearchBooksActivity.class);
-        startActivity(intent);
+    private void openSearchFragment() {
+        Fragment searchFragment = SearchBooksFragment.newInstance();
+        FragmentTransaction transaction = getParentFragmentManager().beginTransaction();
+        transaction.setCustomAnimations(
+                R.anim.slide_in,
+                R.anim.fade_out,
+                R.anim.fade_in,
+                R.anim.slide_out
+        );
+
+        transaction.replace(R.id.container, searchFragment);
+        transaction.addToBackStack(null);
+
+        transaction.commit();
     }
 
     private void setUp() {
