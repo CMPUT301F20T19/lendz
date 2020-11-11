@@ -67,5 +67,6 @@
     <string name="hide_password">Hide Password</string>
     <string name="Back">ViewBookBack</string>
     <string name="Exit">viewBack</string>
-
+    <string name="search_failed">Failed to perform search.</string>
+    <string name="searching_in_progress">Searching…</string>
 </resources>
