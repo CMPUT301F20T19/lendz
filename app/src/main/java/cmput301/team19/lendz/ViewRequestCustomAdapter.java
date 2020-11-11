@@ -18,18 +18,20 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.squareup.picasso.Picasso;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class ViewRequestCustomAdapter extends ArrayAdapter<BorrowerInfo> {
 
     private Context mContext;
     int mResource;
-
+    private List<BorrowerInfo> borrowerList= new ArrayList<>();
 
     public ViewRequestCustomAdapter(@NonNull Context context, int resource, @NonNull List<BorrowerInfo> objects) {
         super(context, resource, objects);
         mContext = context;
         mResource = resource;
+        borrowerList = objects;
     }
 
     static class ViewHolder {
@@ -80,6 +82,10 @@ public class ViewRequestCustomAdapter extends ArrayAdapter<BorrowerInfo> {
             public void onClick(View v) {
                 //decline request
                 Toast.makeText(getContext(),"decline btn tapped at "+ String.valueOf(position),Toast.LENGTH_SHORT).show();
+
+                //show popup....need to implement
+
+                borrowerList.remove(position);
                 notifyDataSetChanged();
             }
         });
@@ -89,6 +95,8 @@ public class ViewRequestCustomAdapter extends ArrayAdapter<BorrowerInfo> {
             public void onClick(View v) {
                 //accept request
                 Toast.makeText(getContext(),"accept btn tapped at "+ String.valueOf(position),Toast.LENGTH_SHORT).show();
+                //show popup....need to implement
+
                 notifyDataSetChanged();
             }
         });
