@@ -19,6 +19,7 @@ public class Request {
     private static final String BOOK_KEY = "book";
     private static final String REQUESTER_KEY = "requester";
     private static final String STATUS_KEY = "status";
+    private static final String TIMESTAMP_KEY = "timestamp";
 
     // Maps request ID to Request object, guaranteeing at most
     // one Request object for each request.
@@ -41,6 +42,7 @@ public class Request {
     private Book book;
     private User requester;
     private RequestStatus status;
+    private long timestamp;
 
     private boolean loaded;
 
@@ -69,6 +71,10 @@ public class Request {
         } else {
             status = RequestStatus.values()[statusLong.intValue()];
         }
+        Long timestampLong = doc.getLong(TIMESTAMP_KEY);
+        if (timestampLong != null) {
+            timestamp = timestampLong;
+        }
     }
 
     /**
@@ -79,6 +85,7 @@ public class Request {
         map.put(BOOK_KEY, Book.documentOf(book.getId()));
         map.put(REQUESTER_KEY, User.documentOf(requester.getId()));
         map.put(STATUS_KEY, status.ordinal());
+        map.put(TIMESTAMP_KEY, timestamp);
         return map;
     }
 
@@ -128,6 +135,21 @@ public class Request {
      */
     public void setBook(Book book) {
         this.book = book;
+    }
+
+    /**
+     * @return the timestamp the Request was made at
+     */
+    public long getTimestamp() {
+        return timestamp;
+    }
+
+    /**
+     * Set the timestamp the Request was made at
+     * @param timestamp timestamp to use
+     */
+    public void setTimestamp(long timestamp) {
+        this.timestamp = timestamp;
     }
 
     /**
