@@ -78,7 +78,6 @@ public class ViewRequestActivity extends AppCompatActivity {
     }
 
     //
-
     public void ReadDataFromFirebase(DocumentReference u, final String id){
        DocumentReference requesterRef = u;
        requesterRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
