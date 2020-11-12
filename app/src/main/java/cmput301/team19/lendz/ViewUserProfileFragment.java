@@ -37,6 +37,7 @@ public class ViewUserProfileFragment extends Fragment {
 
     private User user;
 
+
     private TextView usernameTextView, fullNameTextView, emailTextView, phoneNumberTextView;
     private Button logout_button;
     FirebaseAuth mFirebaseAuth;

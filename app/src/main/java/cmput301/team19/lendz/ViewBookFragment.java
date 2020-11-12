@@ -129,28 +129,31 @@ public class ViewBookFragment extends Fragment {
                 final DocumentReference userReference = firestoreRef.collection("users").document(userId);
 
                 requestCollection = firestoreRef.collection("requests");
-                Query query = requestCollection.whereEqualTo("book", bookReference).whereEqualTo("requester",userReference);
-                query.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
 
-                            boolean b = task.getResult().isEmpty();
+                makeRequest(requestCollection,bookId,userId);
 
-                            if (b == true){
-                                Toast.makeText(getContext(),"Empty",Toast.LENGTH_SHORT).show();
-                                //go ahead and send request
-                                makeRequest(requestCollection,bookId,userId);
-                            }else{
-                                //Request already sent by user,So decline
-                                Toast.makeText(getContext(),"Request Already Sent",Toast.LENGTH_SHORT).show();
-                            }
-
-                        } else {
-                            Toast.makeText(getContext(),task.getException().getMessage(),Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                });
+//                Query query = requestCollection.whereEqualTo("book", bookReference).whereEqualTo("requester",userReference);
+//                query.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+//                    @Override
+//                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+//                        if (task.isSuccessful()) {
+//
+//                            boolean b = task.getResult().isEmpty();
+//
+//                            if (b == true){
+//                                Toast.makeText(getContext(),"Empty",Toast.LENGTH_SHORT).show();
+//                                //go ahead and send request
+//                                makeRequest(requestCollection,bookId,userId);
+//                            }else{
+//                                //Request already sent by user,So decline
+//                                Toast.makeText(getContext(),"Request Already Sent",Toast.LENGTH_SHORT).show();
+//                            }
+//
+//                        } else {
+//                            Toast.makeText(getContext(),task.getException().getMessage(),Toast.LENGTH_SHORT).show();
+//                        }
+//                    }
+//                });
 
             }
         });
