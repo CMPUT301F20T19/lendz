@@ -107,14 +107,17 @@ public class ViewRequestActivity extends AppCompatActivity {
     private interface FireStoreCallback{
         void onCallback();
     }
+
     private void synchronousTask1(FireStoreCallback firestoreCallback,QuerySnapshot value){
         for (QueryDocumentSnapshot doc : value) {
             if (doc.getId() != null){
                 requesterRefHolder.add(doc);
-
             }
         }
+
         firestoreCallback.onCallback();
     }
 
 }
+
+

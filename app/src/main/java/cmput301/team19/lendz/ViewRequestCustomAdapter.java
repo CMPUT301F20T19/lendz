@@ -3,17 +3,25 @@ package cmput301.team19.lendz;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Adapter;
 import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -25,13 +33,15 @@ import com.squareup.picasso.Picasso;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ViewRequestCustomAdapter extends ArrayAdapter<BorrowerInfo> {
+public class ViewRequestCustomAdapter extends ArrayAdapter<BorrowerInfo>{
 
     private Context mContext;
     int mResource;
-    private List<BorrowerInfo> borrowerList= new ArrayList<>();
+    private List<BorrowerInfo> borrowerList = new ArrayList<>();
     FirebaseFirestore firestoreRef;
     CollectionReference requestCollection;
+    private static FragmentManager fragmentManager;
+
 
     public ViewRequestCustomAdapter(@NonNull Context context, int resource, @NonNull List<BorrowerInfo> objects) {
         super(context, resource, objects);
@@ -100,7 +110,16 @@ public class ViewRequestCustomAdapter extends ArrayAdapter<BorrowerInfo> {
         viewHolder.full_name.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
                 Toast.makeText(getContext(),"name tapped at "+ String.valueOf(position),Toast.LENGTH_SHORT).show();
+                Bundle bundle = new Bundle();
+                String requester_Id = getItem(position).getId();
+                Fragment fragment =  ViewUserProfileFragment.newInstance(requester_Id);
+                ((AppCompatActivity)mContext).
+                        getSupportFragmentManager().
+                        beginTransaction().replace(R.id.bookrequestframe, fragment)
+                        .commit();
+
             }
         });
         return v;
@@ -116,22 +135,7 @@ public class ViewRequestCustomAdapter extends ArrayAdapter<BorrowerInfo> {
                         Toast.makeText(getContext(),"YES",Toast.LENGTH_SHORT).show();
                         if (swap == 1){
 
-                            String requestId= getItem(position).getRequestDocumentId();
-                            Toast.makeText(getContext(),String.valueOf(position),Toast.LENGTH_SHORT).show();
-                            firestoreRef = FirebaseFirestore.getInstance();
-                            requestCollection = firestoreRef.collection("requests");
-                            requestCollection
-                                    .document(requestId).delete().addOnSuccessListener(new OnSuccessListener<Void>() {
-                                @Override
-                                public void onSuccess(Void aVoid) {
-                                    Toast.makeText(getContext(),"Request Declined",Toast.LENGTH_SHORT).show();
-                                }
-                            }).addOnFailureListener(new OnFailureListener() {
-                                @Override
-                                public void onFailure(@NonNull Exception e) {
-                                    Toast.makeText(getContext(),"Could not decline request",Toast.LENGTH_SHORT).show();
-                                }
-                            });
+                            declineRequest(position);
 
                         }else{
                             //bayo insert here
@@ -148,7 +152,25 @@ public class ViewRequestCustomAdapter extends ArrayAdapter<BorrowerInfo> {
         AlertDialog alert = builder.create();
         alert.show();
 
-
     }
 
+    public void declineRequest(int position){
+        String requestId= getItem(position).getRequestDocumentId();
+        Toast.makeText(getContext(),String.valueOf(position),Toast.LENGTH_SHORT).show();
+        firestoreRef = FirebaseFirestore.getInstance();
+        requestCollection = firestoreRef.collection("requests");
+        requestCollection
+                .document(requestId).delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                Toast.makeText(getContext(),"Request Declined",Toast.LENGTH_SHORT).show();
+
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Toast.makeText(getContext(),"Could not decline request",Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
 }
