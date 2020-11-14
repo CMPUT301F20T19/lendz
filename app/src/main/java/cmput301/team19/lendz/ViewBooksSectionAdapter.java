@@ -56,7 +56,7 @@ public class ViewBooksSectionAdapter extends RecyclerView.Adapter<ViewBooksSecti
         this.context = context;
         this.books = books;
         this.onBookClickListener = onBookClickListener;
-        user = User.getOrCreate(FirebaseAuth.getInstance().getCurrentUser().getUid());
+//        user = User.getOrCreate(FirebaseAuth.getInstance().getCurrentUser().getUid());
     }
 
     @NonNull
@@ -107,9 +107,9 @@ public class ViewBooksSectionAdapter extends RecyclerView.Adapter<ViewBooksSecti
         if (bookDescription != null) {
             holder.book_title.setText(bookDescription.getTitle());
             holder.book_author.setText((bookDescription.getAuthor()));
-            if(user.getUsername() != book.getOwnerUsername()) {
-                 holder.book_owner_username.setText(book.getOwnerUsername());
-            }
+//            if(user.getUsername() != book.getOwnerUsername()) {
+//                 holder.book_owner_username.setText(book.getOwnerUsername());
+//            }
 
         }
     }
