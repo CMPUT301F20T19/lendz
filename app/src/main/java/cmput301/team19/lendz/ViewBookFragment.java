@@ -48,7 +48,7 @@ import static android.content.ContentValues.TAG;
 public class ViewBookFragment extends Fragment {
     // Parameter names
     private static final String ARG_BOOK_ID = "bookId";
-    Button requestBtn;
+    Button requestBtn, viewRequestsButton;
     private Book book;
     FirebaseFirestore firestoreRef;
     CollectionReference requestCollection;
@@ -90,6 +90,35 @@ public class ViewBookFragment extends Fragment {
             bookOwnerTextView.setText(book.getOwner().getFullName());
             bookBorrowerTextView.setText(book.getOwner().getUsername());
             Picasso.get().load(book.getPhoto()).into(bookImage);
+
+            // Update "View Requests" button
+            boolean currentUserOwnsThisBook =
+                    FirebaseAuth.getInstance().getCurrentUser().getUid()
+                    .equals(book.getOwner().getId());
+            viewRequestsButton.setVisibility(currentUserOwnsThisBook ? View.VISIBLE : View.GONE);
+            if (currentUserOwnsThisBook) {
+                viewRequestsButton.setEnabled(book.getPendingRequests().size() > 0);
+                viewRequestsButton.setText(getResources().getQuantityString(R.plurals.view_requests,
+                        book.getPendingRequests().size()));
+                viewRequestsButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Fragment requestsFragment = RequestsFragment.newInstance(book.getId());
+                        FragmentTransaction transaction = getParentFragmentManager().beginTransaction();
+                        transaction.setCustomAnimations(
+                                R.anim.slide_in,
+                                R.anim.fade_out,
+                                R.anim.fade_in,
+                                R.anim.slide_out
+                        );
+
+                        transaction.replace(R.id.container, requestsFragment);
+                        transaction.addToBackStack(null);
+
+                        transaction.commit();
+                    }
+                });
+            }
         }
     }
 
@@ -154,6 +183,7 @@ public class ViewBookFragment extends Fragment {
 
             }
         });
+        viewRequestsButton = view.findViewById(R.id.view_requests_button);
 
 
         if (getArguments() == null)

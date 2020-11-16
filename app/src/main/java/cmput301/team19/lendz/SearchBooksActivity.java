@@ -137,6 +137,6 @@ public class SearchBooksActivity extends AppCompatActivity implements OnBookClic
 
     @Override
     public void onBookClick(Book book) {
-
+        finish
     }
 }

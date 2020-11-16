@@ -16,9 +16,11 @@ import java.util.Map;
  * Provides methods for synchronization with Firestore.
  */
 public class Request {
-    private static final String BOOK_KEY = "book";
-    private static final String REQUESTER_KEY = "requester";
-    private static final String STATUS_KEY = "status";
+    public static final String BOOK_KEY = "book";
+    public static final String REQUESTER_KEY = "requester";
+    public static final String STATUS_KEY = "status";
+    public static final String REQUESTER_USERNAME_KEY = "requesterUsername";
+    public static final String REQUESTER_FULL_NAME_KEY = "requesterFullName";
 
     // Maps request ID to Request object, guaranteeing at most
     // one Request object for each request.
@@ -41,6 +43,8 @@ public class Request {
     private Book book;
     private User requester;
     private RequestStatus status;
+    private String requesterUsername;
+    private String requesterFullName;
 
     private boolean loaded;
 
@@ -69,6 +73,8 @@ public class Request {
         } else {
             status = RequestStatus.values()[statusLong.intValue()];
         }
+        requesterUsername = doc.getString(REQUESTER_USERNAME_KEY);
+        requesterFullName = doc.getString(REQUESTER_FULL_NAME_KEY);
     }
 
     /**
@@ -128,6 +134,20 @@ public class Request {
      */
     public void setBook(Book book) {
         this.book = book;
+    }
+
+    /**
+     * @return the username of the requester as stored in the document loaded from Firestore
+     */
+    public String getRequesterUsername() {
+        return requesterUsername;
+    }
+
+    /**
+     * @return the full name of the requester as stored in the document loaded from Firestore
+     */
+    public String getRequesterFullName() {
+        return requesterFullName;
     }
 
     /**

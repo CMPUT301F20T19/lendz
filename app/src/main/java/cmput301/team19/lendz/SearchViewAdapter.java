@@ -72,7 +72,7 @@ public class SearchViewAdapter extends RecyclerView.Adapter<SearchViewAdapter.Vi
          */
         @Override
         public void onClick(View itemView) {
-            onBookClickListener.onBookClick(getAdapterPosition());
+            onBookClickListener.onBookClick(searchResults.get(getAdapterPosition()));
         }
     }
 

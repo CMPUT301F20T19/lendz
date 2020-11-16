@@ -67,5 +67,11 @@
     <string name="hide_password">Hide Password</string>
     <string name="Back">ViewBookBack</string>
     <string name="Exit">viewBack</string>
-
+    <string name="loading_requests">Loading requests…</string>
+    <string name="failed_to_load_requests">Failed to load requests.</string>
+    <plurals name="view_requests">
+        <item quantity="zero">No Requests</item>
+        <item quantity="one">View Request</item>
+        <item quantity="other">View %1$d Requests</item>
+    </plurals>
 </resources>
