@@ -69,7 +69,7 @@ public class MainActivity extends AppCompatActivity {
                     }else if (itemID == R.id.my_books) {
                         fragment = MyBooksFragment.newInstance(uid);
                     }else if (itemID == R.id.notifications) {
-                        fragment = new NotificationsFragment();
+                        fragment = NotificationsFragment.newInstance();
                     } else if(itemID == R.id.profile) {
                         fragment = ViewUserProfileFragment.newInstance(uid);
                     }
