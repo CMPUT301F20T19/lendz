@@ -26,6 +26,8 @@
     <string name="signup_email_address_hint">Enter Email Address</string>
     <string name="sign_up_button_text">Sign Up</string>
 
+    <string name="google_maps_API_key">AIzaSyDdULVvHA9tOu8OKbdSPuavcKXjFJ6pGr0</string>
+
     <string name="add_book">Add Book</string>
     <string name="isbn">ISBN</string>
     <string name="todo">TODO</string>

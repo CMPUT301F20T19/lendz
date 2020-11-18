@@ -75,7 +75,7 @@ public class ViewRequestActivity extends AppCompatActivity {
                    public void onCallback() {
                        for (int i = 0; i < requesterRefHolder.size(); i++) {
                            QueryDocumentSnapshot doc = requesterRefHolder.get(i);
-                           ReadDataFromFirebase(doc,i);
+                           ReadDataFromFirebase(doc,i,bookId);
                        }
                    }
                },value);
@@ -84,7 +84,7 @@ public class ViewRequestActivity extends AppCompatActivity {
     }
 
     //for loop for this callback
-    public void ReadDataFromFirebase(QueryDocumentSnapshot doc, final int i){
+    public void ReadDataFromFirebase(QueryDocumentSnapshot doc, final int i, final String bookID){
         DocumentReference requesterRef = doc.getDocumentReference("requester");
         final String requestId = doc.getId();
        requesterRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
@@ -93,7 +93,7 @@ public class ViewRequestActivity extends AppCompatActivity {
                //get username of requester document
                String User_Name = documentSnapshot.getString("fullName");
                String User_id = documentSnapshot.getId();
-               BorrowerInfo requesterInfo  = new BorrowerInfo(User_Name,User_id,requestId);
+               BorrowerInfo requesterInfo  = new BorrowerInfo(User_Name,User_id,requestId,bookID);
                requestObjectArray.add(requesterInfo);
                adapter.notifyDataSetChanged();
                //check if its last element

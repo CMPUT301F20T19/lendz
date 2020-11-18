@@ -23,6 +23,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
+import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.CollectionReference;
@@ -93,7 +94,7 @@ public class ViewRequestCustomAdapter extends ArrayAdapter<BorrowerInfo>{
                 //show popup....need to implement
 
                 dialogBox("do you want to decline this request","Decline Book Request",1,position);
-                notifyDataSetChanged();
+
             }
         });
 
@@ -102,11 +103,13 @@ public class ViewRequestCustomAdapter extends ArrayAdapter<BorrowerInfo>{
             public void onClick(View v) {
                 //accept request
                 Toast.makeText(getContext(),"accept btn tapped at "+ String.valueOf(position),Toast.LENGTH_SHORT).show();
-                //show popup....need to implement
 
-                notifyDataSetChanged();
+                //show popup....need to implement
+                dialogBox("Do you want to accept this request","Accept Book Request",0,position);
+
             }
         });
+
         viewHolder.full_name.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -138,7 +141,7 @@ public class ViewRequestCustomAdapter extends ArrayAdapter<BorrowerInfo>{
                             declineRequest(position);
 
                         }else{
-                            //bayo insert here
+                            acceptRequest(position);
                         }
                     }
                 })
@@ -164,6 +167,7 @@ public class ViewRequestCustomAdapter extends ArrayAdapter<BorrowerInfo>{
             @Override
             public void onSuccess(Void aVoid) {
                 Toast.makeText(getContext(),"Request Declined",Toast.LENGTH_SHORT).show();
+                notifyDataSetChanged();
 
             }
         }).addOnFailureListener(new OnFailureListener() {
@@ -172,5 +176,47 @@ public class ViewRequestCustomAdapter extends ArrayAdapter<BorrowerInfo>{
                 Toast.makeText(getContext(),"Could not decline request",Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    /**
+     * this handles accepting requests
+     * @param position
+     * this is the position of the book that you click to accept
+     */
+    public void acceptRequest(int position)
+    {
+        String requestId= getItem(position).getRequestDocumentId();
+        String bookID = getItemId(position).getBookID();
+        Request request = Request.getOrCreate(requestId);
+        Book book  = Book.getOrCreate();
+        //do setting location
+        //openMapFragment();
+
+        request.setStatus(RequestStatus.ACCEPTED);
+//        request.store().addOnSuccessListener(new OnSuccessListener<Void>() {
+//            @Override
+//            public void onSuccess(Void aVoid) {
+//                notifyDataSetChanged();
+//
+//            }
+//        }).addOnFailureListener(new OnFailureListener() {
+//            @Override
+//            public void onFailure(@NonNull Exception e) {
+//                Toast.makeText(getContext(),"Could not accept request",Toast.LENGTH_SHORT).show();
+//            }
+//        });
+    }
+
+    public void openMapFragment()
+    {
+        //Initialize fragment
+
+        //open fragment
+        Fragment fragment = new MapsFragment();
+        ((AppCompatActivity)mContext).
+                getSupportFragmentManager().
+                beginTransaction().replace(R.id.bookrequestframe, fragment)
+                .commit();
+
     }
 }
