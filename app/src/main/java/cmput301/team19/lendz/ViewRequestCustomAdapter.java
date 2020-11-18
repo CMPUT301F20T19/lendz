@@ -186,13 +186,18 @@ public class ViewRequestCustomAdapter extends ArrayAdapter<BorrowerInfo>{
     public void acceptRequest(int position)
     {
         String requestId= getItem(position).getRequestDocumentId();
-        String bookID = getItemId(position).getBookID();
+        String bookID = getItem(position).getBookID();
+        String requesterId = getItem(position).getId();
         Request request = Request.getOrCreate(requestId);
-        Book book  = Book.getOrCreate();
-        //do setting location
-        //openMapFragment();
+        Book book  = Book.getOrCreate(bookID);
+        User user = User.getOrCreate(requesterId);
+        request.setRequester(user);
+        request.setBook(book);
 
-        request.setStatus(RequestStatus.ACCEPTED);
+        //do setting location
+        openMapFragment();
+ //      PUT THIS CODE IN A BUTTON IN MAP FRAGMENT AFTER PINPOINTING LOCATION
+//        request.setStatus(RequestStatus.ACCEPTED);
 //        request.store().addOnSuccessListener(new OnSuccessListener<Void>() {
 //            @Override
 //            public void onSuccess(Void aVoid) {
