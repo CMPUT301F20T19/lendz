@@ -69,4 +69,11 @@
     <string name="Exit">viewBack</string>
     <string name="search_failed">Failed to perform search.</string>
     <string name="searching_in_progress">Searching…</string>
+    <string name="book_requested_notification_text">%1$s has requested your book %2$s.</string>
+    <string name="accept_request">Accept Request</string>
+    <string name="decline_request">Decline Request</string>
+    <string name="request_accepted_notification_text">%1$s accepted your request for %2$s.</string>
+    <string name="request_declined_notification_text">%1$s declined your request for %2$s.</string>
+    <string name="book_photo">Book Photo</string>
+    <string name="failed_to_get_notifications">Failed to get notifications.</string>
 </resources>

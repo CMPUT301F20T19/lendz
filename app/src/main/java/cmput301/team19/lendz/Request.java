@@ -22,6 +22,11 @@ public class Request {
     private static final String STATUS_KEY = "status";
     private static final String TIMESTAMP_KEY = "timestamp";
     private static final String LOCATION_KEY = "location";
+    private static final String REQUESTER_USERNAME_KEY = "requesterUsername";
+    private static final String REQUESTER_FULL_NAME_KEY = "requesterFullName";
+    private static final String OWNER_USERNAME_KEY = "ownerUsername";
+    private static final String BOOK_TITLE_KEY = "bookTitle";
+    private static final String BOOK_PHOTO_URL_KEY = "bookPhotoUrl";
 
     // Maps request ID to Request object, guaranteeing at most
     // one Request object for each request.
@@ -46,6 +51,11 @@ public class Request {
     private RequestStatus status;
     private long timestamp;
     private Location location;
+    private String requesterUsername;
+    private String requesterFullName;
+    private String ownerUsername;
+    private String bookTitle;
+    private String bookPhotoUrl;
 
     private boolean loaded;
 
@@ -83,6 +93,26 @@ public class Request {
             location = null;
         } else {
             location = new Location(geoPoint);
+        }
+        String requesterUsername = doc.getString(REQUESTER_USERNAME_KEY);
+        if (requesterUsername != null) {
+            this.requesterUsername = requesterUsername;
+        }
+        String requesterFullName = doc.getString(REQUESTER_FULL_NAME_KEY);
+        if (requesterFullName != null) {
+            this.requesterFullName = requesterFullName;
+        }
+        String ownerUsername = doc.getString(OWNER_USERNAME_KEY);
+        if (ownerUsername != null) {
+            this.ownerUsername = ownerUsername;
+        }
+        String bookTitle = doc.getString(BOOK_TITLE_KEY);
+        if (bookTitle != null) {
+            this.bookTitle = bookTitle;
+        }
+        String bookPhotoUrl = doc.getString(BOOK_PHOTO_URL_KEY);
+        if (bookPhotoUrl != null) {
+            this.bookPhotoUrl = bookPhotoUrl;
         }
     }
 
@@ -175,6 +205,41 @@ public class Request {
      */
     public void setLocation(Location location) {
         this.location = location;
+    }
+
+    /**
+     * @return the username of the user who made this request as cached in Firestore
+     */
+    public String getRequesterUsername() {
+        return requesterUsername;
+    }
+
+    /**
+     * @return the full name of the user who made this request as cached in Firestore
+     */
+    public String getRequesterFullName() {
+        return requesterFullName;
+    }
+
+    /**
+     * @return the username of the owner of the book being requested as cached in Firestore
+     */
+    public String getOwnerUsername() {
+        return ownerUsername;
+    }
+
+    /**
+     * @return the title of the book being requested as cached in Firestore
+     */
+    public String getBookTitle() {
+        return bookTitle;
+    }
+
+    /**
+     * @return the url of the photo of the book being requested as cached in Firestore
+     */
+    public String getBookPhotoUrl() {
+        return bookPhotoUrl;
     }
 
     /**
