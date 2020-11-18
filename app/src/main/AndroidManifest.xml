@@ -26,13 +26,6 @@
         <activity android:name=".AddBookActivity"
             android:parentActivityName=".MainActivity"/>
         <activity android:name=".MainActivity"/>
-
-        <activity android:name=".UserProfileActivity" />
-        <activity android:name=".SearchBooksFragment"
-            android:parentActivityName=".MainActivity">
-        </activity>
-
-
         <activity android:name=".ScanActivity"
             android:screenOrientation="fullSensor"
             android:stateNotNeeded="true"
