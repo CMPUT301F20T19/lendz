@@ -18,8 +18,6 @@ import com.google.firebase.firestore.auth.User;
  * this activity contains the bottom navigation of the app
  */
 public class MainActivity extends AppCompatActivity {
-
-
     private static final String TAG = "USER_ID" ;
     private BottomNavigationView bottomNavigationView;
 
@@ -63,7 +61,7 @@ public class MainActivity extends AppCompatActivity {
                     }else if (itemID == R.id.my_books) {
                         fragment = MyBooksFragment.newInstance(uid);
                     }else if (itemID == R.id.notifications) {
-                        fragment = new NotificationsFragment();
+                        fragment = NotificationsFragment.newInstance();
                     } else if(itemID == R.id.profile) {
                         fragment = ViewUserProfileFragment.newInstance(uid);
                     }

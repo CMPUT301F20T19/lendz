@@ -110,7 +110,6 @@ public class AddBookActivity extends AppCompatActivity implements View.OnClickLi
                     titleTv.setText(book.getDescription().getTitle());
                     authorTV.setText(book.getDescription().getAuthor());
                     descriptionTV.setText(book.getDescription().getDescription());
-                    Toast.makeText(AddBookActivity.this,book.getPhoto(),Toast.LENGTH_SHORT).show();
                     if (book.getPhoto() != null){
                         Picasso.get().load(book.getPhoto()).into(imgView);
                     }
@@ -308,19 +307,17 @@ public class AddBookActivity extends AppCompatActivity implements View.OnClickLi
             if (existingBookId != null){
                 //change is made to existing book
                 id = existingBookId;
-                Toast.makeText(AddBookActivity.this, "existingBook not null", Toast.LENGTH_SHORT).show();
             }
             sendToFirestore(BookCollection,id);
         }
     }
 
     /**
-     *takes bookcollection reference and book id as arguments
-     *creates a book object and optionally removes a photo attached to a bookobject in Firestore.
+     *takes bookCollection reference and book id as arguments
+     *creates a book object and optionally removes a photo attached to a bookObject in Firestore.
      */
     public void sendToFirestore(final CollectionReference BookCollection, final String id){
         tempId = id;
-        Toast.makeText(AddBookActivity.this, "in Send to firestore", Toast.LENGTH_SHORT).show();
         //get text from textViews
         String isbn = isbnTv.getText().toString();
 
@@ -328,14 +325,15 @@ public class AddBookActivity extends AppCompatActivity implements View.OnClickLi
         String description = descriptionTV.getText().toString();
         // Creating keywords out from description using whitespace as delimiters
         String[] strArray = description.split(" ");
+        for (int i = 0; i < strArray.length; i++) {
+            strArray[i] = strArray[i].toLowerCase();
+        }
 
         String title = titleTv.getText().toString();
         String author = authorTV.getText().toString();
-        Toast.makeText(AddBookActivity.this, author, Toast.LENGTH_SHORT).show();
 
         //check if any text field is empty
         if(TextUtils.isEmpty(title)){
-            Toast.makeText(AddBookActivity.this, "woow", Toast.LENGTH_SHORT).show();
             titleTv.setError("TextField Cannot be Empty");
             return;
         }
@@ -362,21 +360,17 @@ public class AddBookActivity extends AppCompatActivity implements View.OnClickLi
             bookObject.setOwner(user);
             bookObject.setKeywords(Arrays.asList(strArray));
             if (url != null){
-                Toast.makeText(AddBookActivity.this, "URL NOT EMPTY", Toast.LENGTH_SHORT).show();
                 bookObject.setPhoto(url);
             }
             if(triggerDelete == 1){
-                Toast.makeText(AddBookActivity.this, "triggerDel = 1", Toast.LENGTH_SHORT).show();
                 final Book book = Book.getOrCreate(existingBookId);
 
-                Toast.makeText(AddBookActivity.this, "passed", Toast.LENGTH_SHORT).show();
 
                 final StorageReference ref = storageReference.child("BookImages/"+id);
                 ref.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
                         Log.e("Picture","#deleted");
-                        Toast.makeText(AddBookActivity.this, "img deleted", Toast.LENGTH_SHORT).show();
 
                         bookObject.setPhoto(null);
                         saveBook(bookObject);
