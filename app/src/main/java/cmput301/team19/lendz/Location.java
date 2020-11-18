@@ -32,6 +32,14 @@ public class Location {
     }
 
     /**
+     * Create a Firebase GeoPoint from this Location.
+     * @return new GeoPoint object
+     */
+    public GeoPoint toGeoPoint() {
+        return new GeoPoint(lat, lon);
+    }
+
+    /**
      * @return the address of this Location. may be null
      */
     public String getAddress() {
