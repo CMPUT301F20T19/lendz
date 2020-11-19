@@ -99,7 +99,7 @@ public class ViewRequestActivity extends AppCompatActivity {
     public void ReadDataFromFirebase(QueryDocumentSnapshot doc, final int i, final String bookID){
         DocumentReference requesterRef = doc.getDocumentReference("requester");
         final String requestId = doc.getId();
-       requesterRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+        requesterRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
            @Override
            public void onSuccess(DocumentSnapshot documentSnapshot) {
                //get username of requester document
