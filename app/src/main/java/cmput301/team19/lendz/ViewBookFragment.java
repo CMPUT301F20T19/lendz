@@ -40,6 +40,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import static android.content.ContentValues.TAG;
+import static cmput301.team19.lendz.R.id.viewBookBack;
 
 /**
  * Fragment for viewing book details information
@@ -55,13 +56,13 @@ public class ViewBookFragment extends Fragment {
 
 
     private TextView bookTitleTextView, bookStatusTextView, bookDescriptionTextView, bookAuthorTextView,
-    bookISBNTextVIew, bookOwnerTextView, bookBorrowerTextView;
+            bookISBNTextVIew, bookOwnerTextView, bookBorrowerTextView;
 
     private ImageView bookImage, ownerImage;
 
     private String bookOwnerId;
 
-    public static ViewBookFragment newInstance(String bookId){
+    public static ViewBookFragment newInstance(String bookId) {
         ViewBookFragment fragment = new ViewBookFragment();
         Bundle args = new Bundle();
         args.putString(ARG_BOOK_ID, bookId);
@@ -71,20 +72,18 @@ public class ViewBookFragment extends Fragment {
     }
 
     /**
-     * @param savedInstanceState
-     * set the menu option to true so icons are visible
+     * @param savedInstanceState set the menu option to true so icons are visible
      */
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setHasOptionsMenu(true);
     }
 
     /**
      * Set the displayed info to match that of book object
      */
-    private void updateBookDetails(){
-        if (book != null){
+    private void updateBookDetails() {
+        if (book != null) {
             bookTitleTextView.setText(book.getDescription().getTitle());
             bookStatusTextView.setText(BookStatus.AVAILABLE.toString());
             bookDescriptionTextView.setText(book.getDescription().getDescription());
@@ -94,9 +93,10 @@ public class ViewBookFragment extends Fragment {
             bookBorrowerTextView.setText(book.getOwner().getUsername());
             Picasso.get().load(book.getPhoto()).into(bookImage);
             bookOwnerId = book.getOwner().getId();
+            Toast.makeText(getContext(), "BOID " + bookOwnerId, Toast.LENGTH_SHORT).show();
             // call check user function
             checkOwner(bookOwnerId);
-            Toast.makeText(getContext(), "BOID " + bookOwnerId, Toast.LENGTH_SHORT).show();
+
         }
     }
 
@@ -128,23 +128,29 @@ public class ViewBookFragment extends Fragment {
 
         //create a pointer to book details
         final DocumentReference bookReference = firestoreRef.collection("books").document(bookId);
-        //Toast.makeText(getContext(),String.valueOf(position),Toast.LENGTH_SHORT).show();
 
 
         requestBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                final String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
-                //check if Book Request already exist
-                firestoreRef = FirebaseFirestore.getInstance();
 
-                //create a pointer to user details
-                final DocumentReference userReference = firestoreRef.collection("users").document(userId);
+                String buttonName = ((Button) view).getText().toString();
+                if (buttonName.equals("VIEW REQUESTS")) {
+                    Intent intent = new Intent(getActivity(), ViewRequestActivity.class);
+                    final String bookId = getArguments().getString(ARG_BOOK_ID);
+                    intent.putExtra("bookId", bookId);
+                    startActivity(intent);
+                } else {
+                    final String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
-                requestCollection = firestoreRef.collection("requests");
+                    //create a pointer to user details
+                    //final DocumentReference userReference = firestoreRef.collection("users").document(userId);
 
-                makeRequest(requestCollection,bookId,userId);
+                    requestCollection = firestoreRef.collection("requests");
+
+                    makeRequest(requestCollection, bookId, userId);
+                }
 
             }
         });
@@ -158,10 +164,10 @@ public class ViewBookFragment extends Fragment {
         Book.documentOf(bookId).addSnapshotListener(new EventListener<DocumentSnapshot>() {
             @Override
             public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
-                if (error != null){
+                if (error != null) {
                     Log.e("BookActivity", "error getting book" + bookId.toString() +
                             ": " + error);
-                } else if (value == null || !value.exists()){
+                } else if (value == null || !value.exists()) {
                     Log.w("BookActivity", "did not find the Book" + bookId.toString());
                 } else {
                     book.load(value);
@@ -169,9 +175,16 @@ public class ViewBookFragment extends Fragment {
                 }
             }
         });
-       return view;
+        return view;
     }
-    public void makeRequest(CollectionReference requestCollection,String bookId,String userId){
+
+    /**
+     * @param requestCollection
+     * @param bookId
+     * @param userId
+     * allows user to make a request on a book they do not own
+     */
+    public void makeRequest(CollectionReference requestCollection, String bookId, String userId) {
         final DocumentReference bookReference = firestoreRef.collection("books").document(bookId);
 
 
@@ -212,12 +225,13 @@ public class ViewBookFragment extends Fragment {
     /**
      * switches to the appropriate view
      * and perform actions
+     *
      * @param item
      * @return
      */
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        switch (item.getItemId()){
+        switch (item.getItemId()) {
             case R.id.deleteBook:
                 book.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
@@ -248,33 +262,38 @@ public class ViewBookFragment extends Fragment {
                 final String bookId = getArguments().getString(ARG_BOOK_ID);
                 intent.putExtra("bookId", bookId);
                 startActivity(intent);
-            case R.id.viewBookBack:
+            case viewBookBack:
                 getParentFragmentManager().popBackStack();
             default:
                 return super.onOptionsItemSelected(item);
         }
     }
 
-    public void checkOwner(String bookOwnerId){
+    /**
+     * @param bookOwnerId
+     * get the book owner iD and compare to it to the user
+     * to create the appropriate button in the view book details
+     */
+    public void checkOwner(String bookOwnerId) {
         final String signedInUser = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
-        if (bookOwnerId == signedInUser){
+        if (bookOwnerId.equals(signedInUser)) {
             // we want to display view request button
+            setHasOptionsMenu(true);
             requestBtn.setVisibility(View.VISIBLE);
             requestBtn.setText("VIEW REQUESTS");
-            Toast.makeText(getContext(), "In if: " , Toast.LENGTH_SHORT).show();
 
         } else {
             // display make request button
             requestBtn.setVisibility(View.VISIBLE);
             requestBtn.setText("REQUEST BOOK");
-            Toast.makeText(getContext(), "In else: " , Toast.LENGTH_SHORT).show();
-
+            Toast.makeText(getContext(), "In else: ", Toast.LENGTH_SHORT).show();
 
         }
-
-
     }
 
 
+
 }
+
+

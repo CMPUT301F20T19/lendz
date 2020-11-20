@@ -43,6 +43,9 @@ public class ViewRequestActivity extends AppCompatActivity {
     private ArrayList<QueryDocumentSnapshot> requesterRefHolder = new ArrayList<>();
     private TextView RequestCountLabel;
 
+    /**
+     * @param savedInstanceState
+     */
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -52,7 +55,11 @@ public class ViewRequestActivity extends AppCompatActivity {
         //connect ListView to its array content using a custom adapter
         adapter = new ViewRequestCustomAdapter(this, R.layout.view_book_request,requestObjectArray);
         requestBookListView.setAdapter(adapter);
-        final String bookId = "FTVxy59Hf0dGFD3FwibN"; //WE NEED TO SEND THIS HERE FROM VIEWBOOK FRAGMENT NOT HARDCODED
+        //some extra code
+        Intent intent = getIntent();
+        final String bookId = intent.getStringExtra("bookId");
+
+
         firestoreRef = FirebaseFirestore.getInstance();
         //create a pointer to book details
         final DocumentReference bookReference = firestoreRef.collection("books").document(bookId);
@@ -83,6 +90,11 @@ public class ViewRequestActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * @param doc
+     * @param i
+     * @param bookID
+     */
     //for loop for this callback
     public void ReadDataFromFirebase(QueryDocumentSnapshot doc, final int i, final String bookID){
         DocumentReference requesterRef = doc.getDocumentReference("requester");
@@ -108,6 +120,10 @@ public class ViewRequestActivity extends AppCompatActivity {
         void onCallback();
     }
 
+    /**
+     * @param firestoreCallback
+     * @param value
+     */
     private void synchronousTask1(FireStoreCallback firestoreCallback,QuerySnapshot value){
         for (QueryDocumentSnapshot doc : value) {
             if (doc.getId() != null){
