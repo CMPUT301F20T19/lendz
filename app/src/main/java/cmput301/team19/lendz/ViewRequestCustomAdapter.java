@@ -59,7 +59,7 @@ public class ViewRequestCustomAdapter extends ArrayAdapter<BorrowerInfo>{
     }
 
     /**
-     * custom array adapter getview.
+     * custom array adapter getView.
      * makes only accept request btn and decline btn clickable
      */
     @NonNull

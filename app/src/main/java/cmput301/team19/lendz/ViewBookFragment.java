@@ -53,10 +53,13 @@ public class ViewBookFragment extends Fragment {
     FirebaseFirestore firestoreRef;
     CollectionReference requestCollection;
 
+
     private TextView bookTitleTextView, bookStatusTextView, bookDescriptionTextView, bookAuthorTextView,
     bookISBNTextVIew, bookOwnerTextView, bookBorrowerTextView;
 
     private ImageView bookImage, ownerImage;
+
+    private String bookOwnerId;
 
     public static ViewBookFragment newInstance(String bookId){
         ViewBookFragment fragment = new ViewBookFragment();
@@ -90,6 +93,10 @@ public class ViewBookFragment extends Fragment {
             bookOwnerTextView.setText(book.getOwner().getFullName());
             bookBorrowerTextView.setText(book.getOwner().getUsername());
             Picasso.get().load(book.getPhoto()).into(bookImage);
+            bookOwnerId = book.getOwner().getId();
+            // call check user function
+            checkOwner(bookOwnerId);
+            Toast.makeText(getContext(), "BOID " + bookOwnerId, Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -113,17 +120,24 @@ public class ViewBookFragment extends Fragment {
         bookBorrowerTextView = view.findViewById(R.id.bookViewUsername);
         bookImage = view.findViewById(R.id.bookImge);
         requestBtn = view.findViewById(R.id.request_book);
+        requestBtn.setVisibility(View.INVISIBLE);
+
+        final String bookId = getArguments().getString(ARG_BOOK_ID);
+        firestoreRef = FirebaseFirestore.getInstance();
+
+
+        //create a pointer to book details
+        final DocumentReference bookReference = firestoreRef.collection("books").document(bookId);
+        //Toast.makeText(getContext(),String.valueOf(position),Toast.LENGTH_SHORT).show();
+
+
         requestBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 final String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
-                final String bookId = getArguments().getString(ARG_BOOK_ID);
 
                 //check if Book Request already exist
                 firestoreRef = FirebaseFirestore.getInstance();
-
-                //create a pointer to book details
-                final DocumentReference bookReference = firestoreRef.collection("books").document(bookId);
 
                 //create a pointer to user details
                 final DocumentReference userReference = firestoreRef.collection("users").document(userId);
@@ -132,29 +146,6 @@ public class ViewBookFragment extends Fragment {
 
                 makeRequest(requestCollection,bookId,userId);
 
-//                Query query = requestCollection.whereEqualTo("book", bookReference).whereEqualTo("requester",userReference);
-//                query.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-//                    @Override
-//                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-//                        if (task.isSuccessful()) {
-//
-//                            boolean b = task.getResult().isEmpty();
-//
-//                            if (b == true){
-//                                Toast.makeText(getContext(),"Empty",Toast.LENGTH_SHORT).show();
-//                                //go ahead and send request
-//                                makeRequest(requestCollection,bookId,userId);
-//                            }else{
-//                                //Request already sent by user,So decline
-//                                Toast.makeText(getContext(),"Request Already Sent",Toast.LENGTH_SHORT).show();
-//                            }
-//
-//                        } else {
-//                            Toast.makeText(getContext(),task.getException().getMessage(),Toast.LENGTH_SHORT).show();
-//                        }
-//                    }
-//                });
-
             }
         });
 
@@ -162,7 +153,6 @@ public class ViewBookFragment extends Fragment {
         if (getArguments() == null)
             throw new IllegalArgumentException("no arguments");
 
-        final String bookId = getArguments().getString(ARG_BOOK_ID);
         book = Book.getOrCreate(bookId);
 
         Book.documentOf(bookId).addSnapshotListener(new EventListener<DocumentSnapshot>() {
@@ -182,6 +172,7 @@ public class ViewBookFragment extends Fragment {
        return view;
     }
     public void makeRequest(CollectionReference requestCollection,String bookId,String userId){
+        final DocumentReference bookReference = firestoreRef.collection("books").document(bookId);
 
 
         //create request object
@@ -262,6 +253,27 @@ public class ViewBookFragment extends Fragment {
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    public void checkOwner(String bookOwnerId){
+        final String signedInUser = FirebaseAuth.getInstance().getCurrentUser().getUid();
+
+        if (bookOwnerId == signedInUser){
+            // we want to display view request button
+            requestBtn.setVisibility(View.VISIBLE);
+            requestBtn.setText("VIEW REQUESTS");
+            Toast.makeText(getContext(), "In if: " , Toast.LENGTH_SHORT).show();
+
+        } else {
+            // display make request button
+            requestBtn.setVisibility(View.VISIBLE);
+            requestBtn.setText("REQUEST BOOK");
+            Toast.makeText(getContext(), "In else: " , Toast.LENGTH_SHORT).show();
+
+
+        }
+
+
     }
 
 
