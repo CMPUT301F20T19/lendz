@@ -214,14 +214,17 @@ public class ViewRequestCustomAdapter extends ArrayAdapter<BorrowerInfo>{
 
     public void openMapFragment()
     {
-        //Initialize fragment
+       // Initialize fragment
 
-        //open fragment
-        Fragment fragment = new MapsFragment();
-        ((AppCompatActivity)mContext).
-                getSupportFragmentManager().
-                beginTransaction().replace(R.id.bookrequestframe, fragment)
-                .commit();
+//        //open fragment
+//        Fragment fragment = new MapsFragment();
+//        ((AppCompatActivity)mContext).
+//                getSupportFragmentManager().
+//                beginTransaction().replace(R.id.map, fragment)
+//                .commit();
+
+        Intent intent = new Intent(mContext, MapsActivity.class);
+        mContext.startActivity(intent);
 
     }
 }
