@@ -60,7 +60,6 @@ public class BorrowBookFragment extends Fragment implements OnBookClickListener{
     private ViewBooksAdapter borrowedBooksAdapter;
     private ArrayList<ViewBooksSection> sections;
     private ArrayList<DocumentReference> bookReferences;
-    private ArrayList<Book> books;
     private View borrowedBooksView;
     private int lol=0;
     FirebaseFirestore db;
@@ -101,16 +100,16 @@ public class BorrowBookFragment extends Fragment implements OnBookClickListener{
         setUp();
         borrowBooksRecyclerView = borrowedBooksView.findViewById(R.id.borrowFrag_recyclerView);
         borrowedBooksAdapter = new ViewBooksAdapter(borrowedBooksView.getContext(), sections,this);
-        findRequests(new FirestoreCallback() {
-            @Override
-            public void onCallback() {
-//                getBook();
-                Toast.makeText(getContext(),"Check Text",Toast.LENGTH_LONG).show();
-//                Log.e(TAG, "CheckSections Called: ");
-                checkSections();
-                initRecyclerView();
-            }
-        });
+//        findRequests(new FirestoreCallback() {
+//            @Override
+//            public void onCallback() {
+//                Toast.makeText(getContext(),"Check Text",Toast.LENGTH_LONG).show();
+//                checkSections();
+//                initRecyclerView();
+//            }
+//        });
+        getSentRequests();
+        getAcceptedRequests();
         return view;
     }
 
@@ -180,6 +179,45 @@ public class BorrowBookFragment extends Fragment implements OnBookClickListener{
         borrowBooksRecyclerView.addItemDecoration(new DividerItemDecoration(borrowedBooksView.getContext(), DividerItemDecoration.VERTICAL));
     }
 
+    private void getSentRequests() {
+        booksRef
+                .whereArrayContains("pendingRequesters",User.documentOf(userID) )
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if(task.isSuccessful()) {
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                addBook(document.getId(),document,RequestStatus.SENT);
+                            }
+                            progressDialog.dismiss();
+                            checkSections();
+                            initRecyclerView();
+                        }else {
+                            Log.d(TAG, "Error getting book ID: ", task.getException());
+                        }
+                    }
+                });
+    }
+
+    private void getAcceptedRequests() {
+        booksRef
+                .whereEqualTo("acceptedRequester",User.documentOf(userID) )
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if(task.isSuccessful()) {
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                addBook(document.getId(),document,RequestStatus.ACCEPTED);
+                            }
+                        }else{
+                            Log.d(TAG, "Error getting book ID: ", task.getException());
+                        }
+                    }
+                });
+    }
+
     private void findRequests(final FirestoreCallback firestoreCallback) {
 
         requestsRef
@@ -192,8 +230,6 @@ public class BorrowBookFragment extends Fragment implements OnBookClickListener{
                         progressDialog.dismiss();
                         if (task.isSuccessful()) {
                             for (QueryDocumentSnapshot document : task.getResult()) {
-                                Toast.makeText(getContext(),"IN for loop",Toast.LENGTH_SHORT).show();
-                                Log.e(TAG, document.getId() + " => " + document.get("status"));
                                 Long statusLong = (Long) document.get("status");
                                 RequestStatus requestStatus;
                                 if(statusLong == 0) {
@@ -204,51 +240,37 @@ public class BorrowBookFragment extends Fragment implements OnBookClickListener{
                                     requestStatus = RequestStatus.DECLINED;
                                 }
                                 DocumentReference reference = (DocumentReference) document.get("book");
-//                                Log.e(TAG, "onComplete: " + reference );
                                 bookReferences.add(reference);
 //                                references.add(reference);
 //                                getBook((DocumentReference) document.get("book"),requestStatus);
-                            };
-                            Log.e(TAG, "onComplete: " + bookReferences);
-                            Toast.makeText(getContext(),"Below for loop",Toast.LENGTH_SHORT).show();
-//                            Log.e(TAG, "CheckSections Called: ");
+                            }
                             getBook();
                         } else {
                             Log.d(TAG, "Error getting book ID: ", task.getException());
                         }
-                        Log.e(TAG, "CheckSections Called: ");
 //                        firestoreCallback.onCallback();
                     }
                 });
     }
 
     private void getBook() {
-        for(int i=0; i < bookReferences.size(); i++) {
-            lol = i;
-            bookReferences.get(i)
+        for(DocumentReference reference1: bookReferences) {
+            reference1
                     .get()
                     .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                         @Override
                         public void onSuccess(DocumentSnapshot snapshot) {
-                            Toast.makeText(getContext(),"Get book",Toast.LENGTH_SHORT).show();
-//                        Log.e(TAG, snapshot.getId() + " => " + requestStatus);
-//                            addBook(snapshot.getId(),snapshot,requestStatus);
-                            addBook(snapshot.getId(),snapshot,RequestStatus.SENT,lol);
-
+                            addBook(snapshot.getId(),snapshot,RequestStatus.SENT);
                         }
                     });
         }
-//        for(DocumentReference reference1: bookReferences) {
-//
-//        }
-
+        checkSections();
+        initRecyclerView();
     }
 
-    private void addBook(String id, DocumentSnapshot snapshot, RequestStatus requestStatus, int i) {
+    private void addBook(String id, DocumentSnapshot snapshot, RequestStatus requestStatus) {
         Book book = Book.getOrCreate(id);
         book.load(snapshot);
-        books.add(book);
-
         switch (requestStatus) {
             case SENT :
                 sentRequests.add(sentRequests.size(),book);
@@ -258,13 +280,8 @@ public class BorrowBookFragment extends Fragment implements OnBookClickListener{
             default:
                 break;
         }
-        Toast.makeText(getContext(),"Add book",Toast.LENGTH_SHORT).show();
-//        Log.e(TAG, "onComplete: " + sentRequests);
-//        Log.e(TAG, "onComplete: " + acceptedRequests);
-        if(i == bookReferences.size() - 1){
-            checkSections();
-            initRecyclerView();
-        }
+        Log.e(TAG, "addBook: " + sentRequests);
+        Log.e(TAG, "addBook: " + acceptedRequests);
     }
 
     @Override
@@ -274,6 +291,18 @@ public class BorrowBookFragment extends Fragment implements OnBookClickListener{
 
     @Override
     public void onBookClick(Book book) {
+        Fragment viewBookFragment = ViewBookFragment.newInstance(book.getId());
+        FragmentTransaction transaction = getParentFragmentManager().beginTransaction();
+        transaction.setCustomAnimations(
+                R.anim.slide_in,
+                R.anim.fade_out,
+                R.anim.fade_in,
+                R.anim.slide_out
+        );
 
+        transaction.replace(R.id.container, viewBookFragment);
+        transaction.addToBackStack(null);
+
+        transaction.commit();
     }
 }
