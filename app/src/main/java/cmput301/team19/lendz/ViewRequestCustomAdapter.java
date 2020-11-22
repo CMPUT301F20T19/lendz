@@ -188,6 +188,7 @@ public class ViewRequestCustomAdapter extends ArrayAdapter<BorrowerInfo>{
         String requestId= getItem(position).getRequestDocumentId();
         String bookID = getItem(position).getBookID();
         String requesterId = getItem(position).getId();
+
         Request request = Request.getOrCreate(requestId);
         Book book  = Book.getOrCreate(bookID);
         User user = User.getOrCreate(requesterId);
@@ -195,7 +196,9 @@ public class ViewRequestCustomAdapter extends ArrayAdapter<BorrowerInfo>{
         request.setBook(book);
 
         //do setting location
-        openMapFragment();
+        openMapFragment(requestId,bookID,requesterId);
+        notifyDataSetChanged();
+
  //      PUT THIS CODE IN A BUTTON IN MAP FRAGMENT AFTER PINPOINTING LOCATION
 //        request.setStatus(RequestStatus.ACCEPTED);
 //        request.store().addOnSuccessListener(new OnSuccessListener<Void>() {
@@ -212,7 +215,7 @@ public class ViewRequestCustomAdapter extends ArrayAdapter<BorrowerInfo>{
 //        });
     }
 
-    public void openMapFragment()
+    public void openMapFragment(String requestId,String bookID,String requesterId)
     {
        // Initialize fragment
 
@@ -224,7 +227,12 @@ public class ViewRequestCustomAdapter extends ArrayAdapter<BorrowerInfo>{
 //                .commit();
 
         Intent intent = new Intent(mContext, MapsActivity.class);
+        intent.putExtra("requestID",requestId);
+        intent.putExtra("bookID",bookID);
+        intent.putExtra("requesterID",requesterId);
+
         mContext.startActivity(intent);
+
 
     }
 }
