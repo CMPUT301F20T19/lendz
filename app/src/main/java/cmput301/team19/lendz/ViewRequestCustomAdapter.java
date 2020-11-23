@@ -197,6 +197,7 @@ public class ViewRequestCustomAdapter extends ArrayAdapter<BorrowerInfo>{
 
         //do setting location
         openMapFragment(requestId,bookID,requesterId);
+
         notifyDataSetChanged();
 
  //      PUT THIS CODE IN A BUTTON IN MAP FRAGMENT AFTER PINPOINTING LOCATION
