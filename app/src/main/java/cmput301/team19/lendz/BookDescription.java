@@ -1,8 +1,17 @@
 package cmput301.team19.lendz;
 
+import android.content.Context;
+
 import androidx.annotation.NonNull;
 
-import com.google.firebase.firestore.DocumentSnapshot;
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -32,6 +41,60 @@ public class BookDescription {
         this.title = title;
         this.author = author;
         this.description = description;
+    }
+
+    public interface BookDescriptionLoadListener {
+        void onSuccess(BookDescription bookDescription);
+
+        void onFailure(Exception e);
+    }
+
+    public static void loadFromInternet(final String isbn,
+                                        Context context,
+                                        final BookDescriptionLoadListener listener) {
+        if (isbn == null) {
+            throw new NullPointerException("isbn cannot be null");
+        }
+
+        String url = "https://www.googleapis.com/books/v1/volumes?q=isbn:" + isbn;
+        JsonObjectRequest request = new JsonObjectRequest(
+                Request.Method.GET,
+                url,
+                null,
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        try {
+                            int totalItems = response.getInt("totalItems");
+                            if (totalItems < 1) {
+                                throw new Exception("book with that ISBN not found");
+                            }
+
+                            JSONArray items = response.getJSONArray("items");
+                            JSONObject item = items.getJSONObject(0);
+                            JSONObject volumeInfo = item.getJSONObject("volumeInfo");
+
+                            String title = volumeInfo.getString("title");
+                            JSONArray authors = volumeInfo.getJSONArray("authors");
+                            String author = authors.join(", ");
+                            String description = volumeInfo.getString("description");
+
+                            BookDescription bookDescription = new BookDescription(
+                                    isbn, title, author, description);
+                            listener.onSuccess(bookDescription);
+                        } catch (Exception e) {
+                            listener.onFailure(e);
+                        }
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        listener.onFailure(error);
+                    }
+                }
+        );
+        Volley.newRequestQueue(context).add(request);
     }
 
     /**
