@@ -168,6 +168,9 @@ public class AddBookActivity extends AppCompatActivity implements View.OnClickLi
     }
 
 
+    /**
+     *
+     */
     private void pickImageFromGallery(){
         //intent to pick image
         Intent intent = new Intent(Intent.ACTION_PICK);

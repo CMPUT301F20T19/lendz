@@ -42,6 +42,7 @@ public class ViewRequestCustomAdapter extends ArrayAdapter<BorrowerInfo>{
     FirebaseFirestore firestoreRef;
     CollectionReference requestCollection;
     private static FragmentManager fragmentManager;
+    private String name;
 
 
     public ViewRequestCustomAdapter(@NonNull Context context, int resource, @NonNull List<BorrowerInfo> objects) {
