@@ -196,6 +196,8 @@ public class ViewRequestCustomAdapter extends ArrayAdapter<BorrowerInfo>{
         request.setRequester(user);
         request.setBook(book);
 
+        ViewRequestCustomAdapter adapter = ViewRequestCustomAdapter.this;
+
         //do setting location
         openMapFragment(requestId,bookID,requesterId);
 
