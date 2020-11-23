@@ -1,7 +1,10 @@
 package cmput301.team19.lendz;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.Html;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -138,7 +141,6 @@ public class ViewBookFragment extends Fragment {
                             boolean b = task.getResult().isEmpty();
 
                             if (b == true){
-                                Toast.makeText(getContext(),"Empty",Toast.LENGTH_SHORT).show();
                                 //go ahead and send request
                                 makeRequest(requestCollection,bookId,userId);
                             }else{
@@ -199,6 +201,8 @@ public class ViewBookFragment extends Fragment {
                     @Override
                     public void onSuccess(Void aVoid) {
                         Toast.makeText(getContext(), "request sent", Toast.LENGTH_SHORT).show();
+                        dialogBox(book.getDescription().getTitle(),"Request Sent");
+
                     }
                 }).addOnFailureListener(new OnFailureListener() {
             @Override
@@ -207,7 +211,21 @@ public class ViewBookFragment extends Fragment {
             }
         });
     }
+    public void dialogBox(String message, final String title){
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        builder.setTitle(title);
+        builder.setMessage(Html.fromHtml("your request for "+ "<b><i>"+ message+"</i></b>"+" has been sent"))
+                .setCancelable(false)
+                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
 
+                    }
+                });
+
+        AlertDialog alert = builder.create();
+        alert.show();
+
+    }
     @Override
     public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
         inflater.inflate(R.menu.view_book_details, menu);
