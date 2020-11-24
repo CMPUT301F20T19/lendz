@@ -80,4 +80,5 @@
     <string name="failed_to_get_notifications">Failed to get notifications.</string>
     <string name="failed_to_get_book_description">Failed to get book description: %1$s</string>
     <string name="title_activity_maps">Map</string>
+    <string name="no_notifications">No notifications</string>
 </resources>

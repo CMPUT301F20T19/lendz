@@ -12,6 +12,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnFailureListener;
@@ -32,18 +33,18 @@ import cmput301.team19.lendz.notifications.NotificationAdapter;
 import cmput301.team19.lendz.notifications.RequestAcknowledgedNotification;
 
 /**
- * A simple {@link Fragment} subclass.
- * Use the {@link NotificationsFragment#newInstance} factory method to
- * create an instance of this fragment.
+ * A Fragment that displays the user's notifications.
  */
 public class NotificationsFragment extends Fragment {
+    private View view;
+    private NotificationAdapter adapter;
+
     private NotificationsFragment() {
 
     }
 
     /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
+     * Create a new instance of this fragment.
      *
      * @return A new instance of fragment NotificationsFragment.
      */
@@ -58,29 +59,24 @@ public class NotificationsFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-
-        }
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_notifications, container, false);
+        view = inflater.inflate(R.layout.fragment_notifications, container, false);
 
         final ArrayList<Notification> notifications = new ArrayList<>();
 
-        //makeTestNotifications(notifications);
-
         RecyclerView recyclerView = view.findViewById(R.id.recycler_view);
-        final NotificationAdapter adapter = new NotificationAdapter(getContext(), notifications);
+        adapter = new NotificationAdapter(getContext(), notifications);
         recyclerView.setAdapter(adapter);
         LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.addItemDecoration(new DividerItemDecoration(getContext(), layoutManager.getOrientation()));
 
-        String currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        String currentUserId = User.getCurrentUser().getId();
         FirebaseFirestore.getInstance().collection("notifications")
                 .whereEqualTo(Notification.NOTIFIED_USER_KEY, User.documentOf(currentUserId))
                 .get()
@@ -100,63 +96,23 @@ public class NotificationsFragment extends Fragment {
                             }
                         });
 
-                        adapter.notifyDataSetChanged();
+                        onNotificationsChange();
                     }
                 }).addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Toast.makeText(getContext(), R.string.failed_to_get_notifications, Toast.LENGTH_LONG).show();
-                        Log.e("NotificationsFragment", "Failed to get notifications", e);
-                    }
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Toast.makeText(getContext(), R.string.failed_to_get_notifications, Toast.LENGTH_LONG).show();
+                Log.e("NotificationsFragment", "Failed to get notifications", e);
+            }
         });
 
         return view;
     }
 
-    private void makeTestNotifications(ArrayList<Notification> notifications) {
-        User thisUser = User.getOrCreate(FirebaseAuth.getInstance().getCurrentUser().getUid());
-
-        Request requestA = Request.getOrCreate("2121");
-        final Book bookA = Book.getOrCreate("A6WzyLPM8UhSGQUQV6J3");
-        requestA.setBook(bookA);
-        final User userA = User.getOrCreate("ZO4nCClyAbMhhuPhJwQY6wwWW0x1");
-        requestA.setRequester(userA);
-        requestA.setStatus(RequestStatus.SENT);
-        long timeA = System.currentTimeMillis() - 3000;
-        requestA.setTimestamp(timeA);
-        BookRequestedNotification bookRequestedNotificationA = new BookRequestedNotification("0", thisUser, timeA, requestA);
-
-        Request requestB = Request.getOrCreate("2122");
-        final Book bookB = Book.getOrCreate("l4dCtuESz53z7kWul7oD");
-        requestB.setBook(bookB);
-        final User userB = User.getOrCreate("HpYNt4gR6ZQ8MnSagr2rUKuO2i33");
-        requestB.setRequester(userB);
-        requestB.setStatus(RequestStatus.SENT);
-        long timeB = System.currentTimeMillis() - 2000;
-        requestB.setTimestamp(timeB);
-        BookRequestedNotification bookRequestedNotificationB = new BookRequestedNotification("1", thisUser, timeB, requestB);
-
-        Request requestC = Request.getOrCreate("2123");
-        final Book bookC = Book.getOrCreate("WsIYkFc2gKJOuox7yj17");
-        requestC.setBook(bookC);
-        requestC.setRequester(thisUser);
-        requestC.setStatus(RequestStatus.ACCEPTED);
-        long timeC = System.currentTimeMillis() - 1000;
-        requestC.setTimestamp(timeC);
-        RequestAcknowledgedNotification requestAcknowledgedNotificationA = new RequestAcknowledgedNotification("2", thisUser, timeC, requestC);
-
-        Request requestD = Request.getOrCreate("2124");
-        final Book bookD = Book.getOrCreate("akRX8Yq0VpazrHFFLkNm");
-        requestD.setBook(bookD);
-        requestD.setRequester(thisUser);
-        requestD.setStatus(RequestStatus.DECLINED);
-        long timeD = System.currentTimeMillis();
-        requestD.setTimestamp(timeD);
-        RequestAcknowledgedNotification requestAcknowledgedNotificationB = new RequestAcknowledgedNotification("3", thisUser, timeD, requestD);
-
-        notifications.add(requestAcknowledgedNotificationA);
-        notifications.add(requestAcknowledgedNotificationB);
-        notifications.add(bookRequestedNotificationB);
-        notifications.add(bookRequestedNotificationA);
+    private void onNotificationsChange() {
+        adapter.notifyDataSetChanged();
+        TextView noNotificationsTextView = view.findViewById(R.id.no_notifications);
+        noNotificationsTextView.setVisibility(
+                adapter.getItemCount() == 0 ? View.VISIBLE : View.GONE);
     }
 }
