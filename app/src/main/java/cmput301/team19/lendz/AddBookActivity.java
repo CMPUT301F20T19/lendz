@@ -13,20 +13,15 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.Fragment;
 
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
@@ -37,12 +32,7 @@ import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 import com.squareup.picasso.Picasso;
 
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
 
 
 /**
@@ -207,28 +197,39 @@ public class AddBookActivity extends AppCompatActivity implements View.OnClickLi
 
 
     /**
-     *method where image data is received and attached to an image view.
-     * it also recieves the barcode result.
+     * Handles result from image picker and ScanActivity.
      */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if(resultCode == RESULT_OK && requestCode == IMAGE_PICK_CODE){
+        if (resultCode == RESULT_OK && requestCode == IMAGE_PICK_CODE) {
             imgView.setImageURI(data.getData());
             //hold image data temporarily
-            FilePathUri =   data.getData();
+            FilePathUri = data.getData();
         }
-        IntentResult result =  IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
+        IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
 
-        if(result != null){
+        if (result != null && result.getContents() != null) {
+            String isbn = result.getContents();
+            isbnTv.setText(isbn);
+            BookDescription.loadFromInternet(isbn, this, new BookDescription.BookDescriptionLoadListener() {
+                @Override
+                public void onSuccess(BookDescription bookDescription) {
+                    titleTv.setText(bookDescription.getTitle());
+                    authorTV.setText(bookDescription.getAuthor());
+                    descriptionTV.setText(bookDescription.getDescription());
+                }
 
-            if (result.getContents() == null){
-                Toast.makeText(this,"CANCELLED",Toast.LENGTH_LONG).show();
-            }else{
-                Toast.makeText(this,result.getContents(),Toast.LENGTH_LONG).show();
-                isbnTv.setText(result.getContents());
-            }
-        }else{
+                @Override
+                public void onFailure(Exception e) {
+                    Toast.makeText(AddBookActivity.this,
+                            getResources().getString(R.string.failed_to_get_book_description,
+                                    e.getMessage()),
+                            Toast.LENGTH_LONG)
+                            .show();
+                }
+            });
+        } else {
             super.onActivityResult(requestCode, resultCode, data);
         }
     }
