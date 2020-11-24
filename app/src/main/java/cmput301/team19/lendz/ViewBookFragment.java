@@ -26,7 +26,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.FirebaseAuth;
+import com.google.android.material.chip.Chip;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -34,15 +34,8 @@ import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Query;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.squareup.picasso.Picasso;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
-
-import static android.content.ContentValues.TAG;
 
 /**
  * Fragment for viewing book details information
@@ -56,10 +49,14 @@ public class ViewBookFragment extends Fragment {
     FirebaseFirestore firestoreRef;
     CollectionReference requestCollection;
 
-    private TextView bookTitleTextView, bookStatusTextView, bookDescriptionTextView, bookAuthorTextView,
-    bookISBNTextVIew, bookOwnerTextView, bookBorrowerTextView;
+    private Menu menu;
 
-    private ImageView bookImage, ownerImage;
+    private TextView bookTitleTextView, bookStatusTextView, bookDescriptionTextView, bookAuthorTextView,
+    bookISBNTextVIew;
+
+    private Chip ownerButton;
+
+    private ImageView bookImage;
 
     public static ViewBookFragment newInstance(String bookId){
         ViewBookFragment fragment = new ViewBookFragment();
@@ -90,9 +87,31 @@ public class ViewBookFragment extends Fragment {
             bookDescriptionTextView.setText(book.getDescription().getDescription());
             bookAuthorTextView.setText(book.getDescription().getAuthor());
             bookISBNTextVIew.setText(book.getDescription().getIsbn());
-            bookOwnerTextView.setText(book.getOwner().getFullName());
-            bookBorrowerTextView.setText(book.getOwner().getUsername());
+            ownerButton.setText(book.getOwnerUsername());
+            ownerButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Fragment profileFragment = ViewUserProfileFragment.newInstance(book.getOwner().getId());
+                    FragmentTransaction transaction = getParentFragmentManager().beginTransaction();
+                    transaction.setCustomAnimations(
+                            R.anim.slide_in,
+                            R.anim.fade_out,
+                            R.anim.fade_in,
+                            R.anim.slide_out
+                    );
+
+                    transaction.replace(R.id.container, profileFragment);
+                    transaction.addToBackStack(null);
+
+                    transaction.commit();
+                }
+            });
             Picasso.get().load(book.getPhoto()).into(bookImage);
+
+            if (book.getOwner() == User.getCurrentUser()) {
+                // Viewing as owner of this book
+                menu.setGroupVisible(R.id.view_book_menu_for_owners, true);
+            }
         }
     }
 
@@ -112,14 +131,14 @@ public class ViewBookFragment extends Fragment {
         bookDescriptionTextView = view.findViewById(R.id.bookViewDescription);
         bookAuthorTextView = view.findViewById(R.id.bookViewAuthor);
         bookISBNTextVIew = view.findViewById(R.id.bookViewISBN);
-        bookOwnerTextView = view.findViewById(R.id.bookViewOwner);
-        bookBorrowerTextView = view.findViewById(R.id.bookViewUsername);
-        bookImage = view.findViewById(R.id.bookImge);
+        ownerButton = view.findViewById(R.id.owner_button);
+        bookImage = view.findViewById(R.id.bookImage);
+
         requestBtn = view.findViewById(R.id.request_book);
         requestBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                final String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+                final String userId = User.getCurrentUser().getId();
                 final String bookId = getArguments().getString(ARG_BOOK_ID);
 
                 //check if Book Request already exist
@@ -228,6 +247,7 @@ public class ViewBookFragment extends Fragment {
     }
     @Override
     public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
+        this.menu = menu;
         inflater.inflate(R.menu.view_book_details, menu);
     }
 
@@ -249,9 +269,9 @@ public class ViewBookFragment extends Fragment {
                         bookDescriptionTextView.setText(null);
                         bookAuthorTextView.setText(null);
                         bookISBNTextVIew.setText(null);
-                        bookOwnerTextView.setText(null);
-                        bookBorrowerTextView.setText(null);
-                        book.setPhoto("http://abcd");
+                        ownerButton.setText(null);
+                        ownerButton.setOnClickListener(null);
+                        book.setPhoto(null);
                         Picasso.get().load(book.getPhoto()).into(bookImage);
                         getParentFragmentManager().popBackStack();
                     }
@@ -270,8 +290,6 @@ public class ViewBookFragment extends Fragment {
                 final String bookId = getArguments().getString(ARG_BOOK_ID);
                 intent.putExtra("bookId", bookId);
                 startActivity(intent);
-            case R.id.viewBookBack:
-                getParentFragmentManager().popBackStack();
             default:
                 return super.onOptionsItemSelected(item);
         }
