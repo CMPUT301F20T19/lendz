@@ -18,6 +18,7 @@ import java.util.Map;
  */
 public class Request {
     private static final String BOOK_KEY = "book";
+    private static final String REQUEST_TYPE_KEY = "requestType";
     private static final String REQUESTER_KEY = "requester";
     private static final String STATUS_KEY = "status";
     private static final String TIMESTAMP_KEY = "timestamp";
@@ -46,6 +47,7 @@ public class Request {
     }
 
     private final String id;
+    private RequestType requestType;
     private Book book;
     private User requester;
     private RequestStatus status;
@@ -77,6 +79,12 @@ public class Request {
     public void load(@NonNull DocumentSnapshot doc) {
         loaded = true;
         book = Book.getOrCreate(doc.getDocumentReference(BOOK_KEY).getId());
+        Long requestTypeLong = doc.getLong(REQUEST_TYPE_KEY);
+        if (requestTypeLong == null) {
+            requestType = RequestType.Borrow;
+        } else {
+            requestType = RequestType.values()[requestTypeLong.intValue()];
+        }
         requester = User.getOrCreate(doc.getDocumentReference(REQUESTER_KEY).getId());
         Long statusLong = doc.getLong(STATUS_KEY);
         if (statusLong == null) {
@@ -122,6 +130,7 @@ public class Request {
     public Map<String, Object> toData() {
         Map<String, Object> map = new HashMap<>();
         map.put(BOOK_KEY, Book.documentOf(book.getId()));
+        map.put(REQUEST_TYPE_KEY, requestType.ordinal());
         map.put(REQUESTER_KEY, User.documentOf(requester.getId()));
         map.put(STATUS_KEY, status.ordinal());
         map.put(TIMESTAMP_KEY, timestamp);
@@ -135,6 +144,21 @@ public class Request {
      */
     public Task<Void> store() {
         return getDocumentReference().set(toData(), SetOptions.merge());
+    }
+
+    /**
+     * @return the RequestType of this request
+     */
+    public RequestType getRequestType() {
+        return requestType;
+    }
+
+    /**
+     * Set the RequestType of this request
+     * @param requestType RequestType to use
+     */
+    public void setRequestType(RequestType requestType) {
+        this.requestType = requestType;
     }
 
     /**
