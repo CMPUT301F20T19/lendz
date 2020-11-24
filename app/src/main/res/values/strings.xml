@@ -76,4 +76,5 @@
     <string name="request_declined_notification_text">%1$s declined your request for %2$s.</string>
     <string name="book_photo">Book Photo</string>
     <string name="failed_to_get_notifications">Failed to get notifications.</string>
+    <string name="no_notifications">No notifications</string>
 </resources>
