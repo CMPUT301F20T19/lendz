@@ -38,7 +38,7 @@ import java.util.Arrays;
  * Activity where a book object is created/edited and sent to Firestore.
  **/
 
-public class AddBookActivity extends AppCompatActivity implements View.OnClickListener {
+public class EditBookActivity extends AppCompatActivity implements View.OnClickListener {
     ImageView imgView;
     Button selectImg;
     Button scanBtn;
@@ -68,7 +68,7 @@ public class AddBookActivity extends AppCompatActivity implements View.OnClickLi
         storageReference = storage.getReference();
 
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_addbook);
+        setContentView(R.layout.activity_edit_book);
         //Attach views
         imgView = findViewById(R.id.book_IV);
         selectImg = findViewById(R.id.addImg);
@@ -218,7 +218,7 @@ public class AddBookActivity extends AppCompatActivity implements View.OnClickLi
 
                 @Override
                 public void onFailure(Exception e) {
-                    Toast.makeText(AddBookActivity.this,
+                    Toast.makeText(EditBookActivity.this,
                             getResources().getString(R.string.failed_to_get_book_description,
                                     e.getMessage()),
                             Toast.LENGTH_LONG)
@@ -264,7 +264,7 @@ public class AddBookActivity extends AppCompatActivity implements View.OnClickLi
                     .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                         @Override
                         public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                            Toast.makeText(AddBookActivity.this, "Uploaded", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(EditBookActivity.this, "Uploaded", Toast.LENGTH_SHORT).show();
                             progressDialog.dismiss();
                             ref.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                                 @Override
@@ -280,7 +280,7 @@ public class AddBookActivity extends AppCompatActivity implements View.OnClickLi
                         @Override
                         public void onFailure(@NonNull Exception e) {
                             progressDialog.dismiss();
-                            Toast.makeText(AddBookActivity.this, "Failed " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                            Toast.makeText(EditBookActivity.this, "Failed " + e.getMessage(), Toast.LENGTH_SHORT).show();
                         }
                     })
                     .addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
@@ -367,7 +367,7 @@ public class AddBookActivity extends AppCompatActivity implements View.OnClickLi
                 }).addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        Toast.makeText(AddBookActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(EditBookActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
                     }
                 });
                 triggerDelete = 0;
@@ -393,12 +393,12 @@ public class AddBookActivity extends AppCompatActivity implements View.OnClickLi
                     @Override
                     public void onSuccess(Void aVoid) {
                         filePathUri = null;
-                        Toast.makeText(AddBookActivity.this, "Book Added", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(EditBookActivity.this, "Book Added", Toast.LENGTH_SHORT).show();
                     }
                 }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
-                Toast.makeText(AddBookActivity.this, "Failed to add Book", Toast.LENGTH_SHORT).show();
+                Toast.makeText(EditBookActivity.this, "Failed to add Book", Toast.LENGTH_SHORT).show();
             }
         });
     }
