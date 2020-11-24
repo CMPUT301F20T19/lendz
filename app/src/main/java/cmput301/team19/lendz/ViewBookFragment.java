@@ -17,12 +17,9 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
 
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
@@ -30,16 +27,8 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
-import com.google.firebase.firestore.Query;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
 import com.squareup.picasso.Picasso;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
-
-import static android.content.ContentValues.TAG;
 import static cmput301.team19.lendz.R.id.viewBookBack;
 
 /**
@@ -59,9 +48,6 @@ public class ViewBookFragment extends Fragment {
             bookISBNTextVIew, bookOwnerTextView, bookBorrowerTextView;
 
     private ImageView bookImage, ownerImage;
-
-    private String bookOwnerId;
-    private String requesterId;
 
     public static ViewBookFragment newInstance(String bookId) {
         ViewBookFragment fragment = new ViewBookFragment();
@@ -93,13 +79,8 @@ public class ViewBookFragment extends Fragment {
             bookOwnerTextView.setText(book.getOwner().getFullName());
             bookBorrowerTextView.setText(book.getOwner().getUsername());
             Picasso.get().load(book.getPhoto()).into(bookImage);
-            bookOwnerId = book.getOwner().getId();
-            requesterId = book.getAcceptedRequester().getId();
-            Toast.makeText(getContext(), "BOID " + bookOwnerId, Toast.LENGTH_SHORT).show();
-            Toast.makeText(getContext(), "ROID " + requesterId, Toast.LENGTH_SHORT).show();
             // call check user function
-            checkOwner(bookOwnerId,requesterId);
-
+            updateRequestControls();
         }
     }
 
@@ -149,8 +130,6 @@ public class ViewBookFragment extends Fragment {
                 } else {
 
                     if(buttonName.equals("RETURN BOOK")){
-                        Log.e("bid",bookOwnerId);
-
                         Intent intent = new Intent(getActivity(), MapsActivity.class);
                         final String bookId = getArguments().getString(ARG_BOOK_ID);
                         intent.putExtra("bookId",bookId);
@@ -287,22 +266,19 @@ public class ViewBookFragment extends Fragment {
     }
 
     /**
-     * @param bookOwnerId
-     * get the book owner iD and compare to it to the user
-     * to create the appropriate button in the view book details
+     * Check the state of the current user, book owner, and accepted requester
+     * to show the appropriate request controls.
      */
-    public void checkOwner(String bookOwnerId,String requesterId) {
-        final String signedInUser = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        Log.e("siuid",signedInUser);
-        Log.e("rid",requesterId);
-        if (bookOwnerId.equals(signedInUser)) {
+    public void updateRequestControls() {
+        User currentUser = User.getOrCreate(FirebaseAuth.getInstance().getCurrentUser().getUid());
+        if (book.getOwner() == currentUser) {
             // we want to display view request button
             setHasOptionsMenu(true);
             requestBtn.setVisibility(View.VISIBLE);
             requestBtn.setText("VIEW REQUESTS");
 
         } else {
-            if (signedInUser.equals(requesterId)){
+            if (currentUser == book.getAcceptedRequester()) {
                 requestBtn.setVisibility(View.VISIBLE);
                 requestBtn.setText("RETURN BOOK");
             }
