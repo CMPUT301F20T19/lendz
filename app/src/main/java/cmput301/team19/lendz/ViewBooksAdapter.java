@@ -7,6 +7,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
@@ -16,15 +17,18 @@ public class ViewBooksAdapter extends RecyclerView.Adapter<ViewBooksAdapter.View
     ArrayList<ViewBooksSection> sections;
     private OnBookClickListener onBookClickListener;
 
-    public static class ViewHolder extends RecyclerView.ViewHolder {
-        TextView section_header;
-        RecyclerView section_body;
+    public class ViewHolder extends RecyclerView.ViewHolder {
+        TextView sectionHeader;
+        RecyclerView sectionBody;
 
         public ViewHolder(View itemView) {
             super(itemView);
 
-            section_header = itemView.findViewById(R.id.section_header);
-            section_body = itemView.findViewById(R.id.section_body);
+            sectionHeader = itemView.findViewById(R.id.section_header);
+            sectionBody = itemView.findViewById(R.id.section_body);
+
+            sectionBody.addItemDecoration(new DividerItemDecoration(
+                    ViewBooksAdapter.this.context, DividerItemDecoration.VERTICAL));
         }
     }
 
@@ -38,7 +42,7 @@ public class ViewBooksAdapter extends RecyclerView.Adapter<ViewBooksAdapter.View
     @Override
     public ViewBooksAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         LayoutInflater layoutInflater = LayoutInflater.from(context);
-        View view = layoutInflater.inflate(R.layout.activity_view_books_section, parent, false);
+        View view = layoutInflater.inflate(R.layout.book_list_section_item, parent, false);
         ViewBooksAdapter.ViewHolder viewHolder = new ViewBooksAdapter.ViewHolder(view);
 
         return viewHolder;
@@ -47,9 +51,9 @@ public class ViewBooksAdapter extends RecyclerView.Adapter<ViewBooksAdapter.View
     @Override
     public void onBindViewHolder(@NonNull ViewBooksAdapter.ViewHolder holder, int position) {
         ViewBooksSection section = sections.get(position);
-        holder.section_header.setText(section.getSectionHeader());
+        holder.sectionHeader.setText(section.getSectionHeader());
         ViewBooksSectionAdapter viewBooksSectionAdapter = new ViewBooksSectionAdapter(this.context, section.getBooks(),onBookClickListener);
-        holder.section_body.setAdapter(viewBooksSectionAdapter);
+        holder.sectionBody.setAdapter(viewBooksSectionAdapter);
     }
 
     @Override

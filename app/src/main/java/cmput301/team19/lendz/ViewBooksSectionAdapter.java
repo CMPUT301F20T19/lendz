@@ -14,11 +14,9 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.storage.FirebaseStorage;
 import com.squareup.picasso.Picasso;
 
-import java.net.URL;
 import java.util.ArrayList;
 
 public class ViewBooksSectionAdapter extends RecyclerView.Adapter<ViewBooksSectionAdapter.ViewHolder> {
@@ -26,7 +24,6 @@ public class ViewBooksSectionAdapter extends RecyclerView.Adapter<ViewBooksSecti
     private Context context;
     private ArrayList<Book> books;
     private OnBookClickListener onBookClickListener;
-    private  User user;
 
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         ImageView book_photo;
@@ -56,14 +53,13 @@ public class ViewBooksSectionAdapter extends RecyclerView.Adapter<ViewBooksSecti
         this.context = context;
         this.books = books;
         this.onBookClickListener = onBookClickListener;
-        user = User.getOrCreate(FirebaseAuth.getInstance().getCurrentUser().getUid());
     }
 
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(context);
-        View view = inflater.inflate(R.layout.activity_view_books_list_item, parent, false);
+        View view = inflater.inflate(R.layout.book_list_item, parent, false);
         ViewBooksSectionAdapter.ViewHolder viewHolder = new ViewHolder(view,onBookClickListener);
 
         return viewHolder;
@@ -107,7 +103,7 @@ public class ViewBooksSectionAdapter extends RecyclerView.Adapter<ViewBooksSecti
         if (bookDescription != null) {
             holder.book_title.setText(bookDescription.getTitle());
             holder.book_author.setText((bookDescription.getAuthor()));
-            if(user.getUsername() != book.getOwnerUsername()) {
+            if(User.getCurrentUser() != book.getOwner()) {
                  holder.book_owner_username.setText(book.getOwnerUsername());
             }
 
