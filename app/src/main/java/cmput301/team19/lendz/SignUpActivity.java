@@ -114,7 +114,7 @@ public class SignUpActivity extends AppCompatActivity {
                                                 Intent intent = new Intent(SignUpActivity.this, MainActivity.class);
                                                 intent.putExtras(bundle);
                                                 startActivity(intent);
-
+                                                finish();
                                             }
                                         }
                                     });
