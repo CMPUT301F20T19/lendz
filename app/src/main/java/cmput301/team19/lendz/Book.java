@@ -19,15 +19,18 @@ import androidx.annotation.Nullable;
  * Stores data about books and provides methods for synchronization with Firestore.
  */
 public class Book {
-    private static final String ACCEPTED_REQUEST_KEY = "acceptedRequest";
     private static final String DESCRIPTION_KEY = "description";
     private static final String LOCATION_KEY = "location";
     private static final String OWNER_KEY = "owner";
     private static final String OWNER_USERNAME_KEY = "ownerUsername";
-    private static final String PENDING_REQUESTS_KEY = "pendingRequests";
     private static final String PHOTO_KEY = "photo";
     private static final String STATUS_KEY = "status";
     private static final String KEYWORDS_KEY = "keywords";
+
+    public static final String ACCEPTED_REQUEST_KEY = "acceptedRequest";
+    public static final String ACCEPTED_REQUESTER_KEY = "acceptedRequester";
+    public static final String PENDING_REQUESTS_KEY = "pendingRequests";
+    public static final String PENDING_REQUESTERS_KEY = "pendingRequesters";
 
     // Maps book ID to Book object, guaranteeing at most
     // one Book object for each book.
@@ -42,8 +45,8 @@ public class Book {
     private final ArrayList<Request> pendingRequests;
     private List<String> keywords;
 
-
     private Request acceptedRequest;
+    private User acceptedRequester;
 
     private String ownerUsername;
 
@@ -108,16 +111,21 @@ public class Book {
         // Load owner username
         ownerUsername = doc.getString(OWNER_USERNAME_KEY);
 
-        // TODO load request data
-        /*
-        List<DocumentReference> pendingRequestsData =
-                (List<DocumentReference>) doc.get(PENDING_REQUESTS_KEY);
-        for (DocumentReference pendingRequest : pendingRequestsData) {
-            // TODO
-        }
+        // Load accepted request
         DocumentReference acceptedRequestData = doc.getDocumentReference(ACCEPTED_REQUEST_KEY);
-        // TODO
-         */
+        if (acceptedRequestData == null) {
+            acceptedRequest = null;
+        } else {
+            acceptedRequest = Request.getOrCreate(acceptedRequestData.getId());
+        }
+
+        // Load accepted requester
+        DocumentReference acceptedRequesterData = doc.getDocumentReference(ACCEPTED_REQUESTER_KEY);
+        if (acceptedRequesterData == null) {
+            acceptedRequester = null;
+        } else {
+            acceptedRequester = User.getOrCreate(acceptedRequesterData.getId());
+        }
 
         String photoUrlString = doc.getString(PHOTO_KEY);
         if (photoUrlString == null) {
@@ -168,17 +176,17 @@ public class Book {
     }
 
     /**
-     * @return list of pending Requests for this Book
-     */
-    public ArrayList<Request> getPendingRequests() {
-        return pendingRequests;
-    }
-
-    /**
      * @return the accepted Request for this Book, may be null
      */
     public Request getAcceptedRequest() {
         return acceptedRequest;
+    }
+
+    /**
+     * @return the user who made the accepted request, or null if there is none
+     */
+    public User getAcceptedRequester() {
+        return acceptedRequester;
     }
 
     /**

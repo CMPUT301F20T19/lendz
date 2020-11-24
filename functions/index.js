@@ -116,6 +116,7 @@ async function deletePendingRequest(bookRef, requestRef) {
     // Load pendingRequests of book
     const bookData = (await bookRef.get()).data();
     const newPendingRequests = bookData.pendingRequests ? bookData.pendingRequests : [];
+    const newPendingRequesters = bookData.pendingRequesters ? bookData.pendingRequesters : [];
 
     // Remove declined request from pendingRequests
     const requestIndex = newPendingRequests.indexOf(change.after.ref);
@@ -124,10 +125,11 @@ async function deletePendingRequest(bookRef, requestRef) {
         return;
     }
     newPendingRequests.splice(requestIndex, 1);
-
+    newPendingRequesters.splice(requestIndex, 1);
 
     bookRef.set({
         pendingRequests: newPendingRequests,
+        pendingRequesters: newPendingRequesters
     }, { merge: true });
 }
 
@@ -139,14 +141,17 @@ exports.onRequestCreate = functions.firestore
         const bookSnapshot = await bookRef.get();
         const bookData = bookSnapshot.data();
 
-        // Get pending requests of the book
+        // Get pendingRequests and pendingRequesters of the book
         const newPendingRequests = bookData.pendingRequests ? bookData.pendingRequests : [];
+        const newPendingRequesters = bookData.pendingRequesters ? bookData.pendingRequesters : [];
 
-        // Add new request to pendingRequests
+        // Add new request to pendingRequests and pendingRequesters
         newPendingRequests.push(snapshot.ref);
+        newPendingRequesters.push(snapshot.data().requester);
 
         bookRef.set({
-            pendingRequests: newPendingRequests
+            pendingRequests: newPendingRequests,
+            pendingRequesters: newPendingRequesters
         }, { merge: true });
 
         // Get requester data
@@ -193,9 +198,10 @@ exports.onRequestUpdate = functions.firestore
                 const bookRef = change.after.data().book;
                 deletePendingRequest(bookRef, change.after.ref);
 
-                // Set acceptedRequest to accepted request
+                // Set acceptedRequest and acceptedRequester
                 bookRef.set({
-                    acceptedRequest: change.after.ref
+                    acceptedRequest: change.after.ref,
+                    acceptedRequester: change.after.data().requester
                 }, { merge: true });
             }
         }
