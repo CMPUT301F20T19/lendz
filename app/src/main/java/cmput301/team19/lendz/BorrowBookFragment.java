@@ -241,8 +241,8 @@ public class BorrowBookFragment extends Fragment implements OnBookClickListener{
             default:
                 break;
         }
-        Log.e(TAG, "addBook: " + sentRequests);
-        Log.e(TAG, "addBook: " + acceptedRequests);
+//        Log.e(TAG, "addBook: " + sentRequests);
+//        Log.e(TAG, "addBook: " + acceptedRequests);
     }
 
     @Override
