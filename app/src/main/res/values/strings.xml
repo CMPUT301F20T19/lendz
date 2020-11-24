@@ -83,4 +83,9 @@
     <string name="title_activity_maps">Map</string>
     <string name="no_notifications">No notifications</string>
     <string name="no_owned_books">No owned books</string>
+    <string name="waiting_for_borrower_to_pick_up_book">Waiting for borrower to pick up book</string>
+    <string name="confirm_pick_up">Confirm Pick-Up</string>
+    <string name="cancel_pick_up">Cancel Pick-Up</string>
+    <string name="view_location">View Location</string>
+    <string name="log_out">Log Out</string>
 </resources>
