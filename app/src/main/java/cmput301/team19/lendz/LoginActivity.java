@@ -64,7 +64,7 @@ public class LoginActivity extends AppCompatActivity {
                 if(mFirebaseUser != null){
                     Intent i = new Intent(LoginActivity.this,MainActivity.class);
                     startActivity(i);
-
+                    finish();
                 }
             }
         };
