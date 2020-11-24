@@ -40,9 +40,7 @@ public class Book {
     private String photo;
     private User owner;
     private BookStatus status;
-    private Location location;
     private BookDescription description;
-    private final ArrayList<Request> pendingRequests;
     private List<String> keywords;
 
     private Request acceptedRequest;
@@ -54,7 +52,6 @@ public class Book {
 
     private Book(@NonNull String id) {
         this.id = id;
-        pendingRequests = new ArrayList<>();
     }
 
     /**
@@ -91,14 +88,6 @@ public class Book {
             throw new NullPointerException("description cannot be null");
         }
         setDescription(new BookDescription(descriptionMap));
-
-        // Load location
-        GeoPoint geoPoint = doc.getGeoPoint(LOCATION_KEY);
-        if (geoPoint == null) {
-            location = null;
-        } else {
-            location = new Location(geoPoint);
-        }
 
         // Load owner
         DocumentReference ownerReference = doc.getDocumentReference(OWNER_KEY);
@@ -246,13 +235,6 @@ public class Book {
      */
     public void setStatus(@NonNull BookStatus status) {
         this.status = status;
-    }
-
-    /**
-     * @return the current location of this Book
-     */
-    public Location getLocation() {
-        return location;
     }
 
     /**
