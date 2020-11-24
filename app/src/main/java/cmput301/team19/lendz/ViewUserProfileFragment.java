@@ -19,13 +19,9 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
-import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
-
-import java.util.UUID;
 
 /**
  * Fragment for viewing user profile information.
@@ -35,12 +31,12 @@ public class ViewUserProfileFragment extends Fragment {
     // Parameter names
     private static final String ARG_USER_ID = "userId";
 
+    private Menu menu;
+
     private User user;
 
     private TextView usernameTextView, fullNameTextView, emailTextView, phoneNumberTextView;
-    private Button logout_button;
-    FirebaseAuth mFirebaseAuth;
-    private FirebaseAuth.AuthStateListener mAuthStateListener;
+    private Button logoutButton;
 
     public ViewUserProfileFragment() {
         // Required empty public constructor
@@ -72,6 +68,11 @@ public class ViewUserProfileFragment extends Fragment {
             fullNameTextView.setText(user.getFullName());
             emailTextView.setText(user.getEmail());
             phoneNumberTextView.setText(user.getPhoneNumber());
+
+            if (user == User.getCurrentUser()) {
+                menu.setGroupVisible(R.id.view_user_profile_menu_for_owners, true);
+                logoutButton.setVisibility(View.VISIBLE);
+            }
         }
     }
 
@@ -84,7 +85,7 @@ public class ViewUserProfileFragment extends Fragment {
         fullNameTextView = view.findViewById(R.id.fullNameTextView);
         emailTextView = view.findViewById(R.id.emailTextView);
         phoneNumberTextView = view.findViewById(R.id.phoneNumberTextView);
-        logout_button = view.findViewById(R.id.button_logout);
+        logoutButton = view.findViewById(R.id.button_logout);
 
         if (getArguments() == null)
             throw new IllegalArgumentException("no arguments");
@@ -107,13 +108,13 @@ public class ViewUserProfileFragment extends Fragment {
                 }
             }
         });
-        updateUserInfo();
-        logout_button.setOnClickListener(new View.OnClickListener() {
+        logoutButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 FirebaseAuth.getInstance().signOut();
                 Intent backToLogin = new Intent(getActivity(),LoginActivity.class);
                 startActivity(backToLogin);
+                getActivity().finish();
             }
         });
         return view;
@@ -121,6 +122,7 @@ public class ViewUserProfileFragment extends Fragment {
 
     @Override
     public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
+        this.menu = menu;
         inflater.inflate(R.menu.view_user_profile_menu, menu);
     }
 
