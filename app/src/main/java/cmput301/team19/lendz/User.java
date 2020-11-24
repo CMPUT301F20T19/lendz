@@ -5,6 +5,8 @@ import androidx.annotation.Nullable;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -53,6 +55,18 @@ public class User {
             users.put(userId, user);
         }
         return user;
+    }
+
+    /**
+     * Get the currently logged in User.
+     * @return the logged in User, or null if there is none
+     */
+    public static User getCurrentUser() {
+        FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (firebaseUser != null) {
+            return User.getOrCreate(firebaseUser.getUid());
+        }
+        return null;
     }
 
     /**
