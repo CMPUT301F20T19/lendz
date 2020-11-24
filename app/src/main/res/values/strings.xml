@@ -41,7 +41,7 @@
     <string name="viewbookdescription">ViewBookDescription</string>
     <string name="viewbooktitle">ViewBookTitle</string>
     <string name="viewbookstatus">ViewBookStatus</string>
-    <string name="viewbookowner">Owned BY</string>
+    <string name="owner">Owner</string>
     <string name="viewbookusername">usernamer</string>
     <string name="viewbookdetailsdescription">description</string>
     <string name="viewbookdetailsauthor">Author</string>
@@ -72,6 +72,7 @@
     <string name="search_failed">Failed to perform search.</string>
     <string name="searching_in_progress">Searching…</string>
     <string name="book_requested_notification_text">%1$s has requested your book %2$s.</string>
+    <string name="request">Request</string>
     <string name="accept_request">Accept Request</string>
     <string name="decline_request">Decline Request</string>
     <string name="request_accepted_notification_text">%1$s accepted your request for %2$s.</string>

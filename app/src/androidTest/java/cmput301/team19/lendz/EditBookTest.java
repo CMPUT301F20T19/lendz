@@ -1,17 +1,12 @@
 package cmput301.team19.lendz;
 
-import android.view.View;
-
 import androidx.test.espresso.Espresso;
-import androidx.test.espresso.UiController;
-import androidx.test.espresso.ViewAction;
 import androidx.test.espresso.action.ViewActions;
 import androidx.test.espresso.assertion.ViewAssertions;
 import androidx.test.espresso.contrib.RecyclerViewActions;
 import androidx.test.espresso.matcher.ViewMatchers;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.rule.ActivityTestRule;
 
 import com.google.firebase.auth.FirebaseAuth;
 
@@ -19,8 +14,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import java.util.regex.Matcher;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.clearText;
@@ -131,7 +124,7 @@ public class EditBookTest {
      * Checking to see if the correct details exits
      */
     public void check_if_ViewBook() {
-        onView(withId(R.id.bookImge)).check(matches(isDisplayed()));
+        onView(withId(R.id.bookImage)).check(matches(isDisplayed()));
         onView(withId(R.id.bookViewTitle)).check(matches(isDisplayed()));
         onView(withId(R.id.bookViewDescription)).check(matches(isDisplayed()));
         onView(withId(R.id.bookViewAuthor)).check(matches(isDisplayed()));
