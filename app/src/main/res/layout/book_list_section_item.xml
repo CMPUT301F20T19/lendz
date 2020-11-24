@@ -24,6 +24,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/section_header"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-        tools:listitem="@layout/activity_view_books_list_item"/>
+        tools:listitem="@layout/book_list_item"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
