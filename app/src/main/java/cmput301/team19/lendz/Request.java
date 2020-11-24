@@ -125,7 +125,7 @@ public class Request {
         map.put(REQUESTER_KEY, User.documentOf(requester.getId()));
         map.put(STATUS_KEY, status.ordinal());
         map.put(TIMESTAMP_KEY, timestamp);
-        map.put(LOCATION_KEY, location.toGeoPoint());
+        map.put(LOCATION_KEY, location == null ? null : location.toGeoPoint());
         return map;
     }
 

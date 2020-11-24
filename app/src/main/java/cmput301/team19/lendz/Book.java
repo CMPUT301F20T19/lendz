@@ -19,15 +19,18 @@ import androidx.annotation.Nullable;
  * Stores data about books and provides methods for synchronization with Firestore.
  */
 public class Book {
-    private static final String ACCEPTED_REQUEST_KEY = "acceptedRequest";
     private static final String DESCRIPTION_KEY = "description";
     private static final String LOCATION_KEY = "location";
     private static final String OWNER_KEY = "owner";
     private static final String OWNER_USERNAME_KEY = "ownerUsername";
-    private static final String PENDING_REQUESTS_KEY = "pendingRequests";
     private static final String PHOTO_KEY = "photo";
     private static final String STATUS_KEY = "status";
     private static final String KEYWORDS_KEY = "keywords";
+
+    public static final String ACCEPTED_REQUEST_KEY = "acceptedRequest";
+    public static final String ACCEPTED_REQUESTER_KEY = "acceptedRequester";
+    public static final String PENDING_REQUESTS_KEY = "pendingRequests";
+    public static final String PENDING_REQUESTERS_KEY = "pendingRequesters";
 
     // Maps book ID to Book object, guaranteeing at most
     // one Book object for each book.
