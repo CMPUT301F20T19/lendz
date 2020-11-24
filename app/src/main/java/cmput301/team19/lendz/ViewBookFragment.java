@@ -286,7 +286,7 @@ public class ViewBookFragment extends Fragment {
                 });
                 return true;
             case R.id.editBookDetails:
-                Intent intent = new Intent(getActivity(), AddBookActivity.class);
+                Intent intent = new Intent(getActivity(), EditBookActivity.class);
                 final String bookId = getArguments().getString(ARG_BOOK_ID);
                 intent.putExtra("bookId", bookId);
                 startActivity(intent);

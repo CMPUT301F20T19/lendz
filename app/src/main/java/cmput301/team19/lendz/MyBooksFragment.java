@@ -98,7 +98,7 @@ public class MyBooksFragment extends Fragment implements OnBookClickListener {
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(getActivity(),AddBookActivity.class);
+                Intent intent = new Intent(getActivity(), EditBookActivity.class);
                 startActivity(intent);
             }
         });
