@@ -96,6 +96,7 @@ public class ViewRequestActivity extends AppCompatActivity {
                BorrowerInfo requesterInfo  = new BorrowerInfo(User_Name,User_id,requestId,bookID);
                requestObjectArray.add(requesterInfo);
                adapter.notifyDataSetChanged();
+               Toast.makeText(ViewRequestActivity.this,"called again",Toast.LENGTH_SHORT).show();
                //check if its last element
                if(i == (requesterRefHolder.size()-1)){
                    RequestCountLabel.setText(" "+String.valueOf(adapter.getCount()) + " Requests Made for this Book");

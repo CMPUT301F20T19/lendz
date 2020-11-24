@@ -5,6 +5,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 
 import android.Manifest;
@@ -60,7 +61,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private static final float DEFAULT_ZOOM = 15;
     private FusedLocationProviderClient mFusedLocationProviderClient;
     private Boolean mLocationPermissionsGranted = false;
-
+    private int backToViewBook = 0;
     //widgets
     private EditText mSearchText;
     private FloatingActionButton mConfirm;
@@ -248,7 +249,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         else if(resultCode == AutocompleteActivity.RESULT_ERROR){
             Status status = Autocomplete.getStatusFromIntent(data);
             Toast.makeText(this,status.getStatusMessage(), Toast.LENGTH_SHORT).show();
-
         }
     }
 
@@ -261,7 +261,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     {
         Intent intent = getIntent();
         String requestId = intent.getStringExtra("requestID");
-        String bookID = intent.getStringExtra("bookID");
+        final String bookID = intent.getStringExtra("bookID");
         String requesterId = intent.getStringExtra("requesterID");
 
         Request request = Request.getOrCreate(requestId);
@@ -270,38 +270,73 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         request.setRequester(user);
         request.setBook(book);
 
-        //get longitude and latitude
+
+//        get longitude and latitude
         LatLng destinationLatLng = place.getLatLng();
         assert destinationLatLng != null;
         double longitude = destinationLatLng.longitude;
         double latitude = destinationLatLng.latitude;
         Log.e(TAG, "setRequestLocation: " + longitude+ " "+ latitude);
         Location location = new Location(place.getAddress(),latitude,longitude);
-        request.setLocation(location);
-        //store in firebase
-        request.setStatus(RequestStatus.ACCEPTED);
-        request.store().addOnSuccessListener(new OnSuccessListener<Void>() {
-            @Override
-            public void onSuccess(Void aVoid) {
-                mConfirm.show();
+
+        //check if intent has borrow value
+        if(intent.hasExtra("borrow")){
+            mConfirm.show();
+            backToViewBook = 1;
+        }else{
+            request.setLocation(location);
+            //store in firebase
+            request.setStatus(RequestStatus.ACCEPTED);
+            request.store().addOnSuccessListener(new OnSuccessListener<Void>() {
+                @Override
+                public void onSuccess(Void aVoid) {
+                    mConfirm.show();
+
+
+                }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    Toast.makeText(MapsActivity.this,"Could not accept request",Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
 
 
 
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                Toast.makeText(MapsActivity.this,"Could not accept request",Toast.LENGTH_SHORT).show();
-            }
-        });
 
         //go back to main activity
         mConfirm.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent back = new Intent(MapsActivity.this,MainActivity.class);
-                startActivity(back);
+                Intent intent = getIntent();
+                if(backToViewBook == 1){
+                    if(intent.hasExtra("bookId")){
+                        String bid = intent.getStringExtra("bookId");
+                        //hide searchbar here
+                        //hide check btn here
+                        findViewById(R.id.relLayout1).setVisibility(View.GONE);
+                        mConfirm.setVisibility(View.INVISIBLE);
+
+
+                        //open fragment
+                        Fragment fragment = ViewBookFragment.newInstance(bid);
+
+                        Bundle bundle = new Bundle();
+                        bundle.putInt("locationSet",1);
+                        fragment.setArguments(bundle);
+                        getSupportFragmentManager().beginTransaction().add(R.id.mapLayout, fragment)
+                                .commit();
+
+                    }
+
+                }else{
+                    Intent back = new Intent(MapsActivity.this,MainActivity.class);
+                    startActivity(back);
+                }
+
             }
         });
     }
 }
+

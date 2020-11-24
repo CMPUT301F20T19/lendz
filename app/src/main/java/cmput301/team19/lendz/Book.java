@@ -26,7 +26,6 @@ public class Book {
     private static final String PHOTO_KEY = "photo";
     private static final String STATUS_KEY = "status";
     private static final String KEYWORDS_KEY = "keywords";
-
     public static final String ACCEPTED_REQUEST_KEY = "acceptedRequest";
     public static final String ACCEPTED_REQUESTER_KEY = "acceptedRequester";
     public static final String PENDING_REQUESTS_KEY = "pendingRequests";
