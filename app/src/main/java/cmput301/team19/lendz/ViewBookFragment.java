@@ -55,6 +55,10 @@ public class ViewBookFragment extends Fragment {
 
     private Book book;
 
+    public ViewBookFragment() {
+
+    }
+
     public static ViewBookFragment newInstance(String bookId) {
         ViewBookFragment fragment = new ViewBookFragment();
         Bundle args = new Bundle();
