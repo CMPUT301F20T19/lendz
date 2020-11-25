@@ -18,8 +18,10 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
@@ -27,6 +29,8 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.squareup.picasso.Picasso;
 
 import static cmput301.team19.lendz.R.id.viewBookBack;
@@ -142,8 +146,32 @@ public class ViewBookFragment extends Fragment {
                         //create a pointer to user details
                         //final DocumentReference userReference = firestoreRef.collection("users").document(userId);
 
+                        final DocumentReference bookReference = firestoreRef.collection("books").document(bookId);
+                        //create a pointer to user details
+                        final DocumentReference userReference = firestoreRef.collection("users").document(userId);
+
                         requestCollection = firestoreRef.collection("requests");
-                        makeRequest(requestCollection, bookId, userId);
+                        Query query = requestCollection.whereEqualTo("book", bookReference).whereEqualTo("requester",userReference);
+                        query.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                            @Override
+                            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                if (task.isSuccessful()) {
+
+                                    boolean b = task.getResult().isEmpty();
+
+                                    if (b == true){
+                                        //go ahead and send request
+                                        makeRequest(requestCollection,bookId,userId);
+                                    }else{
+                                        //Request already sent by user,So decline
+                                        Toast.makeText(getContext(),"Request Already Sent",Toast.LENGTH_SHORT).show();
+                                    }
+
+                                } else {
+                                    Toast.makeText(getContext(),task.getException().getMessage(),Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                        });
                     }
 
                 }
