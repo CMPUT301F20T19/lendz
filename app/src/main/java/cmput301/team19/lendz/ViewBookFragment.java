@@ -254,7 +254,6 @@ public class ViewBookFragment extends Fragment {
 
         AlertDialog alert = builder.create();
         alert.show();
-
     }
 
     @Override
