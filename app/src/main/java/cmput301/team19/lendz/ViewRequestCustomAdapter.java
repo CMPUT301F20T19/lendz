@@ -4,15 +4,11 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Adapter;
 import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
-import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -20,41 +16,21 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
 
-//import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.squareup.picasso.Picasso;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class ViewRequestCustomAdapter extends ArrayAdapter<BorrowerInfo>{
 
-    private Context mContext;
-    int mResource;
-    private List<BorrowerInfo> borrowerList = new ArrayList<>();
-    FirebaseFirestore firestoreRef;
-    CollectionReference requestCollection;
-    private static FragmentManager fragmentManager;
-    private String name;
-
-
     public ViewRequestCustomAdapter(@NonNull Context context, int resource, @NonNull List<BorrowerInfo> objects) {
         super(context, resource, objects);
-        mContext = context;
-        mResource = resource;
-        borrowerList = objects;
     }
 
     static class ViewHolder {
-        TextView full_name;
-        ImageButton accept ;
+        TextView username;
+        ImageButton accept;
         ImageButton decline;
         int position;
     }
@@ -70,10 +46,10 @@ public class ViewRequestCustomAdapter extends ArrayAdapter<BorrowerInfo>{
         ViewHolder viewHolder;
 
         if (v == null) {
-            LayoutInflater layoutInflater = (LayoutInflater)mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            LayoutInflater layoutInflater = (LayoutInflater)getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             v =  layoutInflater.inflate(R.layout.view_book_request,null);
             viewHolder = new ViewHolder();
-            viewHolder.full_name = (TextView) v.findViewById(R.id.n1);
+            viewHolder.username = (TextView) v.findViewById(R.id.n1);
             viewHolder.position = position;
             viewHolder.accept = (ImageButton) v.findViewById(R.id.acceptRequest);
             viewHolder.decline = (ImageButton) v.findViewById(R.id.declineRequest);
@@ -82,7 +58,7 @@ public class ViewRequestCustomAdapter extends ArrayAdapter<BorrowerInfo>{
             viewHolder = (ViewHolder) v.getTag();
         }
         String fullName = getItem(position).getFullName();
-        viewHolder.full_name.setText(fullName);
+        viewHolder.username.setText(fullName);
 
         //Handle buttons and add onClickListeners
         viewHolder.decline.setOnClickListener(new View.OnClickListener(){
@@ -90,10 +66,6 @@ public class ViewRequestCustomAdapter extends ArrayAdapter<BorrowerInfo>{
             @Override
             public void onClick(View v) {
                 //decline request
-                Toast.makeText(getContext(),"decline btn tapped at "+ String.valueOf(position),Toast.LENGTH_SHORT).show();
-
-                //show popup....need to implement
-
                 dialogBox("do you want to decline this request","Decline Book Request",1,position);
 
             }
@@ -103,23 +75,17 @@ public class ViewRequestCustomAdapter extends ArrayAdapter<BorrowerInfo>{
             @Override
             public void onClick(View v) {
                 //accept request
-                Toast.makeText(getContext(),"accept btn tapped at "+ String.valueOf(position),Toast.LENGTH_SHORT).show();
-
-                //show popup....need to implement
                 dialogBox("Do you want to accept this request","Accept Book Request",0,position);
 
             }
         });
 
-        viewHolder.full_name.setOnClickListener(new View.OnClickListener() {
+        viewHolder.username.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
-                Toast.makeText(getContext(),"name tapped at "+ String.valueOf(position),Toast.LENGTH_SHORT).show();
-                Bundle bundle = new Bundle();
                 String requester_Id = getItem(position).getId();
                 Fragment fragment =  ViewUserProfileFragment.newInstance(requester_Id);
-                ((AppCompatActivity)mContext).
+                ((AppCompatActivity)getContext()).
                         getSupportFragmentManager().
                         beginTransaction().replace(R.id.bookrequestframe, fragment)
                         .commit();
@@ -136,7 +102,6 @@ public class ViewRequestCustomAdapter extends ArrayAdapter<BorrowerInfo>{
                 .setCancelable(false)
                 .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
-                        Toast.makeText(getContext(),"YES",Toast.LENGTH_SHORT).show();
                         if (swap == 1){
 
                             declineRequest(position);
@@ -149,8 +114,6 @@ public class ViewRequestCustomAdapter extends ArrayAdapter<BorrowerInfo>{
                 .setNegativeButton("No", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         dialog.cancel();
-                        Toast.makeText(getContext(),"NO",Toast.LENGTH_SHORT).show();
-
                     }
                 });
         AlertDialog alert = builder.create();
@@ -159,24 +122,25 @@ public class ViewRequestCustomAdapter extends ArrayAdapter<BorrowerInfo>{
     }
 
     public void declineRequest(int position){
-        String requestId= getItem(position).getRequestDocumentId();
-        Toast.makeText(getContext(),String.valueOf(position),Toast.LENGTH_SHORT).show();
-        firestoreRef = FirebaseFirestore.getInstance();
-        requestCollection = firestoreRef.collection("requests");
-        requestCollection
-                .document(requestId).delete().addOnSuccessListener(new OnSuccessListener<Void>() {
-            @Override
-            public void onSuccess(Void aVoid) {
-                Toast.makeText(getContext(),"Request Declined",Toast.LENGTH_SHORT).show();
-                notifyDataSetChanged();
+        String requestId = getItem(position).getRequestDocumentId();
+        Request request = Request.getOrCreate(requestId);
+        request.setStatus(RequestStatus.DECLINED);
+        request.store()
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        notifyDataSetChanged();
 
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                Toast.makeText(getContext(),"Could not decline request",Toast.LENGTH_SHORT).show();
-            }
-        });
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Toast.makeText(
+                                getContext(),
+                                "Could not decline request",
+                                Toast.LENGTH_SHORT).show();
+                    }
+                });
     }
 
     /**
@@ -196,8 +160,6 @@ public class ViewRequestCustomAdapter extends ArrayAdapter<BorrowerInfo>{
         request.setRequester(user);
         request.setBook(book);
 
-        ViewRequestCustomAdapter adapter = ViewRequestCustomAdapter.this;
-
         //do setting location
         openMapFragment(requestId,bookID,requesterId);
         notifyDataSetChanged();
@@ -206,10 +168,10 @@ public class ViewRequestCustomAdapter extends ArrayAdapter<BorrowerInfo>{
     public void openMapFragment(String requestId,String bookID,String requesterId)
     {
        // Initialize fragment
-        Intent intent = new Intent(mContext, MapsActivity.class);
+        Intent intent = new Intent(getContext(), MapsActivity.class);
         intent.putExtra("requestID",requestId);
         intent.putExtra("bookID",bookID);
         intent.putExtra("requesterID",requesterId);
-        mContext.startActivity(intent);
+        getContext().startActivity(intent);
     }
 }
