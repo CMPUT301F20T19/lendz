@@ -44,11 +44,6 @@ import static android.content.ContentValues.TAG;
  * It is currently not functional as other functionalities need to be finished before
  */
 public class BorrowBookFragment extends Fragment implements OnBookClickListener{
-
-    private interface FirestoreCallback{
-        void onCallback();
-    }
-
     private static final String ARG_USER_ID = "userId";
 
     private String userID;
@@ -61,7 +56,6 @@ public class BorrowBookFragment extends Fragment implements OnBookClickListener{
     private ArrayList<ViewBooksSection> sections;
     private ArrayList<DocumentReference> bookReferences;
     private View borrowedBooksView;
-    private int lol=0;
     FirebaseFirestore db;
     CollectionReference booksRef;
     CollectionReference requestsRef;
@@ -233,7 +227,7 @@ public class BorrowBookFragment extends Fragment implements OnBookClickListener{
         Book book = Book.getOrCreate(id);
         book.load(snapshot);
         switch (requestStatus) {
-            case SENT :
+            case SENT:
                 sentRequests.add(sentRequests.size(),book);
                 break;
             case ACCEPTED:
@@ -241,8 +235,6 @@ public class BorrowBookFragment extends Fragment implements OnBookClickListener{
             default:
                 break;
         }
-//        Log.e(TAG, "addBook: " + sentRequests);
-//        Log.e(TAG, "addBook: " + acceptedRequests);
     }
 
     @Override
