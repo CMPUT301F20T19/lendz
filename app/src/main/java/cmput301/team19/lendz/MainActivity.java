@@ -29,7 +29,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-//        getUserID();
         if (FirebaseAuth.getInstance().getCurrentUser() != null) {
             uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
         }
@@ -46,7 +45,6 @@ public class MainActivity extends AppCompatActivity {
           uid = (String) intent.getSerializableExtra("userID");
             Log.d(TAG, "getUserID: " + uid);
         }
-
     }
 
     private BottomNavigationView.OnNavigationItemSelectedListener tabSelected =
@@ -72,3 +70,4 @@ public class MainActivity extends AppCompatActivity {
                 }
             };
 }
+
