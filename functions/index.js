@@ -112,27 +112,6 @@ exports.onBookDelete = functions.firestore
         }, { merge: true });
     });
 
-async function deletePendingRequest(bookRef, requestRef) {
-    // Load pendingRequests of book
-    const bookData = (await bookRef.get()).data();
-    const newPendingRequests = bookData.pendingRequests ? bookData.pendingRequests : [];
-    const newPendingRequesters = bookData.pendingRequesters ? bookData.pendingRequesters : [];
-
-    // Remove declined request from pendingRequests
-    const requestIndex = newPendingRequests.indexOf(change.after.ref);
-    if (requestIndex === -1) {
-        functions.logger.error('request not found in pendingRequests');
-        return;
-    }
-    newPendingRequests.splice(requestIndex, 1);
-    newPendingRequesters.splice(requestIndex, 1);
-
-    bookRef.set({
-        pendingRequests: newPendingRequests,
-        pendingRequesters: newPendingRequesters
-    }, { merge: true });
-}
-
 exports.onRequestCreate = functions.firestore
     .document('requests/{requestId}')
     .onCreate(async (snapshot, context) => {
@@ -189,19 +168,43 @@ exports.onRequestUpdate = functions.firestore
         const oldStatus = change.before.data().status;
         const newStatus = change.after.data().status;
         if (oldStatus !== newStatus) {
-            if (newStatus === 1) {
-                // If new status is DECLINED, then remove request from pendingRequests on the book
-                const bookRef = change.after.data().book;
-                deletePendingRequest(bookRef, change.after.ref);
-            } else if (newStatus === 2) {
-                // If new status is ACCEPTED, then move request to acceptedRequest on the book
-                const bookRef = change.after.data().book;
-                deletePendingRequest(bookRef, change.after.ref);
+            // Load pendingRequests of book
+            const bookRef = change.after.data().book;
+            const bookData = (await bookRef.get()).data();
+            const newPendingRequests = bookData.pendingRequests ? bookData.pendingRequests : [];
+            const newPendingRequesters = bookData.pendingRequesters ? bookData.pendingRequesters : [];
 
-                // Set acceptedRequest and acceptedRequester
+            if (newStatus === 1) {
+                // If new status is DECLINED, then remove the request from pendingRequests on the book
+                const requestIndex = newPendingRequests.indexOf(change.after.ref);
+                if (requestIndex === -1) {
+                    functions.logger.error('request not found in pendingRequests');
+                    return;
+                }
+                newPendingRequests.splice(requestIndex, 1);
+                newPendingRequesters.splice(requestIndex, 1);
+
+                bookRef.set({
+                    pendingRequests: newPendingRequests,
+                    pendingRequesters: newPendingRequesters
+                }, { merge: true });
+            } else if (newStatus === 2) {
+                // If new status is ACCEPTED, then set the acceptedRequest on the book and decline and clear pendingRequests
+
+                // Decline all pending requests
+                const pendingRequestsBatch = db.batch();
+                for (const requestRef of newPendingRequests) {
+                    pendingRequestsBatch.update(requestRef, {
+                        status: 0 // DECLINED
+                    });
+                }
+                pendingRequestsBatch.commit();
+
                 bookRef.set({
                     acceptedRequest: change.after.ref,
-                    acceptedRequester: change.after.data().requester
+                    acceptedRequester: change.after.data().requester,
+                    pendingRequests: [],
+                    pendingRequesters: []
                 }, { merge: true });
             }
         }
