@@ -34,15 +34,11 @@ import java.util.UUID;
 public class ViewUserProfileFragment extends Fragment {
     // Parameter names
     private static final String ARG_USER_ID = "userId";
-
     private User user;
-
-
     private TextView usernameTextView, fullNameTextView, emailTextView, phoneNumberTextView;
     private Button logout_button;
     FirebaseAuth mFirebaseAuth;
     private FirebaseAuth.AuthStateListener mAuthStateListener;
-
     public ViewUserProfileFragment() {
         // Required empty public constructor
     }
@@ -156,7 +152,6 @@ public class ViewUserProfileFragment extends Fragment {
 
         transaction.replace(R.id.container, editUserProfileFragment);
         transaction.addToBackStack(null);
-
         transaction.commit();
     }
 }

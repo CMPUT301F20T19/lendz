@@ -114,14 +114,11 @@ public class ViewBookFragment extends Fragment {
         requestBtn.setVisibility(View.INVISIBLE);
 
         final String bookId = getArguments().getString(ARG_BOOK_ID);
-//        int locationSet = getArguments().getInt("locationSet");
-//        Log.e("locationSet", String.valueOf(locationSet));
         firestoreRef = FirebaseFirestore.getInstance();
 
 
         //create a pointer to book details
         final DocumentReference bookReference = firestoreRef.collection("books").document(bookId);
-
 
         requestBtn.setOnClickListener(new View.OnClickListener() {
             @Override

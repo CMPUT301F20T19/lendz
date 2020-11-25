@@ -200,43 +200,16 @@ public class ViewRequestCustomAdapter extends ArrayAdapter<BorrowerInfo>{
 
         //do setting location
         openMapFragment(requestId,bookID,requesterId);
-
         notifyDataSetChanged();
-
- //      PUT THIS CODE IN A BUTTON IN MAP FRAGMENT AFTER PINPOINTING LOCATION
-//        request.setStatus(RequestStatus.ACCEPTED);
-//        request.store().addOnSuccessListener(new OnSuccessListener<Void>() {
-//            @Override
-//            public void onSuccess(Void aVoid) {
-//                notifyDataSetChanged();
-//
-//            }
-//        }).addOnFailureListener(new OnFailureListener() {
-//            @Override
-//            public void onFailure(@NonNull Exception e) {
-//                Toast.makeText(getContext(),"Could not accept request",Toast.LENGTH_SHORT).show();
-//            }
-//        });
     }
 
     public void openMapFragment(String requestId,String bookID,String requesterId)
     {
        // Initialize fragment
-
-//        //open fragment
-//        Fragment fragment = new MapsFragment();
-//        ((AppCompatActivity)mContext).
-//                getSupportFragmentManager().
-//                beginTransaction().replace(R.id.map, fragment)
-//                .commit();
-
         Intent intent = new Intent(mContext, MapsActivity.class);
         intent.putExtra("requestID",requestId);
         intent.putExtra("bookID",bookID);
         intent.putExtra("requesterID",requesterId);
-
         mContext.startActivity(intent);
-
-
     }
 }
