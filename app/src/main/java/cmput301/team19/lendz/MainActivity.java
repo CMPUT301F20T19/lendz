@@ -49,7 +49,6 @@ public class MainActivity extends AppCompatActivity {
           uid = (String) intent.getSerializableExtra("userID");
             Log.d(TAG, "getUserID: " + uid);
         }
-
     }
 
     private BottomNavigationView.OnNavigationItemSelectedListener tabSelected =
@@ -75,3 +74,4 @@ public class MainActivity extends AppCompatActivity {
                 }
             };
 }
+
