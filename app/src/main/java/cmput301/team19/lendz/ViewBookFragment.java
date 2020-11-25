@@ -27,7 +27,6 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.chip.Chip;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -45,19 +44,16 @@ import com.squareup.picasso.Picasso;
 public class ViewBookFragment extends Fragment {
     // Parameter names
     private static final String ARG_BOOK_ID = "bookId";
-    Button requestBtn;
-    private Book book;
-    FirebaseFirestore firestoreRef;
-    CollectionReference requestCollection;
+
+    private View view;
 
     private Menu menu;
-
     private TextView bookTitleTextView, bookStatusTextView, bookDescriptionTextView, bookAuthorTextView,
     bookISBNTextView;
-
+    private ImageView bookImage;
     private Chip ownerButton;
 
-    private ImageView bookImage;
+    private Book book;
 
     public static ViewBookFragment newInstance(String bookId) {
         ViewBookFragment fragment = new ViewBookFragment();
@@ -127,7 +123,7 @@ public class ViewBookFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_view_book_details, container, false);
+        view = inflater.inflate(R.layout.fragment_view_book_details, container, false);
         bookTitleTextView = view.findViewById(R.id.bookViewTitle);
         bookStatusTextView = view.findViewById(R.id.bookViewStatus);
         bookDescriptionTextView = view.findViewById(R.id.bookViewDescription);
@@ -138,62 +134,50 @@ public class ViewBookFragment extends Fragment {
 
         final String bookId = getArguments().getString(ARG_BOOK_ID);
 
-        requestBtn = view.findViewById(R.id.request_book);
-        requestBtn.setVisibility(View.INVISIBLE);
+        Button requestBtn = view.findViewById(R.id.request_button);
         requestBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String buttonName = ((Button) view).getText().toString();
-                if (buttonName.equals("VIEW REQUESTS")) {
-                    Intent intent = new Intent(getActivity(), ViewRequestActivity.class);
-                    intent.putExtra("bookId", bookId);
-                    startActivity(intent);
-                } else {
-                    if (buttonName.equals("RETURN BOOK")) {
-                        Intent intent = new Intent(getActivity(), MapsActivity.class);
-                        intent.putExtra("bookId", bookId);
-                        intent.putExtra("borrow", 1);
-                        startActivity(intent);
+                FirebaseFirestore firestore = FirebaseFirestore.getInstance();
+                final String userId = User.getCurrentUser().getId();
+                final DocumentReference bookReference = firestore.collection("books").document(bookId);
+                //create a pointer to user details
+                final DocumentReference userReference = firestore.collection("users").document(userId);
 
+                final CollectionReference requestCollection = firestore.collection("requests");
+                Query query = requestCollection.whereEqualTo("book", bookReference).whereEqualTo("requester", userReference);
+                query.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
 
-                    } else {
-                        final String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
-                        //create a pointer to user details
-                        //final DocumentReference userReference = firestoreRef.collection("users").document(userId);
+                            boolean b = task.getResult().isEmpty();
 
-                        final DocumentReference bookReference = firestoreRef.collection("books").document(bookId);
-                        //create a pointer to user details
-                        final DocumentReference userReference = firestoreRef.collection("users").document(userId);
-
-                        requestCollection = firestoreRef.collection("requests");
-                        Query query = requestCollection.whereEqualTo("book", bookReference).whereEqualTo("requester", userReference);
-                        query.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                            @Override
-                            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                                if (task.isSuccessful()) {
-
-                                    boolean b = task.getResult().isEmpty();
-
-                                    if (b == true) {
-                                        //go ahead and send request
-                                        makeRequest(requestCollection, bookId, userId);
-                                    } else {
-                                        //Request already sent by user,So decline
-                                        Toast.makeText(getContext(), "Request Already Sent", Toast.LENGTH_SHORT).show();
-                                    }
-
-                                } else {
-                                    Toast.makeText(getContext(), task.getException().getMessage(), Toast.LENGTH_SHORT).show();
-                                }
+                            if (b == true) {
+                                //go ahead and send request
+                                makeRequest(requestCollection, bookId, userId);
+                            } else {
+                                //Request already sent by user,So decline
+                                Toast.makeText(getContext(), "Request Already Sent", Toast.LENGTH_SHORT).show();
                             }
-                        });
+
+                        } else {
+                            Toast.makeText(getContext(), task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                        }
                     }
-
-                }
-
+                });
             }
         });
 
+        Button viewRequestsBtn = view.findViewById(R.id.view_requests_button);
+        viewRequestsBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getActivity(), ViewRequestActivity.class);
+                intent.putExtra("bookId", bookId);
+                startActivity(intent);
+            }
+        });
 
         if (getArguments() == null)
             throw new IllegalArgumentException("no arguments");
@@ -325,29 +309,34 @@ public class ViewBookFragment extends Fragment {
      * to show the appropriate request controls.
      */
     public void updateRequestControls() {
-        User currentUser = User.getOrCreate(FirebaseAuth.getInstance().getCurrentUser().getUid());
-        if (book.getOwner() == currentUser) {
-            // we want to display view request button
-            setHasOptionsMenu(true);
-            requestBtn.setVisibility(View.VISIBLE);
-            requestBtn.setText("VIEW REQUESTS");
+        view.findViewById(R.id.borrower_book_available).setVisibility(View.GONE);
+        view.findViewById(R.id.owner_book_available).setVisibility(View.GONE);
+        view.findViewById(R.id.waiting_for_pick_up).setVisibility(View.GONE);
 
+        if (book.getOwner() == User.getCurrentUser()) {
+            // Viewing as owner of this book
+            menu.setGroupVisible(R.id.view_book_menu_for_owners, true);
+
+            if (book.getStatus() == BookStatus.AVAILABLE
+                    || book.getStatus() == BookStatus.REQUESTED) {
+                view.findViewById(R.id.owner_book_available).setVisibility(View.VISIBLE);
+            } else if (book.getStatus() == BookStatus.ACCEPTED) {
+                // TODO
+            } else if (book.getStatus() == BookStatus.BORROWED) {
+                // TODO
+            }
         } else {
-            if (currentUser == book.getAcceptedRequester()) {
-                requestBtn.setVisibility(View.VISIBLE);
-                requestBtn.setText("RETURN BOOK");
+            // Viewing as non-owner of this book
+            if (book.getStatus() == BookStatus.AVAILABLE
+                    || book.getStatus() == BookStatus.REQUESTED) {
+                view.findViewById(R.id.borrower_book_available).setVisibility(View.VISIBLE);
+            } else if (book.getStatus() == BookStatus.ACCEPTED) {
+                // TODO
+            } else if (book.getStatus() == BookStatus.BORROWED) {
+                // TODO
             }
-            else{
-                // display make request button
-                requestBtn.setVisibility(View.VISIBLE);
-                requestBtn.setText("REQUEST BOOK");
-            }
-
         }
     }
-
-
-
 }
 
 

@@ -123,77 +123,20 @@
             app:layout_constraintTop_toBottomOf="@+id/bookViewOwnerHeader"
             tools:text="bigperson" />
 
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/borrower_no_request"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
+        <include
+            layout="@layout/borrower_book_available"
             android:visibility="gone"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/owner_button">
+            tools:layout_editor_absoluteY="563dp" />
 
-            <Button
-                android:id="@+id/request_book"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/request"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-        </androidx.constraintlayout.widget.ConstraintLayout>
-
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/waiting_for_pick_up"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
+        <include
+            layout="@layout/owner_book_available"
             android:visibility="gone"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/owner_button"
-            tools:visibility="visible">
+            tools:layout_editor_absoluteY="563dp" />
 
-            <TextView
-                android:id="@+id/borrower_status"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/waiting_for_borrower_to_pick_up_book"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <Button
-                android:id="@+id/view_location"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/view_location"
-                android:visibility="gone"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/borrower_status" />
-
-            <Button
-                android:id="@+id/confirm_pick_up"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/confirm_pick_up"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/view_location" />
-
-            <Button
-                android:id="@+id/cancel_pick_up"
-                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/cancel_pick_up"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/confirm_pick_up" />
-        </androidx.constraintlayout.widget.ConstraintLayout>
+        <include
+            layout="@layout/waiting_for_pick_up"
+            android:visibility="gone"
+            tools:layout_editor_absoluteY="563dp" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
