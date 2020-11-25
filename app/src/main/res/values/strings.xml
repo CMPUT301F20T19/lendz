@@ -26,6 +26,8 @@
     <string name="signup_email_address_hint">Enter Email Address</string>
     <string name="sign_up_button_text">Sign Up</string>
 
+    <string name="google_maps_API_key">AIzaSyDdULVvHA9tOu8OKbdSPuavcKXjFJ6pGr0</string>
+
     <string name="add_book">Add Book</string>
     <string name="isbn">ISBN</string>
     <string name="todo">TODO</string>
@@ -76,5 +78,5 @@
     <string name="request_declined_notification_text">%1$s declined your request for %2$s.</string>
     <string name="book_photo">Book Photo</string>
     <string name="failed_to_get_notifications">Failed to get notifications.</string>
-    <string name="failed_to_get_book_description">Failed to get book description: %1$s</string>
+    <string name="title_activity_maps">Map</string>
 </resources>
