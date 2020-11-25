@@ -190,6 +190,15 @@ exports.onRequestUpdate = functions.firestore
                     pendingRequests: newPendingRequests,
                     pendingRequesters: newPendingRequesters
                 }, { merge: true });
+
+                // Create notification for requester
+                const notificationData = {
+                    type: 1, // RequestAcknowledged
+                    notifiedUser: change.after.data().requester,
+                    timestamp: change.after.data().timestamp,
+                    request: change.after.ref
+                };
+                db.collection('notifications').add(notificationData);
             } else if (newStatus === 2) {
                 // If new status is ACCEPTED, then set the acceptedRequest on the book and decline and clear pendingRequests
 
@@ -208,6 +217,15 @@ exports.onRequestUpdate = functions.firestore
                     pendingRequests: [],
                     pendingRequesters: []
                 }, { merge: true });
+
+                // Create notification for requester
+                const notificationData = {
+                    type: 1, // RequestAcknowledged
+                    notifiedUser: change.after.data().requester,
+                    timestamp: change.after.data().timestamp,
+                    request: change.after.ref
+                };
+                db.collection('notifications').add(notificationData);
             }
         }
     });
