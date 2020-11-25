@@ -14,23 +14,15 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
  * this activity contains the bottom navigation of the app
  */
 public class MainActivity extends AppCompatActivity {
-    private String uid;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        if (User.getCurrentUser() != null) {
-            uid = User.getCurrentUser().getId();
-        } else {
-            uid = null;
-        }
-
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNav);
 
         bottomNavigationView.setOnNavigationItemSelectedListener(tabSelected);
-        getSupportFragmentManager().beginTransaction().replace(R.id.container, BorrowBookFragment.newInstance(uid)).commit();
+        getSupportFragmentManager().beginTransaction().replace(R.id.container, BorrowBookFragment.newInstance()).commit();
 
         getSupportFragmentManager().addOnBackStackChangedListener(new FragmentManager.OnBackStackChangedListener() {
             @Override
@@ -59,13 +51,13 @@ public class MainActivity extends AppCompatActivity {
                     Fragment fragment = null;
                     int itemID = item.getItemId();
                     if (itemID == R.id.borrow) {
-                        fragment = BorrowBookFragment.newInstance(uid);
+                        fragment = BorrowBookFragment.newInstance();
                     } else if (itemID == R.id.my_books) {
-                        fragment = MyBooksFragment.newInstance(uid);
+                        fragment = MyBooksFragment.newInstance();
                     } else if (itemID == R.id.notifications) {
                         fragment = NotificationsFragment.newInstance();
                     } else if (itemID == R.id.profile) {
-                        fragment = ViewUserProfileFragment.newInstance(uid);
+                        fragment = ViewUserProfileFragment.newInstance(User.getCurrentUser().getId());
                     }
                     if (fragment != null) {
                         getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);

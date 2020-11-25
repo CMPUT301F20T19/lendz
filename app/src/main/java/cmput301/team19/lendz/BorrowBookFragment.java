@@ -44,10 +44,6 @@ import static android.content.ContentValues.TAG;
  * It is currently not functional as other functionalities need to be finished before
  */
 public class BorrowBookFragment extends Fragment implements OnBookClickListener{
-    private static final String ARG_USER_ID = "userId";
-
-    private String userID;
-
     private RecyclerView borrowBooksRecyclerView;
     private ArrayList<Book> borrowedBooks;
     private ArrayList<Book> sentRequests;
@@ -69,10 +65,9 @@ public class BorrowBookFragment extends Fragment implements OnBookClickListener{
         // Required empty public constructor
     }
 
-    public static BorrowBookFragment newInstance(String userId) {
+    public static BorrowBookFragment newInstance() {
         BorrowBookFragment fragment = new BorrowBookFragment();
         Bundle args = new Bundle();
-        args.putString(ARG_USER_ID, userId);
         fragment.setArguments(args);
         return fragment;
     }
@@ -91,7 +86,6 @@ public class BorrowBookFragment extends Fragment implements OnBookClickListener{
         if (getArguments() == null)
             throw new IllegalArgumentException("no arguments");
         borrowedBooksView = view;
-        userID = getArguments().getString(ARG_USER_ID);
         db = FirebaseFirestore.getInstance();
         booksRef = db.collection("books");
         requestsRef = db.collection("requests");
@@ -184,8 +178,12 @@ public class BorrowBookFragment extends Fragment implements OnBookClickListener{
     }
 
     private void getSentRequests() {
+        if (User.getCurrentUser() == null) {
+            return;
+        }
+
         booksRef
-                .whereArrayContains("pendingRequesters",User.documentOf(userID) )
+                .whereArrayContains("pendingRequesters", User.documentOf(User.getCurrentUser().getId()))
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
@@ -204,8 +202,12 @@ public class BorrowBookFragment extends Fragment implements OnBookClickListener{
     }
 
     private void getAcceptedRequests() {
+        if (User.getCurrentUser() == null) {
+            return;
+        }
+
         booksRef
-                .whereEqualTo("acceptedRequester",User.documentOf(userID) )
+                .whereEqualTo("acceptedRequester", User.documentOf(User.getCurrentUser().getId()))
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
