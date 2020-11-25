@@ -58,7 +58,7 @@ public class ViewRequestActivity extends AppCompatActivity {
         //create a pointer to book details
         final DocumentReference bookReference = firestoreRef.collection("books").document(bookId);
         requestCollection = firestoreRef.collection("requests");
-        requestCollection.whereEqualTo("book", bookReference).addSnapshotListener(new EventListener<QuerySnapshot>() {
+        requestCollection.whereEqualTo("book", bookReference).whereEqualTo("status", 0).addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException e) {
                 if (e != null) {
@@ -116,7 +116,6 @@ public class ViewRequestActivity extends AppCompatActivity {
                 requesterRefHolder.add(doc);
             }
         }
-
         firestoreCallback.onCallback();
     }
 
