@@ -26,7 +26,6 @@ public class ViewBooksSectionAdapter extends RecyclerView.Adapter<ViewBooksSecti
     private Context context;
     private ArrayList<Book> books;
     private OnBookClickListener onBookClickListener;
-    private  User user;
 
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         ImageView book_photo;
@@ -56,7 +55,6 @@ public class ViewBooksSectionAdapter extends RecyclerView.Adapter<ViewBooksSecti
         this.context = context;
         this.books = books;
         this.onBookClickListener = onBookClickListener;
-        user = User.getOrCreate(FirebaseAuth.getInstance().getCurrentUser().getUid());
     }
 
     @NonNull
@@ -107,10 +105,6 @@ public class ViewBooksSectionAdapter extends RecyclerView.Adapter<ViewBooksSecti
         if (bookDescription != null) {
             holder.book_title.setText(bookDescription.getTitle());
             holder.book_author.setText((bookDescription.getAuthor()));
-            if(user.getUsername() != book.getOwnerUsername()) {
-                 holder.book_owner_username.setText(book.getOwnerUsername());
-            }
-
         }
     }
 

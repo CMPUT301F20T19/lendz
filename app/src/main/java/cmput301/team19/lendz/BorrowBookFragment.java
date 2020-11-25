@@ -18,10 +18,13 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -29,6 +32,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import static android.content.ContentValues.TAG;
 
@@ -50,10 +54,16 @@ public class BorrowBookFragment extends Fragment implements OnBookClickListener{
     private ArrayList<Book> acceptedRequests;
     private ViewBooksAdapter borrowedBooksAdapter;
     private ArrayList<ViewBooksSection> sections;
+    private ArrayList<DocumentReference> bookReferences;
     private View borrowedBooksView;
     FirebaseFirestore db;
     CollectionReference booksRef;
+    CollectionReference requestsRef;
     ProgressDialog progressDialog;
+
+    private boolean borrowDone = false;
+    private boolean sentDone = false;
+    private boolean acceptedDone = false;
 
     public BorrowBookFragment() {
         // Required empty public constructor
@@ -78,14 +88,19 @@ public class BorrowBookFragment extends Fragment implements OnBookClickListener{
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_borrow_book, container, false);
-//        if (getArguments() == null)
-//            throw new IllegalArgumentException("no arguments");
+        if (getArguments() == null)
+            throw new IllegalArgumentException("no arguments");
         borrowedBooksView = view;
-//        userID = getArguments().getString(ARG_USER_ID);
+        userID = getArguments().getString(ARG_USER_ID);
         db = FirebaseFirestore.getInstance();
         booksRef = db.collection("books");
-//        setUp();
-//        loadBooks();
+        requestsRef = db.collection("requests");
+        setUp();
+        borrowBooksRecyclerView = borrowedBooksView.findViewById(R.id.borrowFrag_recyclerView);
+        borrowedBooksAdapter = new ViewBooksAdapter(borrowedBooksView.getContext(), sections,this);
+        getSentRequests();
+        getAcceptedRequests();
+        getBorrowRequest();
         return view;
     }
 
@@ -104,6 +119,14 @@ public class BorrowBookFragment extends Fragment implements OnBookClickListener{
             return true;
         }else{
             return super.onOptionsItemSelected(item);
+        }
+    }
+
+    private void checkCompletion() {
+        if( sentDone && borrowDone && acceptedDone) {
+            progressDialog.dismiss();
+            checkSections();
+            initRecyclerView();
         }
     }
 
@@ -127,6 +150,7 @@ public class BorrowBookFragment extends Fragment implements OnBookClickListener{
         progressDialog = new ProgressDialog(borrowedBooksView.getContext());
         progressDialog.setTitle("Loading...");
         progressDialog.show();
+        bookReferences = new ArrayList<>();
         borrowedBooks = new ArrayList<>();
         sentRequests = new ArrayList<>();
         acceptedRequests = new ArrayList<>();
@@ -147,52 +171,69 @@ public class BorrowBookFragment extends Fragment implements OnBookClickListener{
     }
 
     private void initRecyclerView() {
-        borrowBooksRecyclerView = borrowedBooksView.findViewById(R.id.myBooksFrag_recyclerView);
+        borrowBooksRecyclerView = borrowedBooksView.findViewById(R.id.borrowFrag_recyclerView);
         borrowedBooksAdapter = new ViewBooksAdapter(borrowedBooksView.getContext(), sections,this);
         borrowBooksRecyclerView.setAdapter(borrowedBooksAdapter);
         borrowBooksRecyclerView.setLayoutManager(new LinearLayoutManager(borrowedBooksView.getContext()));
         borrowBooksRecyclerView.addItemDecoration(new DividerItemDecoration(borrowedBooksView.getContext(), DividerItemDecoration.VERTICAL));
     }
 
-    private void loadBooks() {
+    private void getBorrowRequest() {
+        borrowDone = true;
+        checkCompletion();
+    }
 
+    private void getSentRequests() {
         booksRef
-                .whereEqualTo("owner", User.documentOf(userID))
-                .whereIn("requestStatus", Arrays.asList(0,2))
+                .whereArrayContains("pendingRequesters",User.documentOf(userID) )
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
-                            progressDialog.dismiss();
+                        if(task.isSuccessful()) {
                             for (QueryDocumentSnapshot document : task.getResult()) {
-                                addBooks(document.getId(),document);
+                                addBook(document.getId(),document,RequestStatus.SENT);
                             }
-                            checkSections();
-                            initRecyclerView();
-                        } else {
+                        }else {
                             Log.d(TAG, "Error getting book ID: ", task.getException());
                         }
+                        sentDone = true;
+                        checkCompletion();
                     }
                 });
     }
 
+    private void getAcceptedRequests() {
+        booksRef
+                .whereEqualTo("acceptedRequester",User.documentOf(userID) )
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if(task.isSuccessful()) {
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                addBook(document.getId(),document,RequestStatus.ACCEPTED);
+                            }
+                        }else{
+                            Log.d(TAG, "Error getting book ID: ", task.getException());
+                        }
+                        acceptedDone = true;
+                        checkCompletion();
+                    }
+                });
+    }
 
-    private void addBooks(String id, DocumentSnapshot snapshot) {
+    private void addBook(String id, DocumentSnapshot snapshot, RequestStatus requestStatus) {
         Book book = Book.getOrCreate(id);
         book.load(snapshot);
-        BookStatus bookStatus = book.getStatus();
-//        RequestStatus requestStatus = book.
-        Request bookAcceptedRequest = book.getAcceptedRequest();
-        if (bookStatus == BookStatus.BORROWED) {
-            borrowedBooks.add(borrowedBooks.size(), book);
-        } else if (bookAcceptedRequest != null) {
-            RequestStatus bookRequestStatus = bookAcceptedRequest.getStatus();
-            if (bookRequestStatus == RequestStatus.SENT) {
+        switch (requestStatus) {
+            case SENT:
                 sentRequests.add(sentRequests.size(),book);
-            } else if (bookRequestStatus == RequestStatus.ACCEPTED) {
+                break;
+            case ACCEPTED:
                 acceptedRequests.add(acceptedRequests.size(),book);
-            }
+            default:
+                break;
         }
     }
 
@@ -203,6 +244,18 @@ public class BorrowBookFragment extends Fragment implements OnBookClickListener{
 
     @Override
     public void onBookClick(Book book) {
+        Fragment viewBookFragment = ViewBookFragment.newInstance(book.getId());
+        FragmentTransaction transaction = getParentFragmentManager().beginTransaction();
+        transaction.setCustomAnimations(
+                R.anim.slide_in,
+                R.anim.fade_out,
+                R.anim.fade_in,
+                R.anim.slide_out
+        );
 
+        transaction.replace(R.id.container, viewBookFragment);
+        transaction.addToBackStack(null);
+
+        transaction.commit();
     }
 }
