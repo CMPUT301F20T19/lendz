@@ -26,7 +26,7 @@ exports.onUserUpdate = functions.firestore
             const ownedBooksBatch = db.batch();
             const ownedBooks = change.after.data().ownedBooks ? change.after.data().ownedBooks : [];
             for (const bookRef of ownedBooks) {
-                ownedBooksBatch.update(bookRef, { ownerUsername: newUsername });
+                ownedBooksBatch.set(bookRef, { ownerUsername: newUsername }, { merge: true });
             }
             await ownedBooksBatch.commit();
         }
@@ -39,7 +39,7 @@ exports.onUserUpdate = functions.firestore
             const requestsSnapshot = await db.collection('requests').where('requester', '==', change.after.ref).get();
 
             requestsSnapshot.forEach((doc) => {
-                requestsBatch.update(doc.ref, { requesterUsername: newUsername, requesterFullName: newFullName });
+                requestsBatch.set(doc.ref, { requesterUsername: newUsername, requesterFullName: newFullName }, { merge: true });
             });
             await requestsBatch.commit();
         }
@@ -81,7 +81,7 @@ exports.onBookUpdate = functions.firestore
 
         const requestsBatch = db.batch();
         for (const request of requests) {
-            requestsBatch.update(request, { bookTitle: data.description.title, bookPhotoUrl: data.photo });
+            requestsBatch.set(request, { bookTitle: data.description.title, bookPhotoUrl: data.photo }, { merge: true });
         }
         await requestsBatch.commit();
     });
@@ -99,12 +99,12 @@ exports.onBookDelete = functions.firestore
         const newOwnedBooks = ownerData.ownedBooks ? ownerData.ownedBooks : [];
 
         // Remove deleted book from ownedBooks
-        const bookIndex = newOwnedBooks.indexOf(snapshot.ref);
-        if (bookIndex === -1) {
-            functions.logger.error('book not found in ownedBooks');
-            return;
+        for (let i = 0; i < newOwnedBooks.length; i++) {
+            if (snapshot.ref.id === newOwnedBooks[i].id) {
+                newOwnedBooks.splice(i, 1);
+                break;
+            }
         }
-        newOwnedBooks.splice(bookIndex, 1);
 
         // Update ownedBooks
         ownerRef.set({
@@ -170,19 +170,21 @@ exports.onRequestUpdate = functions.firestore
         if (oldStatus !== newStatus) {
             // Load pendingRequests of book
             const bookRef = change.after.data().book;
-            const bookData = (await bookRef.get()).data();
+            const bookSnapshot = await bookRef.get();
+            const bookData = bookSnapshot.data();
+
             const newPendingRequests = bookData.pendingRequests ? bookData.pendingRequests : [];
             const newPendingRequesters = bookData.pendingRequesters ? bookData.pendingRequesters : [];
 
             if (newStatus === 1) {
                 // If new status is DECLINED, then remove the request from pendingRequests on the book
-                const requestIndex = newPendingRequests.indexOf(change.after.ref);
-                if (requestIndex === -1) {
-                    functions.logger.error('request not found in pendingRequests');
-                    return;
+                for (let i = 0; i < newPendingRequests.length; i++) {
+                    if (change.after.ref.id === newPendingRequests[i].id) {
+                        newPendingRequests.splice(i, 1);
+                        newPendingRequesters.splice(i, 1);
+                        break;
+                    }
                 }
-                newPendingRequests.splice(requestIndex, 1);
-                newPendingRequesters.splice(requestIndex, 1);
 
                 bookRef.set({
                     pendingRequests: newPendingRequests,
@@ -194,9 +196,9 @@ exports.onRequestUpdate = functions.firestore
                 // Decline all pending requests
                 const pendingRequestsBatch = db.batch();
                 for (const requestRef of newPendingRequests) {
-                    pendingRequestsBatch.update(requestRef, {
+                    pendingRequestsBatch.set(requestRef, {
                         status: 0 // DECLINED
-                    });
+                    }, { merge: true });
                 }
                 pendingRequestsBatch.commit();
 
