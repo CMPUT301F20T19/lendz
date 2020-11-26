@@ -85,6 +85,7 @@
     <string name="title_activity_maps">Map</string>
     <string name="no_notifications">No notifications</string>
     <string name="waiting_for_borrower_to_pick_up_book">Waiting for borrower to pick up book</string>
+    <string name="your_request_was_accepted">Your request was accepted</string>
     <string name="confirm_pick_up">Confirm Pick-Up</string>
     <string name="cancel_pick_up">Cancel Pick-Up</string>
     <string name="view_location">View Location</string>

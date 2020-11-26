@@ -28,8 +28,11 @@ public class Book {
     private static final String KEYWORDS_KEY = "keywords";
     public static final String ACCEPTED_REQUEST_KEY = "acceptedRequest";
     public static final String ACCEPTED_REQUESTER_KEY = "acceptedRequester";
+    private static final String ACCEPTED_REQUESTER_USERNAME_KEY = "acceptedRequesterUsername";
     public static final String PENDING_REQUESTS_KEY = "pendingRequests";
     public static final String PENDING_REQUESTERS_KEY = "pendingRequesters";
+    private static final String BORROWER_SCANNED_KEY = "borrowerScanned";
+    private static final String OWNER_SCANNED_KEY = "ownerScanned";
 
     // Maps book ID to Book object, guaranteeing at most
     // one Book object for each book.
@@ -44,8 +47,12 @@ public class Book {
 
     private Request acceptedRequest;
     private User acceptedRequester;
+    private String acceptedRequesterUsername;
 
     private String ownerUsername;
+
+    private boolean ownerScanned;
+    private boolean borrowerScanned;
 
     private boolean loaded;
 
@@ -115,18 +122,30 @@ public class Book {
             acceptedRequester = User.getOrCreate(acceptedRequesterData.getId());
         }
 
-        String photoUrlString = doc.getString(PHOTO_KEY);
-        if (photoUrlString == null) {
-            setPhoto(null);
-        } else {
-            setPhoto(photoUrlString);
+        // Load accepted requester username
+        String acceptedRequesterUsernameData = doc.getString(ACCEPTED_REQUESTER_USERNAME_KEY);
+        if (acceptedRequesterUsernameData != null) {
+            acceptedRequesterUsername = acceptedRequesterUsernameData;
         }
 
+        // Load photo URL
+        String photoUrlString = doc.getString(PHOTO_KEY);
+        setPhoto(photoUrlString);
+
+        // Load book status
         Long bookStatusLong = doc.getLong(STATUS_KEY);
         if (bookStatusLong == null) {
             throw new NullPointerException("bookStatus cannot be null");
         }
         status = BookStatus.values()[bookStatusLong.intValue()];
+
+        // Load owner scanned
+        Boolean ownerScannedData = doc.getBoolean(OWNER_SCANNED_KEY);
+        ownerScanned = ownerScannedData != null ? ownerScannedData : false;
+
+        // Load borrower scanned
+        Boolean borrowerScannedData = doc.getBoolean(BORROWER_SCANNED_KEY);
+        borrowerScanned = borrowerScannedData != null ? borrowerScannedData : false;
     }
 
     /**
@@ -164,6 +183,40 @@ public class Book {
     }
 
     /**
+     * Updates the Firestore document after a successful scan by the Book owner.
+     * @return Task of the update
+     */
+    public Task<Void> notifyOwnerDidScan() {
+        Map<String, Object> data = new HashMap<>();
+        data.put(OWNER_SCANNED_KEY, true);
+        return documentOf(id).update(data);
+    }
+
+    /**
+     * Updates the Firestore document after a successful scan by the Book borrower.
+     * @return Task of the update
+     */
+    public Task<Void> notifyBorrowerDidScan() {
+        Map<String, Object> data = new HashMap<>();
+        data.put(BORROWER_SCANNED_KEY, true);
+        return documentOf(id).update(data);
+    }
+
+    /**
+     * @return true if owner scanned the book, false otherwise
+     */
+    public boolean isOwnerScanned() {
+        return ownerScanned;
+    }
+
+    /**
+     * @return true if borrower scanned the book, false otherwise
+     */
+    public boolean isBorrowerScanned() {
+        return borrowerScanned;
+    }
+
+    /**
      * @return the accepted Request for this Book, may be null
      */
     public Request getAcceptedRequest() {
@@ -175,6 +228,13 @@ public class Book {
      */
     public User getAcceptedRequester() {
         return acceptedRequester;
+    }
+
+    /**
+     * @return the username of the user who made the accepted request, or null if there is none
+     */
+    public String getAcceptedRequesterUsername() {
+        return acceptedRequesterUsername;
     }
 
     /**
