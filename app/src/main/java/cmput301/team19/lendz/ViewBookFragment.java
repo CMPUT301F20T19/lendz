@@ -3,6 +3,7 @@ package cmput301.team19.lendz;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.Html;
 import android.util.Log;
@@ -197,6 +198,32 @@ public class ViewBookFragment extends Fragment {
             }
         });
 
+        Button viewLocationBtn = view.findViewById(R.id.view_location_button);
+        viewLocationBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                final Request request = book.getAcceptedRequest();
+                request.getDocumentReference().get()
+                        .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                            @Override
+                            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                                request.load(documentSnapshot);
+                                Location location = request.getLocation();
+                                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("geo:"
+                                        + location.getLat() + "," + location.getLon()
+                                        + "?z=15" + (location.getAddress() != null
+                                        ? ("&q=" + location.getAddress().replace(' ', '+'))
+                                        : "")));
+                                startActivity(intent);
+                            }
+                        }).addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+
+                            }
+                        });
+            }
+        });
         return view;
     }
 
@@ -324,7 +351,7 @@ public class ViewBookFragment extends Fragment {
     public void updateRequestControls() {
         view.findViewById(R.id.borrower_book_available).setVisibility(View.GONE);
         view.findViewById(R.id.owner_book_available).setVisibility(View.GONE);
-        view.findViewById(R.id.waiting_for_pick_up).setVisibility(View.GONE);
+        view.findViewById(R.id.borrower_book_accepted).setVisibility(View.GONE);
 
         if (book.getOwner() == User.getCurrentUser()) {
             // Viewing as owner of this book
@@ -342,7 +369,9 @@ public class ViewBookFragment extends Fragment {
                     || book.getStatus() == BookStatus.REQUESTED) {
                 view.findViewById(R.id.borrower_book_available).setVisibility(View.VISIBLE);
             } else if (book.getStatus() == BookStatus.ACCEPTED) {
-                // TODO
+                if (book.getAcceptedRequester() == User.getCurrentUser()) {
+                    view.findViewById(R.id.borrower_book_accepted).setVisibility(View.VISIBLE);
+                }
             } else if (book.getStatus() == BookStatus.BORROWED) {
                 // TODO
             }

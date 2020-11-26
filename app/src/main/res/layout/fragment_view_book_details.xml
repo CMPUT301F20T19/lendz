@@ -139,7 +139,7 @@
             app:layout_constraintTop_toBottomOf="@+id/owner_button" />
 
         <include
-            layout="@layout/waiting_for_pick_up"
+            layout="@layout/borrower_book_accepted"
             android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
