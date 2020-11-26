@@ -136,7 +136,26 @@ public class ViewBookFragment extends Fragment {
         ownerButton = view.findViewById(R.id.owner_button);
         bookImage = view.findViewById(R.id.bookImage);
 
+        if (getArguments() == null)
+            throw new IllegalArgumentException("no arguments");
+
         final String bookId = getArguments().getString(ARG_BOOK_ID);
+        book = Book.getOrCreate(bookId);
+
+        Book.documentOf(bookId).addSnapshotListener(new EventListener<DocumentSnapshot>() {
+            @Override
+            public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
+                if (error != null) {
+                    Log.e("BookActivity", "error getting book" + bookId.toString() +
+                            ": " + error);
+                } else if (value == null || !value.exists()) {
+                    Log.w("BookActivity", "did not find the Book" + bookId.toString());
+                } else {
+                    book.load(value);
+                    updateBookDetails();
+                }
+            }
+        });
 
         Button requestBtn = view.findViewById(R.id.request_button);
         requestBtn.setOnClickListener(new View.OnClickListener() {
@@ -159,7 +178,7 @@ public class ViewBookFragment extends Fragment {
 
                             if (b == true) {
                                 //go ahead and send request
-                                makeRequest(requestCollection, bookId, userId);
+                                makeRequest(requestCollection, userId);
                             } else {
                                 //Request already sent by user,So decline
                                 Toast.makeText(getContext(), "Request Already Sent", Toast.LENGTH_SHORT).show();
@@ -207,13 +226,11 @@ public class ViewBookFragment extends Fragment {
 
     /**
      * @param requestCollection
-     * @param bookId
      * @param userId
      * allows user to make a request on a book they do not own
      */
-    public void makeRequest(CollectionReference requestCollection, String bookId, String userId) {
+    public void makeRequest(CollectionReference requestCollection, String userId) {
         //create request object
-        Book bookObject = Book.getOrCreate(bookId);
         User requester = User.getOrCreate(userId);
 
         //generate id
@@ -221,7 +238,7 @@ public class ViewBookFragment extends Fragment {
         long timeStamp = System.currentTimeMillis();
 
         Request requestObject = Request.getOrCreate(id);
-        requestObject.setBook(bookObject);
+        requestObject.setBook(book);
         requestObject.setTimestamp(timeStamp);
         requestObject.setRequester(requester);
         requestObject.setStatus(RequestStatus.SENT);

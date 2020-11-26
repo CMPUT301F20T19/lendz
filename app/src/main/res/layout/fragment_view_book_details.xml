@@ -3,13 +3,12 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="#FFFFFF">
+    android:layout_height="match_parent">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="16dp">
+        android:padding="16dp">
 
         <ImageView
             android:id="@+id/bookImage"
@@ -126,17 +125,26 @@
         <include
             layout="@layout/borrower_book_available"
             android:visibility="gone"
-            tools:layout_editor_absoluteY="563dp" />
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/owner_button" />
 
         <include
             layout="@layout/owner_book_available"
             android:visibility="gone"
-            tools:layout_editor_absoluteY="563dp" />
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/owner_button" />
 
         <include
             layout="@layout/waiting_for_pick_up"
             android:visibility="gone"
-            tools:layout_editor_absoluteY="563dp" />
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/owner_button" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
