@@ -88,11 +88,11 @@ public class Request {
         if (timestampLong != null) {
             timestamp = timestampLong;
         }
-        GeoPoint geoPoint = doc.getGeoPoint(LOCATION_KEY);
-        if (geoPoint == null) {
-            location = null;
-        } else {
-            location = new Location(geoPoint);
+        Object locationData = doc.get(LOCATION_KEY);
+        if (locationData instanceof GeoPoint) {
+            location = new Location(null, (GeoPoint) locationData);
+        } else if (locationData instanceof Map) {
+            location = new Location((Map<String, Object>) locationData);
         }
         String requesterUsername = doc.getString(REQUESTER_USERNAME_KEY);
         if (requesterUsername != null) {
@@ -125,7 +125,7 @@ public class Request {
         map.put(REQUESTER_KEY, User.documentOf(requester.getId()));
         map.put(STATUS_KEY, status.ordinal());
         map.put(TIMESTAMP_KEY, timestamp);
-        map.put(LOCATION_KEY, location == null ? null : location.toGeoPoint());
+        map.put(LOCATION_KEY, location == null ? null : location.toData());
         return map;
     }
 

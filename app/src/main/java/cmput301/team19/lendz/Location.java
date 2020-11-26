@@ -2,12 +2,19 @@ package cmput301.team19.lendz;
 
 import androidx.annotation.NonNull;
 
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.GeoPoint;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Stores information about a location by latitude, longitude, and optional address.
  */
 public class Location {
+    private static final String ADDRESS_KEY = "address";
+    private static final String GEOPOINT_KEY = "geopoint";
+
     private String address;
     private double lat;
     private double lon;
@@ -25,18 +32,31 @@ public class Location {
     }
 
     /**
-     * Create a Location from a Firebase GeoPoint.
+     * Create a new Location for an address and Firebase GeoPoint.
+     * @param address address to use
+     * @param geoPoint GeoPoint containing latitude and longitude to use
      */
-    public Location(@NonNull GeoPoint geoPoint) {
-        this(null, geoPoint.getLatitude(), geoPoint.getLongitude());
+    public Location(String address, GeoPoint geoPoint) {
+        this(address, geoPoint.getLatitude(), geoPoint.getLongitude());
+    }
+
+    /**
+     * Create a Location from a data map.
+     * @param data map of data to use
+     */
+    public Location(@NonNull Map<String, Object> data) {
+        this((String) data.get(ADDRESS_KEY), (GeoPoint) data.get(GEOPOINT_KEY));
     }
 
     /**
      * Create a Firebase GeoPoint from this Location.
      * @return new GeoPoint object
      */
-    public GeoPoint toGeoPoint() {
-        return new GeoPoint(lat, lon);
+    public Map<String, Object> toData() {
+        Map<String, Object> data = new HashMap<>();
+        data.put(ADDRESS_KEY, address);
+        data.put(GEOPOINT_KEY, new GeoPoint(lat, lon));
+        return data;
     }
 
     /**

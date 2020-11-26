@@ -41,7 +41,7 @@
     <string name="viewbookdescription">ViewBookDescription</string>
     <string name="viewbooktitle">ViewBookTitle</string>
     <string name="viewbookstatus">ViewBookStatus</string>
-    <string name="viewbookowner">Owned BY</string>
+    <string name="owner">Owner</string>
     <string name="viewbookusername">usernamer</string>
     <string name="viewbookdetailsdescription">description</string>
     <string name="viewbookdetailsauthor">Author</string>
@@ -72,6 +72,8 @@
     <string name="search_failed">Failed to perform search.</string>
     <string name="searching_in_progress">Searching…</string>
     <string name="book_requested_notification_text">%1$s has requested your book %2$s.</string>
+    <string name="request">Request</string>
+    <string name="view_requests">View Requests</string>
     <string name="accept_request">Accept Request</string>
     <string name="decline_request">Decline Request</string>
     <string name="request_accepted_notification_text">%1$s accepted your request for %2$s.</string>
@@ -80,4 +82,12 @@
     <string name="failed_to_get_notifications">Failed to get notifications.</string>
     <string name="failed_to_get_book_description">Failed to get book description: %1$s</string>
     <string name="title_activity_maps">Map</string>
+    <string name="no_notifications">No notifications</string>
+    <string name="waiting_for_borrower_to_pick_up_book">Waiting for borrower to pick up book</string>
+    <string name="confirm_pick_up">Confirm Pick-Up</string>
+    <string name="cancel_pick_up">Cancel Pick-Up</string>
+    <string name="view_location">View Location</string>
+    <string name="log_out">Log Out</string>
+    <string name="no_borrowed_books">No borrowed books</string>
+    <string name="no_owned_books">No owned books</string>
 </resources>

@@ -1,22 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:android="http://schemas.android.com/apk/res/android">
-    <item
-        android:id="@+id/editBookDetails"
-        android:icon="@drawable/ic_baseline_edit_24"
-        android:title="@string/editBook"
-        app:showAsAction="ifRoom|collapseActionView" />
-    <item
-        android:id="@+id/deleteBook"
-        android:checkable="false"
-        android:icon="@android:drawable/ic_menu_delete"
-        android:title="@string/deleteBook"
-        android:visible="true"
-        app:showAsAction="collapseActionView" />
-    <item
-        android:id="@+id/viewBookBack"
-        android:icon="@drawable/abc_vector_test"
-        android:title="Back"
-        android:visible="true"
-        app:showAsAction="ifRoom" />
+    <group
+        android:id="@+id/view_book_menu_for_owners"
+        android:visible="false">
+        <item
+            android:id="@+id/editBookDetails"
+            android:icon="@drawable/ic_baseline_edit_24"
+            android:title="@string/editBook"
+            app:showAsAction="ifRoom|collapseActionView" />
+        <item
+            android:id="@+id/deleteBook"
+            android:checkable="false"
+            android:icon="@android:drawable/ic_menu_delete"
+            android:title="@string/deleteBook"
+            app:showAsAction="collapseActionView" />
+    </group>
 </menu>

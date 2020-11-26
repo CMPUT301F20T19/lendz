@@ -25,7 +25,6 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
-import java.net.Inet4Address;
 import java.util.ArrayList;
 
 import static android.content.ContentValues.TAG;
@@ -34,11 +33,6 @@ import static android.content.ContentValues.TAG;
  * Fragment that displays all the books the current user owns
  */
 public class MyBooksFragment extends Fragment implements OnBookClickListener {
-
-    private static final String ARG_USER_ID = "userId";
-
-    private String userID;
-
     private RecyclerView viewBooksRecyclerView;
     private ArrayList<Book> availableBooks;
     private ArrayList<Book> requestedBooks;
@@ -57,13 +51,11 @@ public class MyBooksFragment extends Fragment implements OnBookClickListener {
 
     /**
      * Receives the current user's id and creates a new instance of the myBookFragment
-     * @param userId the current user's id
      * @return a new MyBooksFragment if successful
      */
-    public static MyBooksFragment newInstance(String userId) {
+    public static MyBooksFragment newInstance() {
         MyBooksFragment fragment = new MyBooksFragment();
         Bundle args = new Bundle();
-        args.putString(ARG_USER_ID, userId);
         fragment.setArguments(args);
         return fragment;
     }
@@ -79,7 +71,6 @@ public class MyBooksFragment extends Fragment implements OnBookClickListener {
         if (getArguments() == null)
             throw new IllegalArgumentException("no arguments");
         myBooksView = view;
-        userID = getArguments().getString(ARG_USER_ID);
         db = FirebaseFirestore.getInstance();
         booksRef = db.collection("books");
         setUp();
@@ -98,7 +89,7 @@ public class MyBooksFragment extends Fragment implements OnBookClickListener {
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(getActivity(),AddBookActivity.class);
+                Intent intent = new Intent(getActivity(), EditBookActivity.class);
                 startActivity(intent);
             }
         });
@@ -157,7 +148,7 @@ public class MyBooksFragment extends Fragment implements OnBookClickListener {
      */
     private void loadBooks() {
         booksRef
-                .whereEqualTo("owner", User.documentOf(userID))
+                .whereEqualTo("owner", User.documentOf(User.getCurrentUser().getId()))
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override

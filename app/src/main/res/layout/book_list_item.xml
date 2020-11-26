@@ -1,16 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="25dp">
+    android:background="?selectableItemBackground"
+    android:padding="16dp">
 
     <ImageView
         android:id="@+id/book_photo"
-        android:layout_width="150dp"
+        android:layout_width="100dp"
         android:layout_height="150dp"
+        android:contentDescription="@string/book_photo"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         tools:srcCompat="@tools:sample/avatars" />
@@ -20,36 +21,36 @@
         style="@style/TextAppearance.AppCompat.SearchResult.Title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="25dp"
-        android:layout_marginLeft="25dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginLeft="16dp"
         android:maxLines="3"
-        android:text="Book Title"
         app:layout_constraintStart_toEndOf="@+id/book_photo"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="Book Title" />
 
     <TextView
         android:id="@+id/book_author"
+        style="@style/TextAppearance.AppCompat.SearchResult.Subtitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:maxLines="2"
-        android:layout_marginStart="25dp"
-        android:layout_marginLeft="25dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginLeft="16dp"
         android:layout_marginTop="10dp"
-        android:text="Book Author"
-        style="@style/TextAppearance.AppCompat.SearchResult.Subtitle"
+        android:maxLines="2"
         app:layout_constraintStart_toEndOf="@+id/book_photo"
-        app:layout_constraintTop_toBottomOf="@+id/book_title" />
+        app:layout_constraintTop_toBottomOf="@+id/book_title"
+        tools:text="Book Author" />
 
     <TextView
         android:id="@+id/book_owner_username"
+        style="@style/TextAppearance.AppCompat.SearchResult.Subtitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="25dp"
-        android:layout_marginLeft="25dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginLeft="16dp"
         android:layout_marginTop="10dp"
-        android:text="Book Owner Username"
-        style="@style/TextAppearance.AppCompat.SearchResult.Subtitle"
         app:layout_constraintStart_toEndOf="@+id/book_photo"
-        app:layout_constraintTop_toBottomOf="@+id/book_author" />
+        app:layout_constraintTop_toBottomOf="@+id/book_author"
+        tools:text="Owner Username" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
