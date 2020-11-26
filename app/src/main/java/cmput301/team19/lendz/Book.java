@@ -126,7 +126,7 @@ public class Book {
         if (bookStatusLong == null) {
             throw new NullPointerException("bookStatus cannot be null");
         }
-        setStatus(BookStatus.values()[bookStatusLong.intValue()]);
+        status = BookStatus.values()[bookStatusLong.intValue()];
     }
 
     /**
@@ -138,11 +138,11 @@ public class Book {
 
         map.put(OWNER_KEY, User.documentOf(owner.getId()));
 
-        if (photo == null)
+        if (photo == null) {
             map.put(PHOTO_KEY, null);
-        else
-            map.put(PHOTO_KEY, photo.toString());
-        map.put(STATUS_KEY, status.ordinal());
+        } else {
+            map.put(PHOTO_KEY, photo);
+        }
         map.put(KEYWORDS_KEY, keywords);
         return map;
     }
@@ -226,14 +226,6 @@ public class Book {
      */
     public BookStatus getStatus() {
         return status;
-    }
-
-    /**
-     * Set the current BookStatus of this Book
-     * @param status status to use
-     */
-    public void setStatus(@NonNull BookStatus status) {
-        this.status = status;
     }
 
     /**
