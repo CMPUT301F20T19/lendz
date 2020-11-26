@@ -156,7 +156,9 @@ public class MyBooksFragment extends Fragment implements OnBookClickListener {
                         if (task.isSuccessful()) {
                             progressDialog.dismiss();
                             for (QueryDocumentSnapshot document : task.getResult()) {
-                                addBooks(document.getId(),document);
+                                Book book = Book.getOrCreate(document.getId());
+                                book.load(document);
+                                addBooks(book);
                             }
                             checkSections();
                             initRecyclerView();
@@ -168,31 +170,23 @@ public class MyBooksFragment extends Fragment implements OnBookClickListener {
     }
 
     /**
-     * Loads data about book and adds the book object to
+     * Adds a book object to
      * one of the following array lists: availableBooks,
      * requestedBooks, acceptedBooks or borrowedBooks.
-     * @param id ID of the book
+     * @param book Book to add
      */
-    private void addBooks(String id, DocumentSnapshot snapshot) {
-        // loading book data
-        Book book = Book.getOrCreate(id);
-        book.load(snapshot);
+    private void addBooks(Book book) {
         BookStatus bookStatus = book.getStatus();
-        Request bookAcceptedRequest = book.getAcceptedRequest();
 
         // adding book to the appropriate array list
         if (bookStatus == BookStatus.BORROWED) {
             borrowedBooks.add(borrowedBooks.size(), book);
         } else if (bookStatus == BookStatus.AVAILABLE) {
             availableBooks.add(availableBooks.size(),book);
-        } else if (bookAcceptedRequest != null) {
-            RequestStatus bookRequestStatus = bookAcceptedRequest.getStatus();
-
-            if (bookRequestStatus == RequestStatus.SENT) {
-                requestedBooks.add(requestedBooks.size(),book);
-            } else if (bookRequestStatus == RequestStatus.ACCEPTED) {
-                acceptedBooks.add(acceptedBooks.size(),book);
-            }
+        } else if (bookStatus == BookStatus.REQUESTED) {
+            requestedBooks.add(requestedBooks.size(),book);
+        } else if (bookStatus == BookStatus.ACCEPTED) {
+            acceptedBooks.add(acceptedBooks.size(),book);
         }
     }
 
