@@ -1,12 +1,14 @@
 package cmput301.team19.lendz.notifications;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -56,18 +58,31 @@ public class RequestAcknowledgedNotification extends Notification {
 
             final RequestAcknowledgedNotification notification = (RequestAcknowledgedNotification) n;
 
-            String ownerUsername = notification.request.getOwnerUsername();
-            String bookTitle = notification.request.getBookTitle();
-            String bookPhotoUrl = notification.request.getBookPhotoUrl();
+            notification.request.getDocumentReference().get()
+                    .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                @Override
+                public void onSuccess(DocumentSnapshot documentSnapshot) {
+                    notification.request.load(documentSnapshot);
 
-            int stringResourceId = notification.request.getStatus() == RequestStatus.ACCEPTED
-                    ? R.string.request_accepted_notification_text
-                    : R.string.request_declined_notification_text;
+                    String ownerUsername = notification.request.getOwnerUsername();
+                    String bookTitle = notification.request.getBookTitle();
+                    String bookPhotoUrl = notification.request.getBookPhotoUrl();
 
-            notificationText.setText(context.getResources().getString(
-                    stringResourceId, ownerUsername, bookTitle));
+                    int stringResourceId = notification.request.getStatus() == RequestStatus.ACCEPTED
+                            ? R.string.request_accepted_notification_text
+                            : R.string.request_declined_notification_text;
 
-            Picasso.get().load(bookPhotoUrl).into(bookImageView);
+                    notificationText.setText(context.getResources().getString(
+                            stringResourceId, ownerUsername, bookTitle));
+
+                    Picasso.get().load(bookPhotoUrl).into(bookImageView);
+                }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    Log.e("Notification", "Failed to load request", e);
+                }
+            });
         }
     }
 }

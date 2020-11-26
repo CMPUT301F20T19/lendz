@@ -43,7 +43,7 @@ public class SearchBooksFragment extends Fragment implements OnBookClickListener
     CollectionReference booksRef;
     ProgressDialog progressDialog;
 
-    private SearchBooksFragment() {
+    public SearchBooksFragment() {
 
     }
 

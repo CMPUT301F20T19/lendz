@@ -26,7 +26,7 @@ exports.onUserUpdate = functions.firestore
             const ownedBooksBatch = db.batch();
             const ownedBooks = change.after.data().ownedBooks ? change.after.data().ownedBooks : [];
             for (const bookRef of ownedBooks) {
-                ownedBooksBatch.update(bookRef, { ownerUsername: newUsername });
+                ownedBooksBatch.set(bookRef, { ownerUsername: newUsername }, { merge: true });
             }
             await ownedBooksBatch.commit();
         }
@@ -39,7 +39,7 @@ exports.onUserUpdate = functions.firestore
             const requestsSnapshot = await db.collection('requests').where('requester', '==', change.after.ref).get();
 
             requestsSnapshot.forEach((doc) => {
-                requestsBatch.update(doc.ref, { requesterUsername: newUsername, requesterFullName: newFullName });
+                requestsBatch.set(doc.ref, { requesterUsername: newUsername, requesterFullName: newFullName }, { merge: true });
             });
             await requestsBatch.commit();
         }
@@ -74,16 +74,36 @@ exports.onBookUpdate = functions.firestore
         const data = change.after.data();
 
         // Update cached bookTitle and bookPhotoUrl of requests for this book
-        const requests = data.pendingRequests ? data.pendingRequests : [];
+        const pendingRequests = data.pendingRequests ? data.pendingRequests : [];
         if (data.acceptedRequest) {
-            requests.push(data.acceptedRequest);
+            pendingRequests.push(data.acceptedRequest);
         }
 
         const requestsBatch = db.batch();
-        for (const request of requests) {
-            requestsBatch.update(request, { bookTitle: data.description.title, bookPhotoUrl: data.photo });
+        for (const request of pendingRequests) {
+            requestsBatch.set(request, { bookTitle: data.description.title, bookPhotoUrl: data.photo }, { merge: true });
         }
         await requestsBatch.commit();
+
+        // Set book status
+        let status = 0; // AVAILABLE
+        if (data.acceptedRequester) {
+            const requesterData = (await data.acceptedRequester.get()).data();
+            for (const bookRef of requesterData.borrowedBooks) {
+                if (bookRef.id === change.after.ref.id) {
+                    status = 2; // BORROWED
+                    break;
+                }
+            }
+            if (status !== 2) {
+                status = 3; // ACCEPTED
+            }
+        } else if (data.pendingRequests.length > 0) {
+            status = 1; // REQUESTED
+        }
+        change.after.ref.set({
+            status: status
+        }, { merge: true });
     });
 
 exports.onBookDelete = functions.firestore
@@ -99,39 +119,18 @@ exports.onBookDelete = functions.firestore
         const newOwnedBooks = ownerData.ownedBooks ? ownerData.ownedBooks : [];
 
         // Remove deleted book from ownedBooks
-        const bookIndex = newOwnedBooks.indexOf(snapshot.ref);
-        if (bookIndex === -1) {
-            functions.logger.error('book not found in ownedBooks');
-            return;
+        for (let i = 0; i < newOwnedBooks.length; i++) {
+            if (snapshot.ref.id === newOwnedBooks[i].id) {
+                newOwnedBooks.splice(i, 1);
+                break;
+            }
         }
-        newOwnedBooks.splice(bookIndex, 1);
 
         // Update ownedBooks
         ownerRef.set({
             ownedBooks: newOwnedBooks
         }, { merge: true });
     });
-
-async function deletePendingRequest(bookRef, requestRef) {
-    // Load pendingRequests of book
-    const bookData = (await bookRef.get()).data();
-    const newPendingRequests = bookData.pendingRequests ? bookData.pendingRequests : [];
-    const newPendingRequesters = bookData.pendingRequesters ? bookData.pendingRequesters : [];
-
-    // Remove declined request from pendingRequests
-    const requestIndex = newPendingRequests.indexOf(change.after.ref);
-    if (requestIndex === -1) {
-        functions.logger.error('request not found in pendingRequests');
-        return;
-    }
-    newPendingRequests.splice(requestIndex, 1);
-    newPendingRequesters.splice(requestIndex, 1);
-
-    bookRef.set({
-        pendingRequests: newPendingRequests,
-        pendingRequesters: newPendingRequesters
-    }, { merge: true });
-}
 
 exports.onRequestCreate = functions.firestore
     .document('requests/{requestId}')
@@ -189,20 +188,68 @@ exports.onRequestUpdate = functions.firestore
         const oldStatus = change.before.data().status;
         const newStatus = change.after.data().status;
         if (oldStatus !== newStatus) {
-            if (newStatus === 1) {
-                // If new status is DECLINED, then remove request from pendingRequests on the book
-                const bookRef = change.after.data().book;
-                deletePendingRequest(bookRef, change.after.ref);
-            } else if (newStatus === 2) {
-                // If new status is ACCEPTED, then move request to acceptedRequest on the book
-                const bookRef = change.after.data().book;
-                deletePendingRequest(bookRef, change.after.ref);
+            // Load pendingRequests of book
+            const bookRef = change.after.data().book;
+            const bookSnapshot = await bookRef.get();
+            const bookData = bookSnapshot.data();
 
-                // Set acceptedRequest and acceptedRequester
+            const newPendingRequests = bookData.pendingRequests ? bookData.pendingRequests : [];
+            const newPendingRequesters = bookData.pendingRequesters ? bookData.pendingRequesters : [];
+
+            if (newStatus === 1) {
+                // If new status is DECLINED, then remove the request from pendingRequests on the book
+                for (let i = 0; i < newPendingRequests.length; i++) {
+                    if (change.after.ref.id === newPendingRequests[i].id) {
+                        newPendingRequests.splice(i, 1);
+                        newPendingRequesters.splice(i, 1);
+                        break;
+                    }
+                }
+
+                bookRef.set({
+                    pendingRequests: newPendingRequests,
+                    pendingRequesters: newPendingRequesters
+                }, { merge: true });
+
+                // Create notification for requester
+                const notificationData = {
+                    type: 1, // RequestAcknowledged
+                    notifiedUser: change.after.data().requester,
+                    timestamp: change.after.data().timestamp,
+                    request: change.after.ref
+                };
+                db.collection('notifications').add(notificationData);
+            } else if (newStatus === 2) {
+                // If new status is ACCEPTED, then set the acceptedRequest on the book and decline and clear pendingRequests
+
+                // Decline all other pending requests
+                const pendingRequestsBatch = db.batch();
+                for (const requestRef of newPendingRequests) {
+                    if (requestRef.id === change.after.ref.id) {
+                        // Skip the accepted request
+                        continue;
+                    }
+                    pendingRequestsBatch.set(requestRef, {
+                        status: 1 // DECLINED
+                    }, { merge: true });
+                }
+                pendingRequestsBatch.commit();
+
                 bookRef.set({
                     acceptedRequest: change.after.ref,
-                    acceptedRequester: change.after.data().requester
+                    acceptedRequester: change.after.data().requester,
+                    pendingRequests: [],
+                    pendingRequesters: []
                 }, { merge: true });
+
+                // Create notification for requester
+                const notificationData = {
+                    type: 1, // RequestAcknowledged
+                    notifiedUser: change.after.data().requester,
+                    timestamp: change.after.data().timestamp,
+                    request: change.after.ref
+                };
+                db.collection('notifications').add(notificationData);
             }
         }
     });

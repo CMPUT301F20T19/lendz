@@ -39,7 +39,7 @@ public class NotificationsFragment extends Fragment {
     private View view;
     private NotificationAdapter adapter;
 
-    private NotificationsFragment() {
+    public NotificationsFragment() {
 
     }
 
