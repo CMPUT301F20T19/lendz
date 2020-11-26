@@ -335,8 +335,6 @@ public class ViewBookFragment extends Fragment {
 
         if (book.getOwner() == User.getCurrentUser()) {
             // Viewing as owner of this book
-            menu.setGroupVisible(R.id.view_book_menu_for_owners, true);
-
             if (book.getStatus() == BookStatus.AVAILABLE
                     || book.getStatus() == BookStatus.REQUESTED) {
                 view.findViewById(R.id.owner_book_available).setVisibility(View.VISIBLE);
