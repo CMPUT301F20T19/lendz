@@ -75,6 +75,24 @@ public class ViewBookFragment extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
+
+        book = Book.getOrCreate(getArguments().getString("bookId"));
+
+        Book.documentOf(book.getId()).addSnapshotListener(new EventListener<DocumentSnapshot>() {
+            @Override
+            public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
+                if (error != null) {
+                    Log.e("BookActivity", "error getting book" + book.getId() +
+                            ": " + error);
+                } else if (value == null || !value.exists()) {
+                    Log.w("BookActivity", "did not find the Book" + book.getId());
+                } else {
+                    book.load(value);
+                    updateBookDetails();
+                    getActivity().invalidateOptionsMenu();
+                }
+            }
+        });
     }
 
     /**
@@ -109,11 +127,6 @@ public class ViewBookFragment extends Fragment {
             Picasso.get().load(book.getPhoto()).into(bookImage);
             // call check user function
             updateRequestControls();
-
-            if (book.getOwner() == User.getCurrentUser()) {
-                // Viewing as owner of this book
-                menu.setGroupVisible(R.id.view_book_menu_for_owners, true);
-            }
         }
     }
 
@@ -139,31 +152,13 @@ public class ViewBookFragment extends Fragment {
         if (getArguments() == null)
             throw new IllegalArgumentException("no arguments");
 
-        final String bookId = getArguments().getString(ARG_BOOK_ID);
-        book = Book.getOrCreate(bookId);
-
-        Book.documentOf(bookId).addSnapshotListener(new EventListener<DocumentSnapshot>() {
-            @Override
-            public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
-                if (error != null) {
-                    Log.e("BookActivity", "error getting book" + bookId.toString() +
-                            ": " + error);
-                } else if (value == null || !value.exists()) {
-                    Log.w("BookActivity", "did not find the Book" + bookId.toString());
-                } else {
-                    book.load(value);
-                    updateBookDetails();
-                }
-            }
-        });
-
         Button requestBtn = view.findViewById(R.id.request_button);
         requestBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 FirebaseFirestore firestore = FirebaseFirestore.getInstance();
                 final String userId = User.getCurrentUser().getId();
-                final DocumentReference bookReference = firestore.collection("books").document(bookId);
+                final DocumentReference bookReference = firestore.collection("books").document(book.getId());
                 //create a pointer to user details
                 final DocumentReference userReference = firestore.collection("users").document(userId);
 
@@ -197,30 +192,11 @@ public class ViewBookFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(getActivity(), ViewRequestActivity.class);
-                intent.putExtra("bookId", bookId);
+                intent.putExtra("bookId", book.getId());
                 startActivity(intent);
             }
         });
 
-        if (getArguments() == null)
-            throw new IllegalArgumentException("no arguments");
-
-        book = Book.getOrCreate(bookId);
-
-        Book.documentOf(bookId).addSnapshotListener(new EventListener<DocumentSnapshot>() {
-            @Override
-            public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
-                if (error != null) {
-                    Log.e("BookActivity", "error getting book" + bookId.toString() +
-                            ": " + error);
-                } else if (value == null || !value.exists()) {
-                    Log.w("BookActivity", "did not find the Book" + bookId.toString());
-                } else {
-                    book.load(value);
-                    updateBookDetails();
-                }
-            }
-        });
         return view;
     }
 
@@ -274,9 +250,26 @@ public class ViewBookFragment extends Fragment {
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+    }
+
+    @Override
     public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
         this.menu = menu;
         inflater.inflate(R.menu.view_book_details, menu);
+    }
+
+    @Override
+    public void onPrepareOptionsMenu(@NonNull Menu menu) {
+        if (book == null) {
+            return;
+        }
+
+        if (book.getOwner() == User.getCurrentUser()) {
+            // Viewing as owner of this book
+            menu.setGroupVisible(R.id.view_book_menu_for_owners, true);
+        }
     }
 
     /**
