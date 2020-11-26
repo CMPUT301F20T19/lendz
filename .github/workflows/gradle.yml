@@ -5,9 +5,21 @@ name: Java CI with Gradle
 
 on:
   push:
-    branches: [ master ]
+    branches:
+      - master
+      - dev
+      - edit-book-improvements
+      - on-request-acknowledge
+      - ui-fixes-and-cleanup
+      - newBorrowerReturn
   pull_request:
-    branches: [ master ]
+    branches:
+      - master
+      - dev
+      - edit-book-improvements
+      - on-request-acknowledge
+      - ui-fixes-and-cleanup
+      - newBorrowerReturn
 
 jobs:
   build:
