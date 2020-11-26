@@ -76,11 +76,17 @@ public class BookDescription {
 
                             String title = volumeInfo.getString("title");
                             JSONArray authors = volumeInfo.getJSONArray("authors");
-                            String author = authors.join(", ");
+                            StringBuilder author = new StringBuilder();
+                            for (int i = 0; i < authors.length(); i++) {
+                                author.append(authors.getString(i));
+                                if (i < authors.length() - 1) {
+                                    author.append(", ");
+                                }
+                            }
                             String description = volumeInfo.getString("description");
 
                             BookDescription bookDescription = new BookDescription(
-                                    isbn, title, author, description);
+                                    isbn, title, author.toString(), description);
                             listener.onSuccess(bookDescription);
                         } catch (Exception e) {
                             listener.onFailure(e);

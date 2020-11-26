@@ -9,10 +9,14 @@ import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -21,7 +25,6 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
@@ -39,58 +42,58 @@ import java.util.Arrays;
  **/
 
 public class EditBookActivity extends AppCompatActivity implements View.OnClickListener {
-    ImageView imgView;
-    Button selectImg;
+    ImageView photoImgView;
+    TextView tapToAddPhotoTextView;
     Button scanBtn;
-    Button deleteImgBtn;
-    Button saveBtn;
+    ImageButton deletePhotoImgBtn;
     EditText isbnEditText;
     EditText titleEditText;
     EditText authorEditText;
     EditText descriptionEditText;
 
-    Uri filePathUri;
+    Uri photoToUploadUri;
     FirebaseStorage storage;
     StorageReference storageReference;
-    FirebaseFirestore firestoreRef;
-    String id;
-    String existingBookId;
-    String tempId;
-    String url;
-    int triggerDelete = 0;
+    boolean shouldDeletePhoto = false;
+
+    Book book;
+    boolean isNewBook;
 
     private static final int IMAGE_PICK_CODE = 1000;
     private static final int PERMISSION_CODE = 1001;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
         storage = FirebaseStorage.getInstance();
         storageReference = storage.getReference();
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_book);
         //Attach views
-        imgView = findViewById(R.id.book_IV);
-        selectImg = findViewById(R.id.addImg);
-        scanBtn = findViewById(R.id.scanBTN);
-        isbnEditText = findViewById(R.id.ISBN_ID);
-        titleEditText = findViewById(R.id.title_id);
-        authorEditText = findViewById(R.id.author_id);
-        descriptionEditText = findViewById(R.id.description_id);
-        saveBtn = findViewById((R.id.save_id));
-        deleteImgBtn = findViewById(R.id.delImg);
+        photoImgView = findViewById(R.id.photo_imageview);
+        tapToAddPhotoTextView = findViewById(R.id.tap_to_add_photo_textview);
+        scanBtn = findViewById(R.id.scan_button);
+        isbnEditText = findViewById(R.id.isbn_edittext);
+        titleEditText = findViewById(R.id.title_edittext);
+        authorEditText = findViewById(R.id.author_edittext);
+        descriptionEditText = findViewById(R.id.description_edittext);
+        deletePhotoImgBtn = findViewById(R.id.delete_photo_imagebutton);
 
         //some extra code
         Intent intent = getIntent();
 
-
-        if (intent.hasExtra("bookId")) {
-            existingBookId = intent.getStringExtra("bookId");
-        }
-        // fetch book with parsed id from firebase;
-        if (existingBookId != null) {
-            final Book book = Book.getOrCreate(existingBookId);
-            Book.documentOf(existingBookId).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+        isNewBook = !intent.hasExtra("bookId");
+        if (isNewBook) {
+            String id = FirebaseFirestore.getInstance()
+                    .collection("books").document().getId();
+            book = Book.getOrCreate(id);
+        } else {
+            String id = intent.getStringExtra("bookId");
+            book = Book.getOrCreate(id);
+            // fetch book with id from firebase
+            Book.documentOf(id).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                 @Override
                 public void onSuccess(DocumentSnapshot documentSnapshot) {
                     book.load(documentSnapshot);
@@ -99,35 +102,29 @@ public class EditBookActivity extends AppCompatActivity implements View.OnClickL
                     authorEditText.setText(book.getDescription().getAuthor());
                     descriptionEditText.setText(book.getDescription().getDescription());
                     if (book.getPhoto() != null) {
-                        Picasso.get().load(book.getPhoto()).into(imgView);
+                        Picasso.get().load(book.getPhoto()).into(photoImgView);
+                        deletePhotoImgBtn.setVisibility(View.VISIBLE);
+                        tapToAddPhotoTextView.setVisibility(View.GONE);
                     }
                 }
             });
         }
 
-        saveBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                uploadBook();
-            }
-        });
         scanBtn.setOnClickListener(this);
-        deleteImgBtn.setOnClickListener(new View.OnClickListener() {
+        deletePhotoImgBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                triggerDelete = 1;
-                url = null;
                 //remove image from image view
-                final Book book = Book.getOrCreate(existingBookId);
-                book.setPhoto(null);
-                Picasso.get().load(book.getPhoto()).into(imgView);
-                imgView.setImageURI(null);
-
+                shouldDeletePhoto = true;
+                photoToUploadUri = null;
+                photoImgView.setImageDrawable(null);
+                deletePhotoImgBtn.setVisibility(View.GONE);
+                tapToAddPhotoTextView.setVisibility(View.VISIBLE);
             }
         });
 
         //handle selectImg btn click
-        selectImg.setOnClickListener(new View.OnClickListener() {
+        photoImgView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
@@ -199,9 +196,12 @@ public class EditBookActivity extends AppCompatActivity implements View.OnClickL
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == RESULT_OK && requestCode == IMAGE_PICK_CODE) {
-            imgView.setImageURI(data.getData());
+            photoImgView.setImageURI(data.getData());
             //hold image data temporarily
-            filePathUri = data.getData();
+            photoToUploadUri = data.getData();
+            deletePhotoImgBtn.setVisibility(View.VISIBLE);
+            tapToAddPhotoTextView.setVisibility(View.GONE);
+            shouldDeletePhoto = false;
         }
         IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
 
@@ -236,42 +236,22 @@ public class EditBookActivity extends AppCompatActivity implements View.OnClickL
      * calls the function "sendToFirestore"
      */
     public void uploadBook() {
-        firestoreRef = FirebaseFirestore.getInstance();
-
-        //get reference to book collection;
-        final CollectionReference BookCollection = firestoreRef.collection("books");
-
-        //generate a unique id for each book document. Images stored in firebase storage will use the same id
-        id = BookCollection.document().getId();
-
-        if (filePathUri != null) {
-
+        if (photoToUploadUri != null) {
             final ProgressDialog progressDialog = new ProgressDialog(this);
             progressDialog.setTitle("Uploading...");
             progressDialog.show();
 
-            if (tempId != null) {
-                id = tempId;
-            }
-            //check if existingBookId is null
-            if (existingBookId != null) {
-                //change is made to existing book
-                id = existingBookId;
-            }
-
-            final StorageReference ref = storageReference.child("BookImages/" + id);
-            ref.putFile(filePathUri)
+            final StorageReference ref = storageReference.child("BookImages/" + book.getId());
+            ref.putFile(photoToUploadUri)
                     .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                         @Override
                         public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                            Toast.makeText(EditBookActivity.this, "Uploaded", Toast.LENGTH_SHORT).show();
                             progressDialog.dismiss();
                             ref.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                                 @Override
                                 public void onSuccess(Uri bookImgUrl) {
-                                    url = bookImgUrl.toString();
-                                    //SEND TO FIRESTORE
-                                    sendToFirestore(BookCollection, id);
+                                    book.setPhoto(bookImgUrl.toString());
+                                    sendToFirestore();
                                 }
                             });
                         }
@@ -295,16 +275,7 @@ public class EditBookActivity extends AppCompatActivity implements View.OnClickL
                         }
                     });
         } else {
-            if (tempId != null) {
-                id = tempId;
-            }
-
-            //check if existingBookId is null
-            if (existingBookId != null) {
-                //change is made to existing book
-                id = existingBookId;
-            }
-            sendToFirestore(BookCollection, id);
+            sendToFirestore();
         }
     }
 
@@ -312,21 +283,19 @@ public class EditBookActivity extends AppCompatActivity implements View.OnClickL
      * takes bookCollection reference and book id as arguments
      * creates a book object and optionally removes a photo attached to a bookObject in Firestore.
      */
-    public void sendToFirestore(final CollectionReference BookCollection, final String id) {
-        tempId = id;
+    public void sendToFirestore() {
         //get text from textViews
         String isbn = isbnEditText.getText().toString();
-
-
-        String description = descriptionEditText.getText().toString();
-        // Creating keywords out from description using whitespace as delimiters
-        String[] strArray = description.split(" ");
-        for (int i = 0; i < strArray.length; i++) {
-            strArray[i] = strArray[i].toLowerCase();
-        }
-
         String title = titleEditText.getText().toString();
         String author = authorEditText.getText().toString();
+        String description = descriptionEditText.getText().toString();
+
+        // Create keywords from title, author, and description
+        // Splits by whitespace, removes all non-alpha characters
+        String[] keywords = (title + " " + author + " " + description)
+                .toLowerCase()
+                .replaceAll("[^a-zA-Z ]", "")
+                .split("\\s+");
 
         //check if any text field is empty
         if (TextUtils.isEmpty(title)) {
@@ -346,54 +315,43 @@ public class EditBookActivity extends AppCompatActivity implements View.OnClickL
             return;
         }
 
-        if ((isbnEditText.getError() == null) && (descriptionEditText.getError() == null) && (titleEditText.getError() == null) && (authorEditText.getError() == null)) {
-            //construct book object
-            final Book bookObject = Book.getOrCreate(id);
-            bookObject.setOwner(User.getCurrentUser());
-            bookObject.setKeywords(Arrays.asList(strArray));
-            if (url != null) {
-                bookObject.setPhoto(url);
-            }
-            if (triggerDelete == 1) {
-                final StorageReference ref = storageReference.child("BookImages/" + id);
-                ref.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        Log.e("Picture", "#deleted");
+        //DESCRIPTION
+        BookDescription createdBook = new BookDescription(isbn, title, author, description);
+        book.setDescription(createdBook);
 
-                        bookObject.setPhoto(null);
-                        saveBook(bookObject);
-                    }
-                }).addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Toast.makeText(EditBookActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
-                    }
-                });
-                triggerDelete = 0;
-            }
-            bookObject.setStatus(BookStatus.AVAILABLE);
-            //DESCRIPTION
-            BookDescription createdBook = new BookDescription(isbn, title, author, description);
-            bookObject.setDescription(createdBook);
-
-            if (triggerDelete == 0) {
-                // This means that a book is being edited or added without the picture being deleted
-                saveBook(bookObject);
-            }
+        //construct book object
+        book.setOwner(User.getCurrentUser());
+        book.setKeywords(Arrays.asList(keywords));
+        if (shouldDeletePhoto) {
+            final StorageReference ref = storageReference.child("BookImages/" + book.getId());
+            ref.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+                @Override
+                public void onSuccess(Void aVoid) {
+                    Log.e("Picture", "#deleted");
+                    book.setPhoto(null);
+                    saveBook();
+                }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    Toast.makeText(EditBookActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            });
+        } else {
+            // This means that a book is being edited or added without the picture being deleted
+            saveBook();
         }
     }
 
     /**
      * takes a bookobject as argument and sends it to firebase.
      */
-    public void saveBook(Book bookObject) {
-        bookObject.store()
+    public void saveBook() {
+        book.store()
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                        filePathUri = null;
-                        Toast.makeText(EditBookActivity.this, "Book Added", Toast.LENGTH_SHORT).show();
+                        finish();
                     }
                 }).addOnFailureListener(new OnFailureListener() {
             @Override
@@ -403,4 +361,23 @@ public class EditBookActivity extends AppCompatActivity implements View.OnClickL
         });
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.edit_book_details, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                finish();
+                return true;
+            case R.id.save_book_details:
+                uploadBook();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
 }

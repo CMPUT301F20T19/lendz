@@ -159,19 +159,19 @@ public class EditBookTest {
             String bookDescription, String newBookDesc,
             String bookAuthor, String newBookAuthor,
             String bookISBN, String newBookISBN) {
-        onView(withId(R.id.title_id))
+        onView(withId(R.id.title_edittext))
                 .check(ViewAssertions.matches(ViewMatchers.withText(bookTitle)))
                 .perform(clearText())
                 .perform(typeText(newBookTitle));
-        onView(withId(R.id.ISBN_ID))
+        onView(withId(R.id.isbn_edittext))
                 .check(ViewAssertions.matches(ViewMatchers.withText(bookISBN)))
                 .perform(clearText())
                 .perform(typeText(newBookISBN));
-        onView(withId(R.id.author_id))
+        onView(withId(R.id.author_edittext))
                 .check(ViewAssertions.matches(ViewMatchers.withText(bookAuthor)))
                 .perform(clearText())
                 .perform(typeText(newBookAuthor), ViewActions.closeSoftKeyboard());
-        onView(withId(R.id.description_id))
+        onView(withId(R.id.description_edittext))
                 .check(ViewAssertions.matches(ViewMatchers.withText(bookDescription)))
                 .perform(clearText())
                 .perform(typeText(newBookDesc), ViewActions.closeSoftKeyboard());
@@ -181,16 +181,16 @@ public class EditBookTest {
                                    String oldDesc,
                                    String oldAuthor,
                                    String oldISBN) {
-        onView(withId(R.id.title_id))
+        onView(withId(R.id.title_edittext))
                 .perform(clearText())
                 .perform(typeText(oldBookTitle));
-        onView(withId(R.id.ISBN_ID))
+        onView(withId(R.id.isbn_edittext))
                 .perform(clearText())
                 .perform(typeText(oldISBN));
-        onView(withId(R.id.author_id))
+        onView(withId(R.id.author_edittext))
                 .perform(clearText())
                 .perform(typeText(oldAuthor), ViewActions.closeSoftKeyboard());
-        onView(withId(R.id.description_id))
+        onView(withId(R.id.description_edittext))
                 .perform(clearText())
                 .perform(typeText(oldDesc), ViewActions.closeSoftKeyboard());
 
