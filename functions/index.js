@@ -74,16 +74,36 @@ exports.onBookUpdate = functions.firestore
         const data = change.after.data();
 
         // Update cached bookTitle and bookPhotoUrl of requests for this book
-        const requests = data.pendingRequests ? data.pendingRequests : [];
+        const pendingRequests = data.pendingRequests ? data.pendingRequests : [];
         if (data.acceptedRequest) {
-            requests.push(data.acceptedRequest);
+            pendingRequests.push(data.acceptedRequest);
         }
 
         const requestsBatch = db.batch();
-        for (const request of requests) {
+        for (const request of pendingRequests) {
             requestsBatch.set(request, { bookTitle: data.description.title, bookPhotoUrl: data.photo }, { merge: true });
         }
         await requestsBatch.commit();
+
+        // Set book status
+        let status = 0; // AVAILABLE
+        if (data.acceptedRequester) {
+            const requesterData = (await data.acceptedRequester.get()).data();
+            for (const bookRef of requesterData.borrowedBooks) {
+                if (bookRef.id === change.after.ref.id) {
+                    status = 2; // BORROWED
+                    break;
+                }
+            }
+            if (status !== 2) {
+                status = 3; // ACCEPTED
+            }
+        } else if (data.pendingRequests.length > 0) {
+            status = 1; // REQUESTED
+        }
+        change.after.ref.set({
+            status: status
+        }, { merge: true });
     });
 
 exports.onBookDelete = functions.firestore
@@ -202,11 +222,15 @@ exports.onRequestUpdate = functions.firestore
             } else if (newStatus === 2) {
                 // If new status is ACCEPTED, then set the acceptedRequest on the book and decline and clear pendingRequests
 
-                // Decline all pending requests
+                // Decline all other pending requests
                 const pendingRequestsBatch = db.batch();
                 for (const requestRef of newPendingRequests) {
+                    if (requestRef.id === change.after.ref.id) {
+                        // Skip the accepted request
+                        continue;
+                    }
                     pendingRequestsBatch.set(requestRef, {
-                        status: 0 // DECLINED
+                        status: 1 // DECLINED
                     }, { merge: true });
                 }
                 pendingRequestsBatch.commit();
