@@ -54,7 +54,7 @@
         <activity android:name=".ViewRequestActivity" />
         <activity android:name=".MainActivity" />
         <activity android:name=".EditBookActivity"
-            android:parentActivityName=".MainActivity"/>
+            android:label="@string/editBook"/>
         <activity android:name=".ScanActivity"
             android:screenOrientation="fullSensor"
             android:stateNotNeeded="true"

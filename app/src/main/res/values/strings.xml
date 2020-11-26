@@ -35,9 +35,10 @@
     <string name="author">Author</string>
     <string name="save">Save</string>
     <string name="scan">Scan</string>
-    <string name="book_description">.....</string>
+    <string name="tap_to_add_photo">Tap to add photo</string>
+    <string name="delete_book_photo">Delete Book Photo</string>
+    <string name="book_description">Book Description</string>
     <string name="add_image">Add Image</string>
-    <string name="book_description_label">Book Description</string>
     <string name="viewbookdescription">ViewBookDescription</string>
     <string name="viewbooktitle">ViewBookTitle</string>
     <string name="viewbookstatus">ViewBookStatus</string>

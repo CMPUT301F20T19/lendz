@@ -1,16 +1,8 @@
 package cmput301.team19.lendz;
-import android.view.View;
 
-import androidx.test.espresso.Espresso;
-import androidx.test.espresso.UiController;
-import androidx.test.espresso.ViewAction;
 import androidx.test.espresso.action.ViewActions;
-import androidx.test.espresso.assertion.ViewAssertions;
-import androidx.test.espresso.contrib.RecyclerViewActions;
-import androidx.test.espresso.matcher.ViewMatchers;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.rule.ActivityTestRule;
 
 import com.google.firebase.auth.FirebaseAuth;
 
@@ -18,8 +10,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import java.util.regex.Matcher;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.clearText;
@@ -83,16 +73,16 @@ public class AddBookTest {
      */
 
     public void check_if_addViews_exist(){
-        onView(withId(R.id.book_IV)).check(matches(isDisplayed()));
-        onView(withId(R.id.title_id)).check(matches(isDisplayed()));
-        onView(withId(R.id.ISBN_ID)).check(matches(isDisplayed()));
-        onView(withId(R.id.scanBTN)).check(matches(isDisplayed()));
-        onView(withId(R.id.author_id)).check(matches(isDisplayed()));
+        onView(withId(R.id.photo_imageview)).check(matches(isDisplayed()));
+        onView(withId(R.id.title_edittext)).check(matches(isDisplayed()));
+        onView(withId(R.id.isbn_edittext)).check(matches(isDisplayed()));
+        onView(withId(R.id.scan_button)).check(matches(isDisplayed()));
+        onView(withId(R.id.author_edittext)).check(matches(isDisplayed()));
         onView(withId(R.id.textView5)).check(matches(isDisplayed()));
-        onView(withId(R.id.description_id)).check(matches(isDisplayed()));
+        onView(withId(R.id.description_edittext)).check(matches(isDisplayed()));
         onView(withId(R.id.addImg)).check(matches(isDisplayed()));
         onView(withId(R.id.save_id)).check(matches(isDisplayed()));
-        onView(withId(R.id.delImg)).check(matches(isDisplayed()));
+        onView(withId(R.id.delete_photo_imagebutton)).check(matches(isDisplayed()));
     }
 
 
@@ -102,16 +92,16 @@ public class AddBookTest {
      * @throws Exception
      */
     public void Fill_Book_details(){
-        onView(withId(R.id.title_id))
+        onView(withId(R.id.title_edittext))
                 .perform(clearText())
                 .perform(typeText("Expresso Book Title"));
-        onView(withId(R.id.ISBN_ID))
+        onView(withId(R.id.isbn_edittext))
                 .perform(clearText())
                 .perform(typeText("Expresso isbn"));
-        onView(withId(R.id.author_id))
+        onView(withId(R.id.author_edittext))
                 .perform(clearText())
                 .perform(typeText("Expresso Author"), ViewActions.closeSoftKeyboard());
-        onView(withId(R.id.description_id))
+        onView(withId(R.id.description_edittext))
                 .perform(clearText())
                 .perform(typeText("Expresso Description"), ViewActions.closeSoftKeyboard());
         onView(withId(R.id.save_id))
