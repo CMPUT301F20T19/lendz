@@ -45,11 +45,11 @@ public class AddBookTest {
     }
 
     /**
-     * Tests the sequencial order in successfully navigating to the addBook activity.
+     * Tests the sequential order in successfully navigating to the addBook activity.
      * @throws Exception
      */
     @Test
-    public void  Nagivate_To_Add_Book_Activity() throws Exception {
+    public void  Navigate_To_Add_Book_Activity() throws Exception {
         onView(withId(R.id.my_books))
                 .perform(ViewActions.click());
 
