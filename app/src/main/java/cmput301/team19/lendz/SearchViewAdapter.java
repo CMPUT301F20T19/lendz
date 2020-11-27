@@ -42,26 +42,27 @@ public class SearchViewAdapter extends RecyclerView.Adapter<SearchViewAdapter.Vi
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Book book = searchResults.get(position);
-        holder.usernameTV.setText("Owned by: " + book.getOwnerUsername());
-        holder.descriptionTV.setText(book.getDescription().getDescription());
-        String status = book.getStatus() == BookStatus.AVAILABLE ? "Available": "Currently Requested";
-        holder.statusTV.setText( "Status: " + status);
+        holder.ownerUsernameTextView.setText(context.getResources().getString(R.string.owned_by, book.getOwnerUsername()));
+        holder.bookTitleTextView.setText(book.getDescription().getTitle());
+        holder.bookAuthorTextView.setText(book.getDescription().getAuthor());
+        holder.bookStatusTextView.setText(book.getStatus().toString(context.getResources()));
     }
 
 
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener  {
-
-        public TextView usernameTV;
-        public TextView statusTV;
-        public TextView descriptionTV;
+        public TextView ownerUsernameTextView;
+        public TextView bookStatusTextView;
+        public TextView bookTitleTextView;
+        public TextView bookAuthorTextView;
         private OnBookClickListener onBookClickListener;
 
         public ViewHolder (View itemView, OnBookClickListener onBookClickListener ) {
             super(itemView);
 
-            usernameTV = itemView.findViewById(R.id.username);
-            statusTV = itemView.findViewById(R.id.book_status);
-            descriptionTV = itemView.findViewById(R.id.book_description);
+            ownerUsernameTextView = itemView.findViewById(R.id.search_item_owner_username);
+            bookStatusTextView = itemView.findViewById(R.id.search_item_book_status);
+            bookTitleTextView = itemView.findViewById(R.id.search_item_book_title);
+            bookAuthorTextView = itemView.findViewById(R.id.search_item_book_author);
             this.onBookClickListener = onBookClickListener;
             itemView.setOnClickListener(this);
         }
