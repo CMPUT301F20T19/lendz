@@ -90,4 +90,5 @@
     <string name="owned_by">Owned by %1$s</string>
     <string name="isbn_does_not_match">The book you scanned has a non-matching ISBN of %1$s.</string>
     <string name="scan_the_barcode">Scan the barcode of the book</string>
+    <string name="already_sent_a_request">You already sent a request</string>
 </resources>

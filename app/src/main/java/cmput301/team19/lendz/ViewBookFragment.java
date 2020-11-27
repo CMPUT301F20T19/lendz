@@ -163,34 +163,15 @@ public class ViewBookFragment extends Fragment {
         requestBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                FirebaseFirestore firestore = FirebaseFirestore.getInstance();
-                final String userId = User.getCurrentUser().getId();
-                final DocumentReference bookReference = firestore.collection("books").document(book.getId());
-                //create a pointer to user details
-                final DocumentReference userReference = firestore.collection("users").document(userId);
-
-                final CollectionReference requestCollection = firestore.collection("requests");
-                Query query = requestCollection.whereEqualTo("book", bookReference).whereEqualTo("requester", userReference);
-                query.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
-
-                            boolean b = task.getResult().isEmpty();
-
-                            if (b == true) {
-                                //go ahead and send request
-                                makeRequest(requestCollection, userId);
-                            } else {
-                                //Request already sent by user,So decline
-                                Toast.makeText(getContext(), "Request Already Sent", Toast.LENGTH_SHORT).show();
-                            }
-
-                        } else {
-                            Toast.makeText(getContext(), task.getException().getMessage(), Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                });
+                if (book.getPendingRequesters().contains(User.getCurrentUser())) {
+                    Toast.makeText(
+                            getContext(),
+                            R.string.already_sent_a_request,
+                            Toast.LENGTH_SHORT)
+                            .show();
+                } else {
+                    makeRequest();
+                }
             }
         });
 
@@ -248,26 +229,22 @@ public class ViewBookFragment extends Fragment {
     }
 
     /**
-     * @param requestCollection
-     * @param userId
      * allows user to make a request on a book they do not own
      */
-    public void makeRequest(CollectionReference requestCollection, String userId) {
-        //create request object
-        User requester = User.getOrCreate(userId);
-
+    public void makeRequest() {
         //generate id
-        String id = requestCollection.document().getId();
+        String id = FirebaseFirestore.getInstance()
+                .collection("requests").document().getId();
         long timeStamp = System.currentTimeMillis();
 
-        Request requestObject = Request.getOrCreate(id);
-        requestObject.setBook(book);
-        requestObject.setTimestamp(timeStamp);
-        requestObject.setRequester(requester);
-        requestObject.setStatus(RequestStatus.SENT);
+        Request request = Request.getOrCreate(id);
+        request.setBook(book);
+        request.setTimestamp(timeStamp);
+        request.setRequester(User.getCurrentUser());
+        request.setStatus(RequestStatus.SENT);
 
         //Send Request Object to Firestore
-        requestObject.store()
+        request.store()
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
@@ -368,6 +345,7 @@ public class ViewBookFragment extends Fragment {
         view.findViewById(R.id.book_accepted_or_borrowed).setVisibility(View.GONE);
         view.findViewById(R.id.book_borrowed_by_someone_else).setVisibility(View.GONE);
         view.findViewById(R.id.request_button).setEnabled(true);
+        view.findViewById(R.id.pending_request_exists_textview).setVisibility(View.GONE);
 
         if (book.getStatus() == BookStatus.AVAILABLE || book.getStatus() == BookStatus.REQUESTED) {
             if (book.getOwner() == User.getCurrentUser()) {

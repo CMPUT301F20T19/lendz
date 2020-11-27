@@ -263,12 +263,16 @@ exports.onRequestUpdate = functions.firestore
 
             if (newStatus === 1) {
                 // If new status is DECLINED, then remove the request from pendingRequests on the book
-                for (let i = 0; i < newPendingRequests.length; i++) {
+                let foundRequest = false;
+                for (let i = 0; i < newPendingRequests.length && !foundRequest; i++) {
                     if (change.after.ref.id === newPendingRequests[i].id) {
                         newPendingRequests.splice(i, 1);
                         newPendingRequesters.splice(i, 1);
-                        break;
+                        foundRequest = true;
                     }
+                }
+                if (!foundRequest) {
+                    functions.logger.error('did not find the request');
                 }
 
                 bookRef.set({
