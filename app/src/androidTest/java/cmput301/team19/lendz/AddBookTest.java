@@ -78,10 +78,9 @@ public class AddBookTest {
         onView(withId(R.id.isbn_edittext)).check(matches(isDisplayed()));
         onView(withId(R.id.scan_button)).check(matches(isDisplayed()));
         onView(withId(R.id.author_edittext)).check(matches(isDisplayed()));
-        onView(withId(R.id.textView5)).check(matches(isDisplayed()));
         onView(withId(R.id.description_edittext)).check(matches(isDisplayed()));
-        onView(withId(R.id.addImg)).check(matches(isDisplayed()));
-        onView(withId(R.id.save_id)).check(matches(isDisplayed()));
+        onView(withId(R.id.tap_to_add_photo_textview)).check(matches(isDisplayed()));
+        onView(withId(R.id.save_book_details)).check(matches(isDisplayed()));
         onView(withId(R.id.delete_photo_imagebutton)).check(matches(isDisplayed()));
     }
 
@@ -104,7 +103,7 @@ public class AddBookTest {
         onView(withId(R.id.description_edittext))
                 .perform(clearText())
                 .perform(typeText("Expresso Description"), ViewActions.closeSoftKeyboard());
-        onView(withId(R.id.save_id))
+        onView(withId(R.id.save_book_details))
                 .perform(ViewActions.click());
 
     }
