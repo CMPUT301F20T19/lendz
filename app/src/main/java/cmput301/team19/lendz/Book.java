@@ -146,9 +146,10 @@ public class Book {
         // Load book status
         Long bookStatusLong = doc.getLong(STATUS_KEY);
         if (bookStatusLong == null) {
-            throw new NullPointerException("bookStatus cannot be null");
+            status = BookStatus.AVAILABLE;
+        } else {
+            status = BookStatus.values()[bookStatusLong.intValue()];
         }
-        status = BookStatus.values()[bookStatusLong.intValue()];
 
         // Load owner scanned
         Boolean ownerScannedData = doc.getBoolean(OWNER_SCANNED_KEY);
