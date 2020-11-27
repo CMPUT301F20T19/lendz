@@ -81,7 +81,6 @@ public class AddBookTest {
         onView(withId(R.id.description_edittext)).check(matches(isDisplayed()));
         onView(withId(R.id.tap_to_add_photo_textview)).check(matches(isDisplayed()));
         onView(withId(R.id.save_book_details)).check(matches(isDisplayed()));
-        onView(withId(R.id.delete_photo_imagebutton)).check(matches(isDisplayed()));
     }
 
 

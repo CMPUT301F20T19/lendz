@@ -18,6 +18,7 @@ import org.junit.runner.RunWith;
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.clearText;
 import static androidx.test.espresso.action.ViewActions.click;
+import static androidx.test.espresso.action.ViewActions.scrollTo;
 import static androidx.test.espresso.action.ViewActions.typeText;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
@@ -59,23 +60,23 @@ public class EditBookTest {
 
         onView(withId(R.id.myBooksFrag_recyclerView)).
                 perform(RecyclerViewActions.actionOnItemAtPosition(0, click()));
-        Thread.sleep(10000);
+        Thread.sleep(5000);
 
         // checks if the correct views for the book exist
         check_if_ViewBook();
 
         // Checking if the strings here match the book details displayed
         checkBookDetails("Sun",
-                "hello there",
+                "Hello there",
                 "Me",
                 "45");
         onView(withId(R.id.editBookDetails))
                 .perform(ViewActions.click());
 
-        // Test that the new values are reflected in the AddBookActivity,
+        // Test that the new values are reflected in the EditBookActivity,
         // then replace them with the original values
         checkAndReplaceBookDetails("Sun", "Moon",
-                "hello there", "Hi there",
+                "Hello there", "Hi there",
                 "Me", "You",
                 "45", "54");
 
@@ -84,15 +85,15 @@ public class EditBookTest {
         Thread.sleep(2000);
 
         Espresso.pressBack();
-        Thread.sleep(5000);
+        Thread.sleep(3000);
 
         onView(withId(R.id.my_books))
                 .perform(ViewActions.click());
-        Thread.sleep(8500);
+        Thread.sleep(3000);
 
         onView(withId(R.id.myBooksFrag_recyclerView)).
                 perform(RecyclerViewActions.actionOnItemAtPosition(0, click()));
-        Thread.sleep(8500);
+        Thread.sleep(3000);
 
 
         // checks if the correct views for the book exist
@@ -103,18 +104,20 @@ public class EditBookTest {
 
         //Setting old book details back
         setOldDetailsBack("Sun",
-                "hello there",
+                "Hello there",
                 "Me",
                 "45");
+        Thread.sleep(10000);
         onView(withId(R.id.save_book_details))
-                .perform(ViewActions.click());
-        Thread.sleep(2000);
+                .perform(click());
 
-        Espresso.pressBack();
-        Thread.sleep(2000);
-        onView(withId(R.id.my_books))
-                .perform(ViewActions.click());
-        Thread.sleep(3000);
+//        Thread.sleep(10000);
+//
+//        Espresso.pressBack();
+//        Thread.sleep(2000);
+//        onView(withId(R.id.my_books))
+//                .perform(ViewActions.click());
+//        Thread.sleep(3000);
 
 
     }
