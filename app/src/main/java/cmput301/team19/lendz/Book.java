@@ -45,6 +45,8 @@ public class Book {
     private BookDescription description;
     private List<String> keywords;
 
+    private final List<User> pendingRequesters = new ArrayList<>();
+
     private Request acceptedRequest;
     private User acceptedRequester;
     private String acceptedRequesterUsername;
@@ -106,6 +108,15 @@ public class Book {
         // Load owner username
         ownerUsername = doc.getString(OWNER_USERNAME_KEY);
 
+        // Load pending requesters
+        pendingRequesters.clear();
+        List<DocumentReference> pendingRequestersData = (List<DocumentReference>) doc.get(PENDING_REQUESTERS_KEY);
+        if (pendingRequestersData != null) {
+            for (DocumentReference ref : pendingRequestersData) {
+                pendingRequesters.add(User.getOrCreate(ref.getId()));
+            }
+        }
+
         // Load accepted request
         DocumentReference acceptedRequestData = doc.getDocumentReference(ACCEPTED_REQUEST_KEY);
         if (acceptedRequestData == null) {
@@ -135,9 +146,10 @@ public class Book {
         // Load book status
         Long bookStatusLong = doc.getLong(STATUS_KEY);
         if (bookStatusLong == null) {
-            throw new NullPointerException("bookStatus cannot be null");
+            status = BookStatus.AVAILABLE;
+        } else {
+            status = BookStatus.values()[bookStatusLong.intValue()];
         }
-        status = BookStatus.values()[bookStatusLong.intValue()];
 
         // Load owner scanned
         Boolean ownerScannedData = doc.getBoolean(OWNER_SCANNED_KEY);
@@ -214,6 +226,13 @@ public class Book {
      */
     public boolean isBorrowerScanned() {
         return borrowerScanned;
+    }
+
+    /**
+     * @return get the list of pending requesters
+     */
+    public List<User> getPendingRequesters() {
+        return pendingRequesters;
     }
 
     /**
