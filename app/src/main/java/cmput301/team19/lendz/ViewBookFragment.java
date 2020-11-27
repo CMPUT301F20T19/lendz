@@ -3,9 +3,15 @@ package cmput301.team19.lendz;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.Html;
+import android.text.SpannableString;
+import android.text.Spanned;
+import android.text.method.LinkMovementMethod;
+import android.text.style.ClickableSpan;
+import android.text.style.StyleSpan;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -36,6 +42,8 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.zxing.integration.android.IntentIntegrator;
+import com.google.zxing.integration.android.IntentResult;
 import com.squareup.picasso.Picasso;
 
 /**
@@ -48,7 +56,6 @@ public class ViewBookFragment extends Fragment {
 
     private View view;
 
-    private Menu menu;
     private TextView bookTitleTextView, bookStatusTextView, bookDescriptionTextView, bookAuthorTextView,
     bookISBNTextView;
     private ImageView bookImage;
@@ -76,59 +83,43 @@ public class ViewBookFragment extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
-
-        book = Book.getOrCreate(getArguments().getString("bookId"));
-
-        Book.documentOf(book.getId()).addSnapshotListener(new EventListener<DocumentSnapshot>() {
-            @Override
-            public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
-                if (error != null) {
-                    Log.e("BookActivity", "error getting book" + book.getId() +
-                            ": " + error);
-                } else if (value == null || !value.exists()) {
-                    Log.w("BookActivity", "did not find the Book" + book.getId());
-                } else {
-                    book.load(value);
-                    updateBookDetails();
-                    getActivity().invalidateOptionsMenu();
-                }
-            }
-        });
     }
 
     /**
      * Set the displayed info to match that of book object
      */
     private void updateBookDetails() {
-        if (book != null) {
-            bookTitleTextView.setText(book.getDescription().getTitle());
-            bookStatusTextView.setText(BookStatus.AVAILABLE.toString());
-            bookDescriptionTextView.setText(book.getDescription().getDescription());
-            bookAuthorTextView.setText(book.getDescription().getAuthor());
-            bookISBNTextView.setText(book.getDescription().getIsbn());
-            ownerButton.setText(book.getOwnerUsername());
-            ownerButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Fragment profileFragment = ViewUserProfileFragment.newInstance(book.getOwner().getId());
-                    FragmentTransaction transaction = getParentFragmentManager().beginTransaction();
-                    transaction.setCustomAnimations(
-                            R.anim.slide_in,
-                            R.anim.fade_out,
-                            R.anim.fade_in,
-                            R.anim.slide_out
-                    );
-
-                    transaction.replace(R.id.container, profileFragment);
-                    transaction.addToBackStack(null);
-
-                    transaction.commit();
-                }
-            });
-            Picasso.get().load(book.getPhoto()).into(bookImage);
-            // call check user function
-            updateRequestControls();
+        if (book == null || !isVisible()) {
+            return;
         }
+
+        bookTitleTextView.setText(book.getDescription().getTitle());
+        bookStatusTextView.setText(book.getStatus().toString(getResources()));
+        bookDescriptionTextView.setText(book.getDescription().getDescription());
+        bookAuthorTextView.setText(book.getDescription().getAuthor());
+        bookISBNTextView.setText(book.getDescription().getIsbn());
+        ownerButton.setText(book.getOwnerUsername());
+        ownerButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Fragment profileFragment = ViewUserProfileFragment.newInstance(book.getOwner().getId());
+                FragmentTransaction transaction = getParentFragmentManager().beginTransaction();
+                transaction.setCustomAnimations(
+                        R.anim.slide_in,
+                        R.anim.fade_out,
+                        R.anim.fade_in,
+                        R.anim.slide_out
+                );
+
+                transaction.replace(R.id.container, profileFragment);
+                transaction.addToBackStack(null);
+
+                transaction.commit();
+            }
+        });
+        Picasso.get().load(book.getPhoto()).into(bookImage);
+        // call check user function
+        updateRequestControls();
     }
 
     /**
@@ -149,6 +140,21 @@ public class ViewBookFragment extends Fragment {
         bookISBNTextView = view.findViewById(R.id.bookViewISBN);
         ownerButton = view.findViewById(R.id.owner_button);
         bookImage = view.findViewById(R.id.bookImage);
+
+        book = Book.getOrCreate(getArguments().getString("bookId"));
+
+        Book.documentOf(book.getId()).addSnapshotListener(new EventListener<DocumentSnapshot>() {
+            @Override
+            public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
+                if (value != null && error == null) {
+                    book.load(value);
+                    updateBookDetails();
+                } else {
+                    Log.e("BookActivity", "error getting book" + book.getId() +
+                            ": " + error);
+                }
+            }
+        });
 
         if (getArguments() == null)
             throw new IllegalArgumentException("no arguments");
@@ -224,6 +230,20 @@ public class ViewBookFragment extends Fragment {
                         });
             }
         });
+
+        Button confirmPickUpOrReturnButton =
+                view.findViewById(R.id.confirm_pick_up_or_return_button);
+        confirmPickUpOrReturnButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                IntentIntegrator integrator =
+                        IntentIntegrator.forSupportFragment(ViewBookFragment.this);
+                integrator.setCaptureActivity(ScanActivity.class);
+                integrator.setPrompt(getString(R.string.scan_the_barcode));
+                integrator.setOrientationLocked(false);
+                integrator.initiateScan();
+            }
+        });
         return view;
     }
 
@@ -277,13 +297,7 @@ public class ViewBookFragment extends Fragment {
     }
 
     @Override
-    public void onResume() {
-        super.onResume();
-    }
-
-    @Override
     public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
-        this.menu = menu;
         inflater.inflate(R.menu.view_book_details, menu);
     }
 
@@ -351,29 +365,126 @@ public class ViewBookFragment extends Fragment {
     public void updateRequestControls() {
         view.findViewById(R.id.borrower_book_available).setVisibility(View.GONE);
         view.findViewById(R.id.owner_book_available).setVisibility(View.GONE);
-        view.findViewById(R.id.borrower_book_accepted).setVisibility(View.GONE);
+        view.findViewById(R.id.book_accepted_or_borrowed).setVisibility(View.GONE);
+        view.findViewById(R.id.book_borrowed_by_someone_else).setVisibility(View.GONE);
 
-        if (book.getOwner() == User.getCurrentUser()) {
-            // Viewing as owner of this book
-            if (book.getStatus() == BookStatus.AVAILABLE
-                    || book.getStatus() == BookStatus.REQUESTED) {
+        if (book.getStatus() == BookStatus.AVAILABLE || book.getStatus() == BookStatus.REQUESTED) {
+            if (book.getOwner() == User.getCurrentUser()) {
                 view.findViewById(R.id.owner_book_available).setVisibility(View.VISIBLE);
-            } else if (book.getStatus() == BookStatus.ACCEPTED) {
-                // TODO
-            } else if (book.getStatus() == BookStatus.BORROWED) {
-                // TODO
-            }
-        } else {
-            // Viewing as non-owner of this book
-            if (book.getStatus() == BookStatus.AVAILABLE
-                    || book.getStatus() == BookStatus.REQUESTED) {
+            } else {
                 view.findViewById(R.id.borrower_book_available).setVisibility(View.VISIBLE);
-            } else if (book.getStatus() == BookStatus.ACCEPTED) {
-                if (book.getAcceptedRequester() == User.getCurrentUser()) {
-                    view.findViewById(R.id.borrower_book_accepted).setVisibility(View.VISIBLE);
+            }
+            return;
+        }
+
+        if (book.getStatus() != BookStatus.ACCEPTED && book.getStatus() != BookStatus.BORROWED) {
+            return;
+        }
+
+        // Book is accepted or borrowed
+        if (book.getOwner() == User.getCurrentUser()
+                || book.getAcceptedRequester() == User.getCurrentUser()) {
+            // Viewing as owner or borrower of this book
+            showAcceptedOrBorrowedControls();
+        } else {
+            // Viewing as someone else
+            view.findViewById(R.id.book_borrowed_by_someone_else).setVisibility(View.VISIBLE);
+        }
+    }
+
+    /**
+     * Shows the request controls for the owner or borrower of a book
+     * for when it is accepted or borrowed.
+     */
+    private void showAcceptedOrBorrowedControls() {
+        // Show the book_accepted_or_borrowed layout
+        view.findViewById(R.id.book_accepted_or_borrowed).setVisibility(View.VISIBLE);
+
+        // Set text of confirm button
+        Button confirmPickUpOrReturnButton =
+                view.findViewById(R.id.confirm_pick_up_or_return_button);
+        if (book.getStatus() == BookStatus.ACCEPTED) {
+            confirmPickUpOrReturnButton.setText(R.string.confirm_pick_up);
+        } else if (book.getStatus() == BookStatus.BORROWED) {
+            confirmPickUpOrReturnButton.setText(R.string.confirm_return);
+        }
+
+        // Set text of request_status TextView
+        TextView requestStatus = view.findViewById(R.id.request_status);
+        String requesterUsername = String.valueOf(book.getAcceptedRequesterUsername());
+        String statusString;
+        if (book.getAcceptedRequester() == User.getCurrentUser()) {
+            if (book.getStatus() == BookStatus.ACCEPTED) {
+                requestStatus.setText(R.string.your_request_was_accepted);
+            } else {
+                requestStatus.setText(R.string.you_are_borrowing_this_book);
+            }
+        } else if (book.getOwner() == User.getCurrentUser()) {
+            // Create link to accepted requester in status
+            statusString = getResources().getString(
+                    book.getStatus() == BookStatus.ACCEPTED
+                            ? R.string.you_accepted_a_request
+                            : R.string.your_book_is_borrowed,
+                    requesterUsername);
+            SpannableString ss = new SpannableString(statusString);
+            ClickableSpan requesterSpan = new ClickableSpan() {
+                @Override
+                public void onClick(@NonNull View widget) {
+                    Fragment profileFragment = ViewUserProfileFragment.newInstance(book.getAcceptedRequester().getId());
+                    FragmentTransaction transaction = getParentFragmentManager().beginTransaction();
+                    transaction.setCustomAnimations(
+                            R.anim.slide_in,
+                            R.anim.fade_out,
+                            R.anim.fade_in,
+                            R.anim.slide_out
+                    );
+
+                    transaction.replace(R.id.container, profileFragment);
+                    transaction.addToBackStack(null);
+
+                    transaction.commit();
                 }
-            } else if (book.getStatus() == BookStatus.BORROWED) {
-                // TODO
+            };
+            int startIndex = ss.length() - requesterUsername.length();
+            int endIndex = ss.length();
+            ss.setSpan(requesterSpan, startIndex, endIndex, Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+            ss.setSpan(new StyleSpan(Typeface.BOLD), startIndex, endIndex, Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+            requestStatus.setText(ss);
+            requestStatus.setMovementMethod(LinkMovementMethod.getInstance());
+        }
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
+
+        if (result != null && result.getContents() != null) {
+            String isbn = result.getContents();
+            if (isbn.equals(book.getDescription().getIsbn())) {
+                Task<Void> task;
+                if (book.getOwner() == User.getCurrentUser()) {
+                     task = book.notifyOwnerDidScan();
+                } else {
+                    task = book.notifyBorrowerDidScan();
+                }
+                task.addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Log.d("ViewBookFragment", "scan successful");
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.e("ViewBookFragment", "scan failed", e);
+                    }
+                });
+            } else {
+                Toast.makeText(getContext(),
+                        R.string.isbn_does_not_match,
+                        Toast.LENGTH_LONG)
+                        .show();
             }
         }
     }

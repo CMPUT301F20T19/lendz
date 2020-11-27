@@ -52,7 +52,7 @@ exports.onBookCreate = functions.firestore
         const ownerData = (await ownerRef.get()).data();
 
         // Add ownerUsername to book
-        bookRef.set({
+        snapshot.ref.set({
             ownerUsername: ownerData.username
         }, { merge: true });
 
@@ -85,25 +85,68 @@ exports.onBookUpdate = functions.firestore
         }
         await requestsBatch.commit();
 
-        // Set book status
-        let status = 0; // AVAILABLE
-        if (data.acceptedRequester) {
-            const requesterData = (await data.acceptedRequester.get()).data();
-            for (const bookRef of requesterData.borrowedBooks) {
-                if (bookRef.id === change.after.ref.id) {
-                    status = 2; // BORROWED
-                    break;
+        // Handle scans
+        if (data.ownerScanned === true && data.borrowerScanned === true) {
+            const borrowerData = (await data.acceptedRequester.get()).data();
+            const borrowedBooks = borrowerData.borrowedBooks ? borrowerData.borrowedBooks : [];
+            let newStatus;
+            if (data.status == 3) { // ACCEPTED
+                // Initiate borrow
+                borrowedBooks.push(change.after.ref);
+                change.after.ref.set({
+                    status: 2, // AVAILABLE
+                    ownerScanned: false,
+                    borrowerScanned: false
+                }, { merge: true });
+            } else if (data.status == 2) { // BORROWED
+                // Initiate return
+                newStatus = 0; // AVAILABLE
+                let foundBook = false;
+                for (let i = 0; i < borrowedBooks.length && !foundBook; i++) {
+                    if (change.after.ref.id === borrowedBooks[i].id) {
+                        borrowedBooks.splice(i, 1);
+                        foundBook = true;
+                    }
                 }
+                if (!foundBook) {
+                    functions.logger.error('returning book not found in borrowedBooks');
+                }
+                change.after.ref.set({
+                    status: 0, // AVAILABLE
+                    ownerScanned: false,
+                    borrowerScanned: false,
+                    acceptedRequest: null,
+                    acceptedRequester: null,
+                    acceptedRequesterUsername: null
+                }, { merge: true });
+                data.acceptedRequest.delete();
+            } else {
+                functions.logger.error('unknown status after scan ' + data.status);
             }
-            if (status !== 2) {
-                status = 3; // ACCEPTED
+            data.acceptedRequester.set({
+                borrowedBooks: borrowedBooks
+            }, { merge: true });
+        } else {
+            // Determine the status and set it
+            let status = 0; // AVAILABLE
+            if (data.acceptedRequester) {
+                const requesterData = (await data.acceptedRequester.get()).data();
+                for (const bookRef of requesterData.borrowedBooks) {
+                    if (bookRef.id === change.after.ref.id) {
+                        status = 2; // BORROWED
+                        break;
+                    }
+                }
+                if (status !== 2) {
+                    status = 3; // ACCEPTED
+                }
+            } else if (data.pendingRequests.length > 0) {
+                status = 1; // REQUESTED
             }
-        } else if (data.pendingRequests.length > 0) {
-            status = 1; // REQUESTED
+            change.after.ref.set({
+                status: status
+            }, { merge: true });
         }
-        change.after.ref.set({
-            status: status
-        }, { merge: true });
     });
 
 exports.onBookDelete = functions.firestore
@@ -235,9 +278,13 @@ exports.onRequestUpdate = functions.firestore
                 }
                 pendingRequestsBatch.commit();
 
+                // Get username of accepted requester
+                const requesterData = (await change.after.data().requester.get()).data();
+
                 bookRef.set({
                     acceptedRequest: change.after.ref,
                     acceptedRequester: change.after.data().requester,
+                    acceptedRequesterUsername: requesterData.username,
                     pendingRequests: [],
                     pendingRequesters: []
                 }, { merge: true });
