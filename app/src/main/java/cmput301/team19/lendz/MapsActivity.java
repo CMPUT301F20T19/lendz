@@ -6,23 +6,14 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentActivity;
 
 import android.Manifest;
-import android.content.Context;
 import android.content.Intent;
-import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
-import android.location.Address;
-import android.location.Geocoder;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.View;
-import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
-import android.widget.ImageView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.api.Status;
@@ -45,8 +36,6 @@ import com.google.android.libraries.places.widget.AutocompleteActivity;
 import com.google.android.libraries.places.widget.model.AutocompleteActivityMode;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -62,6 +51,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private FusedLocationProviderClient mFusedLocationProviderClient;
     private Boolean mLocationPermissionsGranted = false;
     private int backToViewBook = 0;
+    private Place place;
+
     //widgets
     private EditText mSearchText;
     private FloatingActionButton mConfirm;
@@ -75,6 +66,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         mConfirm = findViewById(R.id.confirm_location_button);
         mConfirm.hide();
         getLocationPermission();
+        confirmLocation(mConfirm);
 
     }
 
@@ -105,7 +97,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             mMap.setMyLocationEnabled(true);
             mMap.getUiSettings().setMyLocationButtonEnabled(false);
             mMap.getUiSettings().setZoomControlsEnabled(true);
-            //init();
+            //initialize places Api
+            //initMap();
             initPlacesApi();
 
         }
@@ -174,8 +167,13 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                             Log.d(TAG, "onComplete: found location");
                             android.location.Location currentLocation = (android.location.Location) task.getResult();
                             //move the camera of the map to that location
-                            LatLng latLng = new LatLng(currentLocation.getLatitude(),currentLocation.getLongitude());
-                            moveCamera(latLng,DEFAULT_ZOOM,"My Location");
+                            if(currentLocation == null){
+                                Toast.makeText(MapsActivity.this, "no location", Toast.LENGTH_SHORT).show();
+                            }else{
+                                LatLng latLng = new LatLng(currentLocation.getLatitude(),currentLocation.getLongitude());
+                                moveCamera(latLng,DEFAULT_ZOOM,"My Location");
+                            }
+
 
                         }else {
                             Log.d(TAG, "onComplete: current location is null");
@@ -240,11 +238,12 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         if(requestCode == 100 && resultCode == RESULT_OK){
             //when sucess
             //initialize place
-            Place place = Autocomplete.getPlaceFromIntent(data);
+            place = Autocomplete.getPlaceFromIntent(data);
             //set address on EditText
             mSearchText.setText(place.getAddress());
-            setRequestLocation(place);
+            //setRequestLocation(place);
             moveCamera(place.getLatLng(),DEFAULT_ZOOM,"Pick Up location");
+            mConfirm.show();
         }
         else if(resultCode == AutocompleteActivity.RESULT_ERROR){
             Status status = Autocomplete.getStatusFromIntent(data);
@@ -253,11 +252,11 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     /**
-     * this will set the location of the requested book
+     * this will get the location of the requested book
      * @param place
      * this is the desired place the user selects
      */
-    private void setRequestLocation(Place place)
+    private void getRequestLocation(final Place place)
     {
         Intent intent = getIntent();
         String requestId = intent.getStringExtra("requestID");
@@ -291,8 +290,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 @Override
                 public void onSuccess(Void aVoid) {
                     mConfirm.show();
-
-
                 }
             }).addOnFailureListener(new OnFailureListener() {
                 @Override
@@ -303,9 +300,16 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
 
 
+    }
 
+    //go back to main activity
 
-        //go back to main activity
+    /**
+     * this methods sets the location of the requested book
+     * @param mConfirm
+     * this is the button the user clicks to confirm the location searched
+     */
+    private void confirmLocation(final FloatingActionButton mConfirm){
         mConfirm.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -332,11 +336,13 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                 }else{
                     Intent back = new Intent(MapsActivity.this,MainActivity.class);
+                    getRequestLocation(place);
                     startActivity(back);
                 }
 
             }
         });
     }
+
 }
 
