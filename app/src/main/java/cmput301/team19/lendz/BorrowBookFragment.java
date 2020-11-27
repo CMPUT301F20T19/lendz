@@ -233,7 +233,11 @@ public class BorrowBookFragment extends Fragment implements OnBookClickListener{
                 sentRequests.add(sentRequests.size(),book);
                 break;
             case ACCEPTED:
-                acceptedRequests.add(acceptedRequests.size(),book);
+                if (book.getStatus() == BookStatus.ACCEPTED) {
+                    acceptedRequests.add(acceptedRequests.size(), book);
+                } else if (book.getStatus() == BookStatus.BORROWED) {
+                    borrowedBooks.add(book);
+                }
             default:
                 break;
         }
