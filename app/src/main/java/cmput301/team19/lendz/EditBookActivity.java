@@ -35,7 +35,9 @@ import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 import com.squareup.picasso.Picasso;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * Activity where a book object is created/edited and sent to Firestore.
@@ -183,7 +185,7 @@ public class EditBookActivity extends AppCompatActivity implements View.OnClickL
     public void onClick(View v) {
         IntentIntegrator integrator = new IntentIntegrator(this);
         integrator.setCaptureActivity(ScanActivity.class);
-        integrator.setPrompt("Scan a barcode or QR");
+        integrator.setPrompt(getString(R.string.scan_the_barcode));
         integrator.setOrientationLocked(false);
         integrator.initiateScan();
     }
@@ -290,12 +292,14 @@ public class EditBookActivity extends AppCompatActivity implements View.OnClickL
         String author = authorEditText.getText().toString();
         String description = descriptionEditText.getText().toString();
 
-        // Create keywords from title, author, and description
+        // Create keywords from title, author, description, and isbn
         // Splits by whitespace, removes all non-alpha characters
-        String[] keywords = (title + " " + author + " " + description)
+        String[] keywords = (title + " " + author + " " + description + " " + isbn)
                 .toLowerCase()
-                .replaceAll("[^a-zA-Z ]", "")
+                .replaceAll("[^a-zA-Z ]", " ")
                 .split("\\s+");
+        ArrayList<String> keywordsList = new ArrayList<>(Arrays.asList(keywords));
+        keywordsList.add(isbn);
 
         //check if any text field is empty
         if (TextUtils.isEmpty(title)) {
@@ -321,7 +325,7 @@ public class EditBookActivity extends AppCompatActivity implements View.OnClickL
 
         //construct book object
         book.setOwner(User.getCurrentUser());
-        book.setKeywords(Arrays.asList(keywords));
+        book.setKeywords(keywordsList);
         if (shouldDeletePhoto) {
             final StorageReference ref = storageReference.child("BookImages/" + book.getId());
             ref.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
