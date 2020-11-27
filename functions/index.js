@@ -140,7 +140,7 @@ exports.onBookUpdate = functions.firestore
                 if (status !== 2) {
                     status = 3; // ACCEPTED
                 }
-            } else if (data.pendingRequests.length > 0) {
+            } else if (data.pendingRequests && data.pendingRequests.length > 0) {
                 status = 1; // REQUESTED
             }
             change.after.ref.set({
@@ -299,4 +299,16 @@ exports.onRequestUpdate = functions.firestore
                 db.collection('notifications').add(notificationData);
             }
         }
+    });
+
+exports.onRequestDelete = functions.firestore
+    .document('requests/{requestId}')
+    .onDelete(async (snapshot, context) => {
+        // Remove all associated notifications
+        const batch = db.batch();
+        const notifications = await db.collection('notifications').where('request', '==', snapshot.ref).get();
+        for (const notification of notifications.data()) {
+            batch.delete(notification.ref);
+        }
+        batch.commit();
     });
