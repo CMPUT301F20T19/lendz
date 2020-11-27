@@ -152,8 +152,30 @@ exports.onBookUpdate = functions.firestore
 exports.onBookDelete = functions.firestore
     .document('books/{bookId}')
     .onDelete(async (snapshot, context) => {
-        // TODO: Decline pending requests for this book
-        // TODO: Deal with accepted request for this book if it exists
+        if (snapshot.data().status == 2) { // BORROWED
+            // Delete book from borrowedBooks of borrower
+            const borrowerData = (await snapshot.data().acceptedRequester.get()).data();
+            const borrowedBooksData = borrowerData.borrowedBooks ? borrowerData.borrowedBooks : [];
+            let foundBook = false;
+            for (let i = 0; i < borrowedBooksData.length && !foundBook; i++) {
+                if (snapshot.ref.id === borrowedBooksData[i].id) {
+                    foundBook = true;
+                    borrowedBooksData.splice(i, 1);
+                }
+            }
+            if (!foundBook) {
+                functions.logger.error('did not find book in borrowedBooks of borrower');
+            }
+        }
+
+        const requestsBatch = db.batch();
+        for (const requestRef of snapshot.data().pendingRequests) {
+            requestsBatch.delete(requestRef);
+        }
+        if (snapshot.data().acceptedRequest) {
+            requestsBatch.delete(snapshot.data().acceptedRequest);
+        }
+        requestsBatch.commit();
 
         const ownerRef = snapshot.data().owner;
 
