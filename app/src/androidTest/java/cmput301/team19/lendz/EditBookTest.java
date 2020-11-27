@@ -79,7 +79,7 @@ public class EditBookTest {
                 "Me", "You",
                 "45", "54");
 
-        onView(withId(R.id.save_id))
+        onView(withId(R.id.save_book_details))
                 .perform(ViewActions.click());
         Thread.sleep(2000);
 
@@ -106,7 +106,7 @@ public class EditBookTest {
                 "hello there",
                 "Me",
                 "45");
-        onView(withId(R.id.save_id))
+        onView(withId(R.id.save_book_details))
                 .perform(ViewActions.click());
         Thread.sleep(2000);
 
