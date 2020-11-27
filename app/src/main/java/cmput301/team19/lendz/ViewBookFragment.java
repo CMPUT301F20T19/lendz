@@ -477,7 +477,7 @@ public class ViewBookFragment extends Fragment {
                 });
             } else {
                 Toast.makeText(getContext(),
-                        R.string.isbn_does_not_match,
+                        getString(R.string.isbn_does_not_match, isbn),
                         Toast.LENGTH_LONG)
                         .show();
             }
