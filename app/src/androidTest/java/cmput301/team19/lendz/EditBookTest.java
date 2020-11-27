@@ -53,6 +53,7 @@ public class EditBookTest {
      */
     @Test
     public void editBook() throws Exception {
+        Thread.sleep(2000);
         onView(withId(R.id.my_books))
                 .perform(ViewActions.click());
 
@@ -60,7 +61,7 @@ public class EditBookTest {
 
         onView(withId(R.id.myBooksFrag_recyclerView)).
                 perform(RecyclerViewActions.actionOnItemAtPosition(0, click()));
-        Thread.sleep(5000);
+        Thread.sleep(2000);
 
         // checks if the correct views for the book exist
         check_if_ViewBook();
@@ -85,15 +86,11 @@ public class EditBookTest {
         Thread.sleep(2000);
 
         Espresso.pressBack();
-        Thread.sleep(3000);
-
-        onView(withId(R.id.my_books))
-                .perform(ViewActions.click());
-        Thread.sleep(3000);
+        Thread.sleep(2000);
 
         onView(withId(R.id.myBooksFrag_recyclerView)).
                 perform(RecyclerViewActions.actionOnItemAtPosition(0, click()));
-        Thread.sleep(3000);
+        Thread.sleep(2000);
 
 
         // checks if the correct views for the book exist
@@ -107,17 +104,14 @@ public class EditBookTest {
                 "Hello there",
                 "Me",
                 "45");
-        Thread.sleep(10000);
+        Thread.sleep(2000);
         onView(withId(R.id.save_book_details))
                 .perform(click());
 
-//        Thread.sleep(10000);
-//
-//        Espresso.pressBack();
-//        Thread.sleep(2000);
-//        onView(withId(R.id.my_books))
-//                .perform(ViewActions.click());
-//        Thread.sleep(3000);
+        Thread.sleep(2000);
+
+        Espresso.pressBack();
+        Thread.sleep(5000);
 
 
     }
