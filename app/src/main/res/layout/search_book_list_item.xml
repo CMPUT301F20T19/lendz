@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="10dp"
@@ -18,24 +19,33 @@
         android:padding="20dp">
 
         <TextView
-            android:id="@+id/username"
+            android:id="@+id/search_item_book_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="19sp"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            tools:text="Book Title" />
 
         <TextView
-            android:id="@+id/book_status"
+            android:id="@+id/search_item_book_author"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            tools:text="Book Author" />
+
+        <TextView
+            android:id="@+id/search_item_owner_username"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="18sp"
-            android:textStyle="italic" />
+            tools:text="Owned by ownerusername" />
 
         <TextView
-            android:id="@+id/book_description"
+            android:id="@+id/search_item_book_status"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="15sp" />
+            android:textSize="18sp"
+            android:textStyle="italic"
+            tools:text="Status" />
 
     </LinearLayout>
 
