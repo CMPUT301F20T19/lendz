@@ -183,7 +183,7 @@ public class EditBookActivity extends AppCompatActivity implements View.OnClickL
     public void onClick(View v) {
         IntentIntegrator integrator = new IntentIntegrator(this);
         integrator.setCaptureActivity(ScanActivity.class);
-        integrator.setPrompt("Scan a barcode or QR");
+        integrator.setPrompt(getString(R.string.scan_the_barcode));
         integrator.setOrientationLocked(false);
         integrator.initiateScan();
     }
@@ -290,11 +290,11 @@ public class EditBookActivity extends AppCompatActivity implements View.OnClickL
         String author = authorEditText.getText().toString();
         String description = descriptionEditText.getText().toString();
 
-        // Create keywords from title, author, and description
+        // Create keywords from title, author, description, and isbn
         // Splits by whitespace, removes all non-alpha characters
-        String[] keywords = (title + " " + author + " " + description)
+        String[] keywords = (title + " " + author + " " + description + " " + isbn)
                 .toLowerCase()
-                .replaceAll("[^a-zA-Z ]", "")
+                .replaceAll("[^a-zA-Z ]", " ")
                 .split("\\s+");
 
         //check if any text field is empty
