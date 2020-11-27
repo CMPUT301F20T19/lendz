@@ -30,6 +30,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * Activity that allows the user to search for books based on keywords
@@ -122,7 +123,7 @@ public class SearchBooksFragment extends Fragment implements OnBookClickListener
 
         // Query matching books
         booksRef.whereIn("status", Arrays.asList(0, 1))
-                .whereArrayContains("keywords", query.toLowerCase())
+                .whereArrayContains("keywords", query.toLowerCase().trim())
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
