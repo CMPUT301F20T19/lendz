@@ -367,12 +367,22 @@ public class ViewBookFragment extends Fragment {
         view.findViewById(R.id.owner_book_available).setVisibility(View.GONE);
         view.findViewById(R.id.book_accepted_or_borrowed).setVisibility(View.GONE);
         view.findViewById(R.id.book_borrowed_by_someone_else).setVisibility(View.GONE);
+        view.findViewById(R.id.request_button).setEnabled(true);
 
         if (book.getStatus() == BookStatus.AVAILABLE || book.getStatus() == BookStatus.REQUESTED) {
             if (book.getOwner() == User.getCurrentUser()) {
                 view.findViewById(R.id.owner_book_available).setVisibility(View.VISIBLE);
             } else {
                 view.findViewById(R.id.borrower_book_available).setVisibility(View.VISIBLE);
+                for (User requester : book.getPendingRequesters()) {
+                    if (requester == User.getCurrentUser()) {
+                        // Current user has a pending request for this book
+                        view.findViewById(R.id.pending_request_exists_textview)
+                                .setVisibility(View.VISIBLE);
+                        view.findViewById(R.id.request_button).setEnabled(false);
+                        break;
+                    }
+                }
             }
             return;
         }
@@ -407,6 +417,13 @@ public class ViewBookFragment extends Fragment {
             confirmPickUpOrReturnButton.setText(R.string.confirm_pick_up);
         } else if (book.getStatus() == BookStatus.BORROWED) {
             confirmPickUpOrReturnButton.setText(R.string.confirm_return);
+        }
+
+        // Set enabled state of confirm button
+        if (book.getAcceptedRequester() == User.getCurrentUser()) {
+            confirmPickUpOrReturnButton.setEnabled(!book.isBorrowerScanned());
+        } else if (book.getOwner() == User.getCurrentUser()) {
+            confirmPickUpOrReturnButton.setEnabled(!book.isOwnerScanned());
         }
 
         // Set text of request_status TextView

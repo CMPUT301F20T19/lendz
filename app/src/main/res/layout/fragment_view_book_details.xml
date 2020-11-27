@@ -125,7 +125,6 @@
 
         <include
             layout="@layout/borrower_book_available"
-            android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -133,7 +132,6 @@
 
         <include
             layout="@layout/owner_book_available"
-            android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -141,7 +139,6 @@
 
         <include
             layout="@layout/book_accepted_or_borrowed"
-            android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -150,8 +147,7 @@
         <include
             layout="@layout/book_borrowed_by_someone_else"
             tools:layout_editor_absoluteX="16dp"
-            tools:layout_editor_absoluteY="571dp"
-            tools:visibility="gone" />
+            tools:layout_editor_absoluteY="571dp" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
