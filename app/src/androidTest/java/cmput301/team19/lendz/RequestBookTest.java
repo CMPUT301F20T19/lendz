@@ -1,22 +1,18 @@
 package cmput301.team19.lendz;
 
+import androidx.test.espresso.NoMatchingViewException;
 import androidx.test.espresso.action.ViewActions;
+import androidx.test.espresso.contrib.RecyclerViewActions;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.LargeTest;
 
 import com.google.firebase.auth.FirebaseAuth;
 
-import junit.framework.TestCase;
-
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
 
-import static androidx.test.espresso.Espresso.closeSoftKeyboard;
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.clearText;
 import static androidx.test.espresso.action.ViewActions.click;
@@ -24,24 +20,17 @@ import static androidx.test.espresso.action.ViewActions.typeText;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
+import static androidx.test.espresso.matcher.ViewMatchers.withText;
 
-@LargeTest
 @RunWith(AndroidJUnit4.class)
-public class SearchBooksFragmentTest extends TestCase {
-
-    private String QUERY_STRING = "wwww";
-
+public class RequestBookTest {
+    private String QUERY_STRING = "Expresso";
     @Rule
-    public ActivityScenarioRule<LoginActivity> activityRule
-            = new ActivityScenarioRule<>(LoginActivity.class);
+    public ActivityScenarioRule<LoginActivity> rule =
+            new ActivityScenarioRule<>(LoginActivity.class);
 
-    /**
-     * Makes sure that every test begins with an up-to date sign in
-     * any test are run
-     * @throws Exception
-     */
     @Before
-    public void startSearchActivity() throws Exception {
+    public void logUserIn() throws Exception {
         // Ensure started logged out
         FirebaseAuth.getInstance().signOut();
 
@@ -52,7 +41,6 @@ public class SearchBooksFragmentTest extends TestCase {
         onView(withId(R.id.editText_login_password))
                 .perform(clearText())
                 .perform(typeText("123456"), ViewActions.closeSoftKeyboard());
-
         onView(withId(R.id.login_button))
                 .perform(click());
         Thread.sleep(3000);
@@ -62,14 +50,35 @@ public class SearchBooksFragmentTest extends TestCase {
     /**
      * Begins the activity for the search
      * Makes a search and awaits the results
+     *
      */
     @Test
-    public void beginSearch() throws InterruptedException {
+    public void RequestBook() throws InterruptedException {
+        //Begins the activity for the search
+        //Makes a search and awaits the results
         onView(withId(R.id.search_item)).perform(click());
         Thread.sleep(2000);
         onView(withId(R.id.search_edit)).perform(typeText(QUERY_STRING),ViewActions.closeSoftKeyboard());
         Thread.sleep(2000);
         onView(withId(R.id.search_button)).perform(click());
+        Thread.sleep(2000);
+        onView(withId(R.id.search_recyclerview)).
+                perform(RecyclerViewActions.actionOnItemAtPosition(0, click()));
+        Thread.sleep(2000);
+        //check if request button is in view
+        try {
+            onView(withId(R.id.request_button)).perform(click());
+            //check if dialog box appears
+            Thread.sleep(2000);
+            onView(withText("Request Sent")).check(matches(isDisplayed()));
+            Thread.sleep(2000);
+            onView(withId(android.R.id.button1)).perform(click());
+            Thread.sleep(2000);
+
+        }catch (NoMatchingViewException ignore) {
+            //no matching view exception
+        }
     }
+
 
 }

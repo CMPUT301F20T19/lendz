@@ -1,0 +1,160 @@
+Index: app/src/main/java/cmput301/team19/lendz/MapsActivity.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package cmput301.team19.lendz;\n\nimport androidx.annotation.NonNull;\nimport androidx.annotation.Nullable;\nimport androidx.appcompat.app.AppCompatActivity;\nimport androidx.core.app.ActivityCompat;\nimport androidx.core.content.ContextCompat;\nimport androidx.fragment.app.Fragment;\nimport androidx.fragment.app.FragmentActivity;\n\nimport android.Manifest;\nimport android.content.Context;\nimport android.content.Intent;\nimport android.content.pm.ActivityInfo;\nimport android.content.pm.PackageManager;\nimport android.location.Address;\nimport android.location.Geocoder;\nimport android.os.Bundle;\nimport android.util.Log;\nimport android.view.KeyEvent;\nimport android.view.View;\nimport android.view.inputmethod.EditorInfo;\nimport android.widget.EditText;\nimport android.widget.ImageView;\nimport android.widget.TextView;\nimport android.widget.Toast;\n\nimport com.google.android.gms.common.api.Status;\nimport com.google.android.gms.location.FusedLocationProviderClient;\nimport com.google.android.gms.location.LocationServices;\nimport com.google.android.gms.maps.CameraUpdateFactory;\nimport com.google.android.gms.maps.GoogleMap;\nimport com.google.android.gms.maps.OnMapReadyCallback;\nimport com.google.android.gms.maps.SupportMapFragment;\nimport com.google.android.gms.maps.model.LatLng;\nimport com.google.android.gms.maps.model.MarkerOptions;\nimport com.google.android.gms.tasks.OnCompleteListener;\nimport com.google.android.gms.tasks.OnFailureListener;\nimport com.google.android.gms.tasks.OnSuccessListener;\nimport com.google.android.gms.tasks.Task;\nimport com.google.android.libraries.places.api.Places;\nimport com.google.android.libraries.places.api.model.Place;\nimport com.google.android.libraries.places.widget.Autocomplete;\nimport com.google.android.libraries.places.widget.AutocompleteActivity;\nimport com.google.android.libraries.places.widget.model.AutocompleteActivityMode;\nimport com.google.android.material.floatingactionbutton.FloatingActionButton;\n\nimport java.io.IOException;\nimport java.util.ArrayList;\nimport java.util.Arrays;\nimport java.util.List;\n\n\npublic class MapsActivity extends AppCompatActivity implements OnMapReadyCallback {\n\n    private GoogleMap mMap;\n    private static final String TAG = \"MapsActivity\";\n    private static final String FINE_LOCATION = Manifest.permission.ACCESS_FINE_LOCATION;\n    private static final String COARSE_LOCATION = Manifest.permission.ACCESS_COARSE_LOCATION;\n    private static final int LOCATION_PERMISSION_REQUEST_CODE = 1234;\n    private static final float DEFAULT_ZOOM = 15;\n    private FusedLocationProviderClient mFusedLocationProviderClient;\n    private Boolean mLocationPermissionsGranted = false;\n    private int backToViewBook = 0;\n    //widgets\n    private EditText mSearchText;\n    private FloatingActionButton mConfirm;\n\n    @Override\n    protected void onCreate(Bundle savedInstanceState) {\n        super.onCreate(savedInstanceState);\n        setContentView(R.layout.activity_maps);\n        mSearchText = findViewById(R.id.input_search);\n        //mGps =  findViewById(R.id.ic_gps);\n        mConfirm = findViewById(R.id.confirm_location_button);\n        mConfirm.hide();\n        getLocationPermission();\n\n    }\n\n    /**\n     * this method initialises the map\n     */\n    private void initMap() {\n        Log.d(TAG, \"initMap: initializing map\");\n        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()\n                .findFragmentById(R.id.map);\n        mapFragment.getMapAsync(MapsActivity.this);\n    }\n\n    @Override\n    public void onMapReady(GoogleMap googleMap) {\n        Toast.makeText(MapsActivity.this, \"Map is ready\", Toast.LENGTH_SHORT).show();\n        Log.d(\"onMapReady\", \"map is ready\");\n        mMap = googleMap;\n\n        if (mLocationPermissionsGranted) {\n            getDeviceLocation();\n\n            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) !=\n                    PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)\n                    != PackageManager.PERMISSION_GRANTED) {\n                return;\n            }\n            mMap.setMyLocationEnabled(true);\n            mMap.getUiSettings().setMyLocationButtonEnabled(false);\n            mMap.getUiSettings().setZoomControlsEnabled(true);\n            //init();\n            initPlacesApi();\n\n        }\n    }\n\n    @Override\n    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults)\n    {\n        Log.d(TAG, \"onRequestPermissionsResult: called\");\n        mLocationPermissionsGranted = false;\n\n        switch (requestCode){\n            case LOCATION_PERMISSION_REQUEST_CODE:{\n                if(grantResults.length > 0){\n                    for (int i = 0;i< grantResults.length;i++){\n                        if(grantResults[i] != PackageManager.PERMISSION_GRANTED){\n                            mLocationPermissionsGranted = false;\n                            Log.d(TAG, \"onRequestPermissionsResult: permission failed\");\n                            return;\n                        }\n                    }\n                    Log.d(TAG, \"onRequestPermissionsResult: permission granted\");\n                    mLocationPermissionsGranted = true;\n                    //initialize the map\n                    initMap();\n                }\n            }\n        }\n    }\n\n    /**\n     * this method gets all the permisions need to for the map to run smoothly\n     */\n    private void getLocationPermission()\n    {\n        Log.d(TAG, \"getLocationPermission: getting location permissions\");\n        String[] permissions = {Manifest.permission.ACCESS_FINE_LOCATION,Manifest.permission.ACCESS_COARSE_LOCATION};\n        if(ContextCompat.checkSelfPermission(this.getApplicationContext(),FINE_LOCATION) == PackageManager.PERMISSION_GRANTED){\n            if(ContextCompat.checkSelfPermission(this.getApplicationContext(),COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED){\n                mLocationPermissionsGranted = true;\n                initMap();\n            }\n            else{\n                ActivityCompat.requestPermissions(this,permissions,LOCATION_PERMISSION_REQUEST_CODE);\n            }\n        }\n        else{\n            ActivityCompat.requestPermissions(this,permissions,LOCATION_PERMISSION_REQUEST_CODE);\n        }\n    }\n\n    /**\n     * this method gets the device current location \n     */\n    private void getDeviceLocation(){\n        Log.d(TAG, \"getDeviceLocation: getting the current device's location\");\n        mFusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);\n        try{\n            if(mLocationPermissionsGranted){\n                Task location = mFusedLocationProviderClient.getLastLocation();\n                location.addOnCompleteListener(new OnCompleteListener() {\n                    @Override\n                    public void onComplete(@NonNull Task task) {\n                        if (task.isSuccessful()) // if location is gotten succefully\n                        {\n                            Log.d(TAG, \"onComplete: found location\");\n                            android.location.Location currentLocation = (android.location.Location) task.getResult();\n                            //move the camera of the map to that location\n                            LatLng latLng = new LatLng(currentLocation.getLatitude(),currentLocation.getLongitude());\n                            moveCamera(latLng,DEFAULT_ZOOM,\"My Location\");\n\n                        }else {\n                            Log.d(TAG, \"onComplete: current location is null\");\n                            Toast.makeText(MapsActivity.this, \"Unable to get devices loaction\", Toast.LENGTH_SHORT).show();\n                        }\n\n                    }\n                });\n            }\n        }catch ( SecurityException e){\n            Log.e(TAG, \"getDeviceLocation: SecurityException\" + e.getMessage() );\n        }\n        \n    }\n\n    /**\n     *this method moves the camera of the map to desired location (also puts the pin on the map )\n     * @param latLng\n     * this is the longitude and latitude of the desired  location\n     * @param zoom\n     * gives us the ability to zoom\n     */\n    private void moveCamera(LatLng latLng,float zoom, String title){\n        Log.d(TAG, \"moveCamera: moving camera to current location\");\n\n        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng,zoom));\n\n        //setting the marker on the map\n        MarkerOptions options =  new MarkerOptions()\n                .position(latLng)\n                .title(title);\n        mMap.addMarker(options);\n\n    }\n\n    /**\n     * initialise places API\n     */\n    private void initPlacesApi()\n    {\n        Places.initialize(getApplicationContext(),\"AIzaSyDdULVvHA9tOu8OKbdSPuavcKXjFJ6pGr0\");\n        mSearchText.setFocusable(false);\n        mSearchText.setOnClickListener(new View.OnClickListener() {\n            @Override\n            public void onClick(View v) {\n                //Initialize place field list\n                List<Place.Field> fieldList = Arrays.asList(Place.Field.ADDRESS,Place.Field.LAT_LNG,Place.Field.NAME);\n                //Create intent\n                Intent intent = new Autocomplete.IntentBuilder(AutocompleteActivityMode.OVERLAY,fieldList)\n                        .build(MapsActivity.this);\n                //start activity for result\n                startActivityForResult(intent,100);\n\n            }\n        });\n    }\n\n    @Override\n    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data)\n    {\n        super.onActivityResult(requestCode, resultCode, data);\n        if(requestCode == 100 && resultCode == RESULT_OK){\n            //when sucess\n            //initialize place\n            Place place = Autocomplete.getPlaceFromIntent(data);\n            //set address on EditText\n            mSearchText.setText(place.getAddress());\n            setRequestLocation(place);\n            moveCamera(place.getLatLng(),DEFAULT_ZOOM,\"Pick Up location\");\n        }\n        else if(resultCode == AutocompleteActivity.RESULT_ERROR){\n            Status status = Autocomplete.getStatusFromIntent(data);\n            Toast.makeText(this,status.getStatusMessage(), Toast.LENGTH_SHORT).show();\n        }\n    }\n\n    /**\n     * this will set the location of the requested book\n     * @param place\n     * this is the desired place the user selects\n     */\n    private void setRequestLocation(Place place)\n    {\n        Intent intent = getIntent();\n        String requestId = intent.getStringExtra(\"requestID\");\n        final String bookID = intent.getStringExtra(\"bookID\");\n        String requesterId = intent.getStringExtra(\"requesterID\");\n\n        Request request = Request.getOrCreate(requestId);\n        Book book  = Book.getOrCreate(bookID);\n        User user = User.getOrCreate(requesterId);\n        request.setRequester(user);\n        request.setBook(book);\n\n\n//        get longitude and latitude\n        LatLng destinationLatLng = place.getLatLng();\n        assert destinationLatLng != null;\n        double longitude = destinationLatLng.longitude;\n        double latitude = destinationLatLng.latitude;\n        Log.e(TAG, \"setRequestLocation: \" + longitude+ \" \"+ latitude);\n        Location location = new Location(place.getAddress(),latitude,longitude);\n\n        //check if intent has borrow value\n        if(intent.hasExtra(\"borrow\")){\n            mConfirm.show();\n            backToViewBook = 1;\n        }else{\n            request.setLocation(location);\n            //store in firebase\n            request.setStatus(RequestStatus.ACCEPTED);\n            request.store().addOnSuccessListener(new OnSuccessListener<Void>() {\n                @Override\n                public void onSuccess(Void aVoid) {\n                    mConfirm.show();\n\n\n                }\n            }).addOnFailureListener(new OnFailureListener() {\n                @Override\n                public void onFailure(@NonNull Exception e) {\n                    Toast.makeText(MapsActivity.this,\"Could not accept request\",Toast.LENGTH_SHORT).show();\n                }\n            });\n        }\n\n\n\n\n        //go back to main activity\n        mConfirm.setOnClickListener(new View.OnClickListener() {\n            @Override\n            public void onClick(View v) {\n                Intent intent = getIntent();\n                if(backToViewBook == 1){\n                    if(intent.hasExtra(\"bookId\")){\n                        String bid = intent.getStringExtra(\"bookId\");\n                        //hide searchbar here\n                        //hide check btn here\n                        findViewById(R.id.relLayout1).setVisibility(View.GONE);\n                        mConfirm.setVisibility(View.INVISIBLE);\n\n\n                        //open fragment\n                        Fragment fragment = ViewBookFragment.newInstance(bid);\n\n                        Bundle bundle = new Bundle();\n                        bundle.putInt(\"locationSet\",1);\n                        fragment.setArguments(bundle);\n                        getSupportFragmentManager().beginTransaction().add(R.id.mapLayout, fragment)\n                                .commit();\n\n                    }\n\n                }else{\n                    Intent back = new Intent(MapsActivity.this,MainActivity.class);\n                    startActivity(back);\n                }\n\n            }\n        });\n    }\n}\n\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/java/cmput301/team19/lendz/MapsActivity.java	(revision 222760a101c22d7395ccaf2f5cf310194ec5815a)
++++ app/src/main/java/cmput301/team19/lendz/MapsActivity.java	(date 1606373923000)
+@@ -6,23 +6,14 @@
+ import androidx.core.app.ActivityCompat;
+ import androidx.core.content.ContextCompat;
+ import androidx.fragment.app.Fragment;
+-import androidx.fragment.app.FragmentActivity;
+ 
+ import android.Manifest;
+-import android.content.Context;
+ import android.content.Intent;
+-import android.content.pm.ActivityInfo;
+ import android.content.pm.PackageManager;
+-import android.location.Address;
+-import android.location.Geocoder;
+ import android.os.Bundle;
+ import android.util.Log;
+-import android.view.KeyEvent;
+ import android.view.View;
+-import android.view.inputmethod.EditorInfo;
+ import android.widget.EditText;
+-import android.widget.ImageView;
+-import android.widget.TextView;
+ import android.widget.Toast;
+ 
+ import com.google.android.gms.common.api.Status;
+@@ -45,8 +36,6 @@
+ import com.google.android.libraries.places.widget.model.AutocompleteActivityMode;
+ import com.google.android.material.floatingactionbutton.FloatingActionButton;
+ 
+-import java.io.IOException;
+-import java.util.ArrayList;
+ import java.util.Arrays;
+ import java.util.List;
+ 
+@@ -62,6 +51,8 @@
+     private FusedLocationProviderClient mFusedLocationProviderClient;
+     private Boolean mLocationPermissionsGranted = false;
+     private int backToViewBook = 0;
++    private Place place;
++
+     //widgets
+     private EditText mSearchText;
+     private FloatingActionButton mConfirm;
+@@ -75,6 +66,7 @@
+         mConfirm = findViewById(R.id.confirm_location_button);
+         mConfirm.hide();
+         getLocationPermission();
++        confirmLocation(mConfirm);
+ 
+     }
+ 
+@@ -105,7 +97,7 @@
+             mMap.setMyLocationEnabled(true);
+             mMap.getUiSettings().setMyLocationButtonEnabled(false);
+             mMap.getUiSettings().setZoomControlsEnabled(true);
+-            //init();
++            //initialize places Api
+             initPlacesApi();
+ 
+         }
+@@ -240,10 +232,10 @@
+         if(requestCode == 100 && resultCode == RESULT_OK){
+             //when sucess
+             //initialize place
+-            Place place = Autocomplete.getPlaceFromIntent(data);
++            place = Autocomplete.getPlaceFromIntent(data);
+             //set address on EditText
+             mSearchText.setText(place.getAddress());
+-            setRequestLocation(place);
++            //setRequestLocation(place);
+             moveCamera(place.getLatLng(),DEFAULT_ZOOM,"Pick Up location");
+         }
+         else if(resultCode == AutocompleteActivity.RESULT_ERROR){
+@@ -253,11 +245,11 @@
+     }
+ 
+     /**
+-     * this will set the location of the requested book
++     * this will get the location of the requested book
+      * @param place
+      * this is the desired place the user selects
+      */
+-    private void setRequestLocation(Place place)
++    private void getRequestLocation(final Place place)
+     {
+         Intent intent = getIntent();
+         String requestId = intent.getStringExtra("requestID");
+@@ -303,9 +295,16 @@
+         }
+ 
+ 
+-
++    }
+ 
+-        //go back to main activity
++    //go back to main activity
++
++    /**
++     * this methods sets the location of the requested book
++     * @param mConfirm
++     * this is the button the user clicks to confirm the location searched
++     */
++    private void confirmLocation(final FloatingActionButton mConfirm){
+         mConfirm.setOnClickListener(new View.OnClickListener() {
+             @Override
+             public void onClick(View v) {
+@@ -332,11 +331,13 @@
+ 
+                 }else{
+                     Intent back = new Intent(MapsActivity.this,MainActivity.class);
++                    getRequestLocation(place);
+                     startActivity(back);
+                 }
+ 
+             }
+         });
+     }
++
+ }
+ 
+Index: .github/workflows/android_build.yml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- .github/workflows/android_build.yml	(date 1606372317000)
++++ .github/workflows/android_build.yml	(date 1606372317000)
+@@ -0,0 +1,24 @@
++name : Android Build
++
++on: push
++
++
++
++jobs:
++  build:
++
++    runs-on: ubuntu-latest
++
++    steps:
++      - uses: actions/checkout@v1
++
++      - name: Set Up JDK
++        uses: actions/setup-java@v1
++        with:
++          java-version: 1.8
++
++      - name: Run Tests
++        run: ./gradlew test
++
++      - name: Build Project
++        run: ./gradlew assemble

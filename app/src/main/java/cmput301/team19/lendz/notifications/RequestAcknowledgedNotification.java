@@ -62,6 +62,10 @@ public class RequestAcknowledgedNotification extends Notification {
                     .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                 @Override
                 public void onSuccess(DocumentSnapshot documentSnapshot) {
+                    if (documentSnapshot == null) {
+                        return;
+                    }
+
                     notification.request.load(documentSnapshot);
 
                     String ownerUsername = notification.request.getOwnerUsername();
