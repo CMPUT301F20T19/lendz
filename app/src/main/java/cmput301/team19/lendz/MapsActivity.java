@@ -225,6 +225,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 //Initialize place field list
                 List<Place.Field> fieldList = Arrays.asList(Place.Field.ADDRESS,Place.Field.LAT_LNG,Place.Field.NAME);
                 //Create intent
+
                 Intent intent = new Autocomplete.IntentBuilder(AutocompleteActivityMode.OVERLAY,fieldList)
                         .build(MapsActivity.this);
                 //start activity for result
