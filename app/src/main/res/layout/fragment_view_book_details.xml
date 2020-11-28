@@ -14,9 +14,10 @@
             android:id="@+id/bookImage"
             android:layout_width="0dp"
             android:layout_height="220dp"
-            android:contentDescription="@string/ViewBookDetailsImage"
+            android:contentDescription="@string/book_photo"
             app:layout_constraintBottom_toTopOf="@+id/bookViewTitle"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             tools:srcCompat="@tools:sample/avatars" />
@@ -26,7 +27,6 @@
             android:layout_width="0dp"
             android:layout_height="37dp"
             android:layout_marginTop="8dp"
-            android:text="@string/viewbookdetailstitle"
             android:textAllCaps="true"
             android:textAppearance="@style/TextAppearance.AppCompat.Large"
             android:textStyle="bold"
@@ -34,19 +34,20 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/bookImage" />
+            app:layout_constraintTop_toBottomOf="@+id/bookImage"
+            tools:text="Book Title" />
 
         <TextView
             android:id="@+id/bookViewStatus"
             android:layout_width="0dp"
             android:layout_height="20dp"
-            android:text="@string/ViewBookDetailsStatus"
             android:textStyle="italic"
             app:layout_constraintBottom_toTopOf="@+id/bookViewDescription"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.045"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/bookViewTitle" />
+            app:layout_constraintTop_toBottomOf="@+id/bookViewTitle"
+            tools:text="Status" />
 
         <TextView
             android:id="@+id/bookViewDescription"
@@ -124,7 +125,6 @@
 
         <include
             layout="@layout/borrower_book_available"
-            android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -132,19 +132,22 @@
 
         <include
             layout="@layout/owner_book_available"
-            android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/owner_button" />
 
         <include
-            layout="@layout/waiting_for_pick_up"
-            android:visibility="gone"
+            layout="@layout/book_accepted_or_borrowed"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/owner_button" />
+
+        <include
+            layout="@layout/book_borrowed_by_someone_else"
+            tools:layout_editor_absoluteX="16dp"
+            tools:layout_editor_absoluteY="571dp" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

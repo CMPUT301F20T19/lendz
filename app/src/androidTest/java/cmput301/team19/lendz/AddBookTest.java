@@ -45,11 +45,11 @@ public class AddBookTest {
     }
 
     /**
-     * Tests the sequencial order in successfully navigating to the addBook activity.
+     * Tests the sequential order in successfully navigating to the addBook activity.
      * @throws Exception
      */
     @Test
-    public void  Nagivate_To_Add_Book_Activity() throws Exception {
+    public void  Navigate_To_Add_Book_Activity() throws Exception {
         onView(withId(R.id.my_books))
                 .perform(ViewActions.click());
 
@@ -78,11 +78,9 @@ public class AddBookTest {
         onView(withId(R.id.isbn_edittext)).check(matches(isDisplayed()));
         onView(withId(R.id.scan_button)).check(matches(isDisplayed()));
         onView(withId(R.id.author_edittext)).check(matches(isDisplayed()));
-        onView(withId(R.id.textView5)).check(matches(isDisplayed()));
         onView(withId(R.id.description_edittext)).check(matches(isDisplayed()));
-        onView(withId(R.id.addImg)).check(matches(isDisplayed()));
-        onView(withId(R.id.save_id)).check(matches(isDisplayed()));
-        onView(withId(R.id.delete_photo_imagebutton)).check(matches(isDisplayed()));
+        onView(withId(R.id.tap_to_add_photo_textview)).check(matches(isDisplayed()));
+        onView(withId(R.id.save_book_details)).check(matches(isDisplayed()));
     }
 
 
@@ -104,7 +102,7 @@ public class AddBookTest {
         onView(withId(R.id.description_edittext))
                 .perform(clearText())
                 .perform(typeText("Expresso Description"), ViewActions.closeSoftKeyboard());
-        onView(withId(R.id.save_id))
+        onView(withId(R.id.save_book_details))
                 .perform(ViewActions.click());
 
     }
