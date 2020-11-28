@@ -88,6 +88,10 @@ public class Book {
      * @param doc DocumentSnapshot to load from
      */
     public void load(@NonNull DocumentSnapshot doc) {
+        if (!doc.exists()) {
+            return;
+        }
+
         loaded = true;
 
         // Load BookDescription

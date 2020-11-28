@@ -147,6 +147,11 @@ public class ViewBookFragment extends Fragment {
             @Override
             public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
                 if (value != null && error == null) {
+                    if (!value.exists()) {
+                        // Book was deleted
+                        getParentFragmentManager().popBackStack();
+                    }
+
                     book.load(value);
                     updateBookDetails();
                 } else {
@@ -301,21 +306,7 @@ public class ViewBookFragment extends Fragment {
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
             case R.id.deleteBook:
-                book.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        bookTitleTextView.setText(null);
-                        bookStatusTextView.setText(null);
-                        bookDescriptionTextView.setText(null);
-                        bookAuthorTextView.setText(null);
-                        bookISBNTextView.setText(null);
-                        ownerButton.setText(null);
-                        ownerButton.setOnClickListener(null);
-                        book.setPhoto(null);
-                        Picasso.get().load(book.getPhoto()).into(bookImage);
-                        getParentFragmentManager().popBackStack();
-                    }
-                }).addOnFailureListener(new OnFailureListener() {
+                book.delete().addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
                         Toast.makeText(getContext(),
