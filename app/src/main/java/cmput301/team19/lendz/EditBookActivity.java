@@ -294,7 +294,7 @@ public class EditBookActivity extends AppCompatActivity implements View.OnClickL
 
         // Create keywords from title, author, description, and isbn
         // Splits by whitespace, removes all non-alpha characters
-        String[] keywords = (title + " " + author + " " + description)
+        String[] keywords = (title + " " + author + " " + description + " " + isbn)
                 .toLowerCase()
                 .replaceAll("[^a-zA-Z ]", " ")
                 .split("\\s+");

@@ -1,0 +1,103 @@
+package cmput301.team19.lendz;
+
+import androidx.test.espresso.Espresso;
+import androidx.test.espresso.NoMatchingViewException;
+import androidx.test.espresso.action.ViewActions;
+import androidx.test.espresso.contrib.ActivityResultMatchers;
+import androidx.test.espresso.contrib.RecyclerViewActions;
+import androidx.test.espresso.matcher.ViewMatchers;
+import androidx.test.ext.junit.rules.ActivityScenarioRule;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.rule.ActivityTestRule;
+
+import com.google.firebase.auth.FirebaseAuth;
+
+import org.hamcrest.Matchers;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
+import static android.service.autofill.Validators.not;
+import static androidx.test.espresso.Espresso.onData;
+import static androidx.test.espresso.Espresso.onView;
+import static androidx.test.espresso.action.ViewActions.clearText;
+import static androidx.test.espresso.action.ViewActions.click;
+import static androidx.test.espresso.action.ViewActions.typeText;
+import static androidx.test.espresso.assertion.ViewAssertions.matches;
+import static androidx.test.espresso.matcher.RootMatchers.withDecorView;
+import static androidx.test.espresso.matcher.ViewMatchers.hasDescendant;
+import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
+import static androidx.test.espresso.matcher.ViewMatchers.withContentDescription;
+import static androidx.test.espresso.matcher.ViewMatchers.withId;
+import static androidx.test.espresso.matcher.ViewMatchers.withText;
+import static com.google.common.base.CharMatcher.is;
+import static org.hamcrest.Matchers.anything;
+import static org.hamcrest.Matchers.startsWith;
+
+@RunWith(AndroidJUnit4.class)
+
+public class ViewRequestTest {
+    private String QUERY_STRING = "Expresso";
+    @Rule
+    public ActivityScenarioRule<MapsActivity> rule =
+            new ActivityScenarioRule<>(MapsActivity.class);
+    @Rule
+    public ActivityTestRule<MapsActivity> mActivityTestRule = new ActivityTestRule<>(MapsActivity.class);
+
+    @Before
+    public void logUserIn() throws Exception {
+        // Ensure started logged out
+        FirebaseAuth.getInstance().signOut();
+
+        onView(withId(R.id.editText_login_email))
+                .perform(clearText())
+                .perform(typeText("who@you.com"));
+
+        onView(withId(R.id.editText_login_password))
+                .perform(clearText())
+                .perform(typeText("1234567"), ViewActions.closeSoftKeyboard());
+        onView(withId(R.id.login_button))
+                .perform(click());
+        Thread.sleep(3000);
+
+    }
+    /**
+     * Begins the activity for the search
+     * Makes a search and awaits the results
+     *
+     */
+    @Test
+    public void acceptRequest() throws InterruptedException {
+        onView(withId(R.id.search_item)).perform(click());
+        Thread.sleep(2000);
+        onView(withId(R.id.search_edit)).perform(typeText(QUERY_STRING),ViewActions.closeSoftKeyboard());
+        Thread.sleep(2000);
+        onView(withId(R.id.search_button)).perform(click());
+        Thread.sleep(2000);
+        onView(withId(R.id.search_recyclerview)).
+                perform(RecyclerViewActions.actionOnItemAtPosition(0, click()));
+        Thread.sleep(2000);
+        //check if view requests button is in view
+        try {
+            onView(withId(R.id.view_requests_button))
+                    .check(matches(withText("VIEW REQUESTS")));
+            onView(withId(R.id.view_requests_button)).perform(click());
+            //navigate to list view
+            onData(anything()).inAdapterView(withId(R.id.requestListView)).onChildView(withId(R.id.acceptRequest)).atPosition(0).perform(click());
+            Thread.sleep(2000);
+            onView(withText("Accept Book Request")).check(matches(isDisplayed()));
+            Thread.sleep(2000);
+            onView(withId(android.R.id.button1)).perform(click());
+            Thread.sleep(2000);
+            //open map activity
+            onView(withId(android.R.id.button1)).perform(click());
+            onView(withId(R.id.input_search)).perform(click());
+            Thread.sleep(2000);
+
+        }catch (NoMatchingViewException ignore) {
+            //no matching view exception
+        }
+    }
+
+}
