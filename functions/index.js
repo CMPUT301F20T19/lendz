@@ -89,7 +89,6 @@ exports.onBookUpdate = functions.firestore
         if (data.ownerScanned === true && data.borrowerScanned === true) {
             const borrowerData = (await data.acceptedRequester.get()).data();
             const borrowedBooks = borrowerData.borrowedBooks ? borrowerData.borrowedBooks : [];
-            let newStatus;
             if (data.status == 3) { // ACCEPTED
                 // Initiate borrow
                 borrowedBooks.push(change.after.ref);
@@ -333,7 +332,7 @@ exports.onRequestDelete = functions.firestore
         // Remove all associated notifications
         const batch = db.batch();
         const notifications = await db.collection('notifications').where('request', '==', snapshot.ref).get();
-        for (const notification of notifications.data()) {
+        for (const notification of notifications.docs()) {
             batch.delete(notification.ref);
         }
         batch.commit();
