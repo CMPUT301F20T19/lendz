@@ -29,5 +29,4 @@ jobs:
       with:
         api-level: 29
         target: playstore
-        profile: Pixel 3a
         script: ./gradlew connectedCheck --stacktrace
