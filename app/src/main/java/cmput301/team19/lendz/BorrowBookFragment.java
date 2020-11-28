@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.DividerItemDecoration;
@@ -57,7 +58,6 @@ public class BorrowBookFragment extends Fragment implements OnBookClickListener{
     CollectionReference requestsRef;
     ProgressDialog progressDialog;
 
-    private boolean borrowDone = false;
     private boolean sentDone = false;
     private boolean acceptedDone = false;
 
@@ -81,21 +81,33 @@ public class BorrowBookFragment extends Fragment implements OnBookClickListener{
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+//        Log.e(TAG, "onCreateView: ");
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_borrow_book, container, false);
         if (getArguments() == null)
             throw new IllegalArgumentException("no arguments");
-        borrowedBooksView = view;
         db = FirebaseFirestore.getInstance();
         booksRef = db.collection("books");
         requestsRef = db.collection("requests");
+        sentDone = false;
+        acceptedDone = false;
+//        setUp();
+        return view;
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        borrowedBooksView = view;
         setUp();
+//        Log.e(TAG, "onViewCreated: the view was created");
         borrowBooksRecyclerView = borrowedBooksView.findViewById(R.id.borrowFrag_recyclerView);
         borrowedBooksAdapter = new ViewBooksAdapter(borrowedBooksView.getContext(), sections,this);
-        getSentRequests();
-        getAcceptedRequests();
-        getBorrowRequest();
-        return view;
+        if(!sentDone && !acceptedDone) {
+            getSentRequests();
+            getAcceptedRequests();
+        }
+
     }
 
     @Override
@@ -117,10 +129,13 @@ public class BorrowBookFragment extends Fragment implements OnBookClickListener{
     }
 
     private void checkCompletion() {
-        if( sentDone && borrowDone && acceptedDone) {
+        if( sentDone && acceptedDone) {
             progressDialog.dismiss();
             checkSections();
             initRecyclerView();
+            Log.e(TAG, "checkCompletion: "+ acceptedRequests );
+            Log.e(TAG, "checkCompletion: "+ sentRequests );
+            Log.e(TAG, "checkCompletion: "+ borrowedBooks );
         }
     }
 
@@ -170,11 +185,6 @@ public class BorrowBookFragment extends Fragment implements OnBookClickListener{
         borrowBooksRecyclerView.setAdapter(borrowedBooksAdapter);
         borrowBooksRecyclerView.setLayoutManager(new LinearLayoutManager(borrowedBooksView.getContext()));
         borrowBooksRecyclerView.addItemDecoration(new DividerItemDecoration(borrowedBooksView.getContext(), DividerItemDecoration.VERTICAL));
-    }
-
-    private void getBorrowRequest() {
-        borrowDone = true;
-        checkCompletion();
     }
 
     private void getSentRequests() {

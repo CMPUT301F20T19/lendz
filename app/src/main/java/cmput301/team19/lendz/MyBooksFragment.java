@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.DividerItemDecoration;
@@ -70,13 +71,18 @@ public class MyBooksFragment extends Fragment implements OnBookClickListener {
         View view =  inflater.inflate(R.layout.fragment_my_books, container, false);
         if (getArguments() == null)
             throw new IllegalArgumentException("no arguments");
-        myBooksView = view;
         db = FirebaseFirestore.getInstance();
         booksRef = db.collection("books");
+        return view;
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        myBooksView = view;
         setUp();
         loadBooks();
         onAddBook(view);
-        return view;
     }
 
     /**
