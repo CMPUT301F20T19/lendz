@@ -28,4 +28,6 @@ jobs:
       uses: reactivecircus/android-emulator-runner@v2
       with:
         api-level: 29
+        target: playstore
+        profile: Pixel 3a
         script: ./gradlew connectedCheck --stacktrace
