@@ -332,7 +332,7 @@ exports.onRequestDelete = functions.firestore
         // Remove all associated notifications
         const batch = db.batch();
         const notifications = await db.collection('notifications').where('request', '==', snapshot.ref).get();
-        for (const notification of notifications.docs()) {
+        for (const notification of notifications.docs) {
             batch.delete(notification.ref);
         }
         batch.commit();

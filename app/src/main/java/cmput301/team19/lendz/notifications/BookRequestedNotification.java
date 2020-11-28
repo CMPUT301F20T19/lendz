@@ -74,6 +74,10 @@ public class BookRequestedNotification extends Notification {
             notification.request.getDocumentReference().get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                 @Override
                 public void onSuccess(DocumentSnapshot documentSnapshot) {
+                    if (documentSnapshot == null) {
+                        return;
+                    }
+
                     notification.request.load(documentSnapshot);
 
                     acceptButton.setVisibility(View.VISIBLE);
