@@ -50,7 +50,7 @@ public class ViewRequestActivity extends AppCompatActivity {
                 }
                 adapter.clear();
                 if(value == null || value.isEmpty()){
-                    requestCountLabel.setText(" No Requests Made for this Book");
+                    requestCountLabel.setText(R.string.no_pending_requests);
                     return;
                 }
                for (DocumentSnapshot doc : value) {
@@ -62,7 +62,8 @@ public class ViewRequestActivity extends AppCompatActivity {
                    requestObjectArray.add(requesterInfo);
                }
                adapter.notifyDataSetChanged();
-               requestCountLabel.setText(adapter.getCount() + " requests made for this book");
+               requestCountLabel.setText(getString(
+                       R.string.some_pending_requests, adapter.getCount()));
             }
         });
     }
