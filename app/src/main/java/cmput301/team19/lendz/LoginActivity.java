@@ -1,18 +1,15 @@
 package cmput301.team19.lendz;
 
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.text.method.HideReturnsTransformationMethod;
 import android.text.method.PasswordTransformationMethod;
-import android.util.Log;
 import android.util.Patterns;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -20,14 +17,10 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.storage.FirebaseStorage;
-import com.squareup.picasso.Picasso;
 
 /**
  * This is this Class that handles logging in of the user.
@@ -38,7 +31,6 @@ public class LoginActivity extends AppCompatActivity {
 
     private EditText email;
     private EditText password;
-    private ImageView imageView;
     final FirebaseAuth mFirebaseAuth = FirebaseAuth.getInstance();
     private FirebaseAuth.AuthStateListener mAuthStateListener;
     TextView signupText;
@@ -47,7 +39,6 @@ public class LoginActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-        setImageView();
         showPassword();
         mAuthStateListener = new FirebaseAuth.AuthStateListener() {
             @Override
@@ -84,8 +75,8 @@ public class LoginActivity extends AppCompatActivity {
      */
     public void showPassword() {
         password = findViewById(R.id.editText_login_password);//Get password editText
-        CheckBox showpassword = findViewById(R.id.checkbox_show_password);//Get showPassword CheckBox
-        showpassword.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        CheckBox showPassword = findViewById(R.id.checkbox_show_password);//Get showPassword CheckBox
+        showPassword.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                 if (b)//if checked showPassword
@@ -96,31 +87,6 @@ public class LoginActivity extends AppCompatActivity {
                 }
             }
         });
-    }
-
-
-    /**
-     * sets image view to an image stored in firestore
-     */
-    public void setImageView() {
-        imageView = findViewById(R.id.app_logo);
-        FirebaseStorage storage = FirebaseStorage.getInstance();
-        String imageUrl = "gs://lendz-7eb71.appspot.com/appLogo.png";
-        storage.getReferenceFromUrl(imageUrl)
-                .getDownloadUrl()
-                .addOnSuccessListener(new OnSuccessListener<Uri>() {
-                                          @Override
-                                          public void onSuccess(Uri uri) {
-                                              Picasso.get().load(uri).into(imageView);
-                                          }
-                                      }
-                )
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.e("error", "Did not work", e);
-                    }
-                });
     }
 
     /**
