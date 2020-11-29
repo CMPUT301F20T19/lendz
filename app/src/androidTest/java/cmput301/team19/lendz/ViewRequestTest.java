@@ -9,6 +9,10 @@ import androidx.test.espresso.matcher.ViewMatchers;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.rule.ActivityTestRule;
+import androidx.test.uiautomator.UiDevice;
+import androidx.test.uiautomator.UiObject;
+import androidx.test.uiautomator.UiObjectNotFoundException;
+import androidx.test.uiautomator.UiSelector;
 
 import com.google.firebase.auth.FirebaseAuth;
 
@@ -31,6 +35,7 @@ import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withContentDescription;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
+import static androidx.test.platform.app.InstrumentationRegistry.getInstrumentation;
 import static com.google.common.base.CharMatcher.is;
 import static org.hamcrest.Matchers.anything;
 import static org.hamcrest.Matchers.startsWith;
@@ -40,10 +45,9 @@ import static org.hamcrest.Matchers.startsWith;
 public class ViewRequestTest {
     private String QUERY_STRING = "Expresso";
     @Rule
-    public ActivityScenarioRule<MapsActivity> rule =
-            new ActivityScenarioRule<>(MapsActivity.class);
-    @Rule
-    public ActivityTestRule<MapsActivity> mActivityTestRule = new ActivityTestRule<>(MapsActivity.class);
+    public ActivityScenarioRule<LoginActivity> rule =
+            new ActivityScenarioRule<>(LoginActivity.class);
+   ;
 
     @Before
     public void logUserIn() throws Exception {
@@ -59,7 +63,7 @@ public class ViewRequestTest {
                 .perform(typeText("1234567"), ViewActions.closeSoftKeyboard());
         onView(withId(R.id.login_button))
                 .perform(click());
-        Thread.sleep(3000);
+        Thread.sleep(8000);
 
     }
     /**
@@ -92,11 +96,16 @@ public class ViewRequestTest {
             Thread.sleep(2000);
             //open map activity
             onView(withId(android.R.id.button1)).perform(click());
-            onView(withId(R.id.input_search)).perform(click());
-            Thread.sleep(2000);
+            UiDevice device = UiDevice.getInstance(getInstrumentation());
+            UiObject marker = device.findObject(new UiSelector().descriptionContains("My Location"));
+            marker.click();
+            Thread.sleep(50000);
+//            onView(withId(R.id.input_search)).perform(click());
+//            Thread.sleep(2000);
 
-        }catch (NoMatchingViewException ignore) {
+        }catch (NoMatchingViewException | UiObjectNotFoundException ignore) {
             //no matching view exception
+
         }
     }
 
