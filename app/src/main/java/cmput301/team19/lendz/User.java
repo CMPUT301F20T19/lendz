@@ -28,6 +28,7 @@ public class User {
     private static final String PHONE_NUMBER_KEY = "phoneNumber";
     private static final String OWNED_BOOKS_KEY = "ownedBooks";
     private static final String BORROWED_BOOKS_KEY = "borrowedBooks";
+    public static final String FCM_TOKEN = "fcmToken";
 
     // Maps user ID to User object, guaranteeing at most
     // one User object for each user.

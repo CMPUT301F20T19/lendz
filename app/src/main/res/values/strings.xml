@@ -91,4 +91,8 @@
     <string name="isbn_does_not_match">The book you scanned has a non-matching ISBN of %1$s.</string>
     <string name="scan_the_barcode">Scan the barcode of the book</string>
     <string name="already_sent_a_request">You already sent a request</string>
+    <string name="clear_all">Clear all</string>
+    <string name="failed_to_clear_notifications">Failed to clear notifications: %1$s</string>
+    <string name="channel_book_requested">Book Requested</string>
+    <string name="channel_request_acknowledged">Request Acknowledged</string>
 </resources>

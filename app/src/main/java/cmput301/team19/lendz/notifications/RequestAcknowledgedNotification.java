@@ -7,6 +7,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -15,10 +17,12 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.squareup.picasso.Picasso;
 
 import cmput301.team19.lendz.Book;
+import cmput301.team19.lendz.MainActivity;
 import cmput301.team19.lendz.R;
 import cmput301.team19.lendz.Request;
 import cmput301.team19.lendz.RequestStatus;
 import cmput301.team19.lendz.User;
+import cmput301.team19.lendz.ViewBookFragment;
 
 public class RequestAcknowledgedNotification extends Notification {
     private static final String REQUEST_KEY = "request";
@@ -62,7 +66,7 @@ public class RequestAcknowledgedNotification extends Notification {
                     .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                 @Override
                 public void onSuccess(DocumentSnapshot documentSnapshot) {
-                    if (documentSnapshot == null) {
+                    if (documentSnapshot == null || !documentSnapshot.exists()) {
                         return;
                     }
 
@@ -80,6 +84,27 @@ public class RequestAcknowledgedNotification extends Notification {
                             stringResourceId, ownerUsername, bookTitle));
 
                     Picasso.get().load(bookPhotoUrl).into(bookImageView);
+
+                    itemView.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            MainActivity mainActivity = (MainActivity) context;
+                            Fragment bookFragment = ViewBookFragment.newInstance(
+                                    notification.request.getBook().getId());
+                            FragmentTransaction transaction = mainActivity.getSupportFragmentManager().beginTransaction();
+                            transaction.setCustomAnimations(
+                                    R.anim.slide_in,
+                                    R.anim.fade_out,
+                                    R.anim.fade_in,
+                                    R.anim.slide_out
+                            );
+
+                            transaction.replace(R.id.container, bookFragment);
+                            transaction.addToBackStack(null);
+
+                            transaction.commit();
+                        }
+                    });
                 }
             }).addOnFailureListener(new OnFailureListener() {
                 @Override
