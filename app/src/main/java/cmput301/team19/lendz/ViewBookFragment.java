@@ -27,6 +27,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -151,7 +152,11 @@ public class ViewBookFragment extends Fragment {
                 if (value != null && error == null) {
                     if (!value.exists()) {
                         // Book was deleted
-                        getParentFragmentManager().popBackStack();
+                        try {
+                            getParentFragmentManager().popBackStack();
+                        } catch (IllegalStateException ignored) {
+                            
+                        }
                         return;
                     }
 
