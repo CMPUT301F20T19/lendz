@@ -152,6 +152,7 @@ public class ViewBookFragment extends Fragment {
                     if (!value.exists()) {
                         // Book was deleted
                         getParentFragmentManager().popBackStack();
+                        return;
                     }
 
                     book.load(value);
