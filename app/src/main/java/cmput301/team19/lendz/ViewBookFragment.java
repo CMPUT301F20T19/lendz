@@ -155,7 +155,7 @@ public class ViewBookFragment extends Fragment {
                         try {
                             getParentFragmentManager().popBackStack();
                         } catch (IllegalStateException ignored) {
-                            
+
                         }
                         return;
                     }
