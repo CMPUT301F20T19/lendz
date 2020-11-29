@@ -45,7 +45,7 @@ public class MainActivity extends AppCompatActivity {
         updateBackButton();
 
         Intent intent = getIntent();
-        if (intent != null && intent.getAction().equals("view_book")) {
+        if (intent != null && intent.getAction() != null && intent.getAction().equals("view_book")) {
             ViewBookFragment viewBookFragment = ViewBookFragment.newInstance(intent.getStringExtra("bookId"));
             getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
             getSupportFragmentManager().beginTransaction().replace(R.id.container, viewBookFragment).commit();
