@@ -1,16 +1,10 @@
 package cmput301.team19.lendz;
 
 import android.content.Intent;
-import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
-import android.text.SpannableString;
-import android.text.Spanned;
-import android.text.TextPaint;
 import android.text.method.HideReturnsTransformationMethod;
-import android.text.method.LinkMovementMethod;
 import android.text.method.PasswordTransformationMethod;
-import android.text.style.ClickableSpan;
 import android.util.Log;
 import android.util.Patterns;
 import android.view.View;
@@ -25,7 +19,6 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
-//import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -62,6 +55,8 @@ public class LoginActivity extends AppCompatActivity {
                 FirebaseUser mFirebaseUser = mFirebaseAuth.getCurrentUser();
 
                 if (mFirebaseUser != null) {
+                    mFirebaseAuth.removeAuthStateListener(mAuthStateListener);
+
                     Intent i = new Intent(LoginActivity.this, MainActivity.class);
                     startActivity(i);
                     finish();

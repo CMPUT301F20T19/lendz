@@ -62,6 +62,7 @@ public class ViewBookFragment extends Fragment {
     private Chip ownerButton;
 
     private Book book;
+    private Button requestBtn;
 
     public ViewBookFragment() {
 
@@ -120,6 +121,7 @@ public class ViewBookFragment extends Fragment {
         Picasso.get().load(book.getPhoto()).into(bookImage);
         // call check user function
         updateRequestControls();
+        getActivity().invalidateOptionsMenu();
     }
 
     /**
@@ -164,7 +166,7 @@ public class ViewBookFragment extends Fragment {
         if (getArguments() == null)
             throw new IllegalArgumentException("no arguments");
 
-        Button requestBtn = view.findViewById(R.id.request_button);
+        requestBtn = view.findViewById(R.id.request_button);
         requestBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -237,6 +239,8 @@ public class ViewBookFragment extends Fragment {
      * allows user to make a request on a book they do not own
      */
     public void makeRequest() {
+        requestBtn.setEnabled(false);
+
         //generate id
         String id = FirebaseFirestore.getInstance()
                 .collection("requests").document().getId();
@@ -259,6 +263,7 @@ public class ViewBookFragment extends Fragment {
             @Override
             public void onFailure(@NonNull Exception e) {
                 Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+                requestBtn.setEnabled(true);
             }
         });
     }
@@ -273,7 +278,6 @@ public class ViewBookFragment extends Fragment {
 
                     }
                 });
-
         AlertDialog alert = builder.create();
         alert.show();
     }

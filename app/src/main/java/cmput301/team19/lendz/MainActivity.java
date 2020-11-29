@@ -1,5 +1,6 @@
 package cmput301.team19.lendz;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
 
@@ -19,6 +20,17 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        // Start Firebase Cloud Messaging service
+        Intent fcmServiceIntent = new Intent(this, FirebaseMessagingServiceImpl.class);
+        startService(fcmServiceIntent);
+
+        // If not logged in, go to LoginActivity
+        if (User.getCurrentUser() == null) {
+            Intent intent = new Intent(this, LoginActivity.class);
+            startActivity(intent);
+            finish();
+        }
+
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNav);
 
         bottomNavigationView.setOnNavigationItemSelectedListener(tabSelected);
@@ -31,6 +43,13 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         updateBackButton();
+
+        Intent intent = getIntent();
+        if (intent != null && intent.getAction().equals("view_book")) {
+            ViewBookFragment viewBookFragment = ViewBookFragment.newInstance(intent.getStringExtra("bookId"));
+            getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+            getSupportFragmentManager().beginTransaction().replace(R.id.container, viewBookFragment).commit();
+        }
     }
 
     private void updateBackButton() {
