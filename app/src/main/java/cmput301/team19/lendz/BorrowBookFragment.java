@@ -185,6 +185,11 @@ public class BorrowBookFragment extends Fragment implements OnBookClickListener{
         if (sentRequests.size() > 0) {
             sections.add(new ViewBooksSection("Sent Request", sentRequests));
         }
+        boolean noBooks = borrowedBooks.isEmpty()
+                && acceptedRequests.isEmpty()
+                && sentRequests.isEmpty();
+        borrowedBooksView.findViewById(R.id.no_borrowed_books).setVisibility(
+                noBooks ? View.VISIBLE : View.GONE);
     }
 
     /**
