@@ -40,9 +40,6 @@ import static android.content.ContentValues.TAG;
 /**
  * This fragment displays the borrowed books of the current user
  * as well as the sent and accepted request for books.
- *
- * BUG
- * It is currently not functional as other functionalities need to be finished before
  */
 public class BorrowBookFragment extends Fragment implements OnBookClickListener{
     private RecyclerView borrowBooksRecyclerView;
@@ -81,7 +78,6 @@ public class BorrowBookFragment extends Fragment implements OnBookClickListener{
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-//        Log.e(TAG, "onCreateView: ");
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_borrow_book, container, false);
         if (getArguments() == null)
@@ -91,7 +87,6 @@ public class BorrowBookFragment extends Fragment implements OnBookClickListener{
         requestsRef = db.collection("requests");
         sentDone = false;
         acceptedDone = false;
-//        setUp();
         return view;
     }
 
@@ -100,7 +95,6 @@ public class BorrowBookFragment extends Fragment implements OnBookClickListener{
         super.onViewCreated(view, savedInstanceState);
         borrowedBooksView = view;
         setUp();
-//        Log.e(TAG, "onViewCreated: the view was created");
         borrowBooksRecyclerView = borrowedBooksView.findViewById(R.id.borrowFrag_recyclerView);
         borrowedBooksAdapter = new ViewBooksAdapter(borrowedBooksView.getContext(), sections,this);
         if(!sentDone && !acceptedDone) {
@@ -128,6 +122,9 @@ public class BorrowBookFragment extends Fragment implements OnBookClickListener{
         }
     }
 
+    /**
+     * checks completion of the queries for the books
+     */
     private void checkCompletion() {
         if( sentDone && acceptedDone) {
             progressDialog.dismiss();
@@ -139,6 +136,9 @@ public class BorrowBookFragment extends Fragment implements OnBookClickListener{
         }
     }
 
+    /**
+     * opens up the fragment for a user to begin searching
+     */
     private void openSearchFragment() {
         Fragment searchFragment = SearchBooksFragment.newInstance();
         FragmentTransaction transaction = getParentFragmentManager().beginTransaction();
@@ -155,6 +155,9 @@ public class BorrowBookFragment extends Fragment implements OnBookClickListener{
         transaction.commit();
     }
 
+    /**
+     * initializes all arrayLists and starts the progress dialog
+     */
     private void setUp() {
         progressDialog = new ProgressDialog(borrowedBooksView.getContext());
         progressDialog.setTitle("Loading...");
@@ -167,6 +170,11 @@ public class BorrowBookFragment extends Fragment implements OnBookClickListener{
         sections = new ArrayList<>();
     }
 
+    /**
+     * Creates a new ViewBooksSection if there is any book in a section
+     * (i.e. accepted requests, sent requests, or borrowed books)
+     * and adds it to the array list sections.
+     */
     private void checkSections() {
         if (borrowedBooks.size() > 0) {
             sections.add(new ViewBooksSection("Borrowed Books", borrowedBooks));
@@ -179,6 +187,9 @@ public class BorrowBookFragment extends Fragment implements OnBookClickListener{
         }
     }
 
+    /**
+     * Initializes the recycler view that shows sections and the books in them.
+     */
     private void initRecyclerView() {
         borrowBooksRecyclerView = borrowedBooksView.findViewById(R.id.borrowFrag_recyclerView);
         borrowedBooksAdapter = new ViewBooksAdapter(borrowedBooksView.getContext(), sections,this);
@@ -187,6 +198,9 @@ public class BorrowBookFragment extends Fragment implements OnBookClickListener{
         borrowBooksRecyclerView.addItemDecoration(new DividerItemDecoration(borrowedBooksView.getContext(), DividerItemDecoration.VERTICAL));
     }
 
+    /**
+     * gets all the sent requests of the current user
+     */
     private void getSentRequests() {
         if (User.getCurrentUser() == null) {
             return;
@@ -211,6 +225,9 @@ public class BorrowBookFragment extends Fragment implements OnBookClickListener{
                 });
     }
 
+    /**
+     * gets all the accepeted and borrowed books of the current user
+     */
     private void getAcceptedRequests() {
         if (User.getCurrentUser() == null) {
             return;
@@ -235,6 +252,13 @@ public class BorrowBookFragment extends Fragment implements OnBookClickListener{
                 });
     }
 
+    /**
+     * Creates and adds a book objects to either the
+     * setRequests, borrowedBooks, acceptedRequests arrayLists
+     * @param id of the book object to be created
+     * @param snapshot the document snapshot provided by firebase
+     * @param requestStatus the status of the book to be created
+     */
     private void addBook(String id, DocumentSnapshot snapshot, RequestStatus requestStatus) {
         Book book = Book.getOrCreate(id);
         book.load(snapshot);
@@ -258,6 +282,11 @@ public class BorrowBookFragment extends Fragment implements OnBookClickListener{
 
     }
 
+    /**
+     * Receives the book that was clicked and passes it on
+     * to the viewFragment; to view the book details
+     * @param book clicked from the recycler view
+     */
     @Override
     public void onBookClick(Book book) {
         Fragment viewBookFragment = ViewBookFragment.newInstance(book.getId());
