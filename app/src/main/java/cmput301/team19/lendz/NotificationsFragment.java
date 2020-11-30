@@ -2,46 +2,65 @@ package cmput301.team19.lendz;
 
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
+import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.Transaction;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+
+import cmput301.team19.lendz.notifications.BookRequestedNotification;
+import cmput301.team19.lendz.notifications.Notification;
+import cmput301.team19.lendz.notifications.NotificationAdapter;
+import cmput301.team19.lendz.notifications.RequestAcknowledgedNotification;
 
 /**
- * A simple {@link Fragment} subclass.
- * Use the {@link NotificationsFragment#newInstance} factory method to
- * create an instance of this fragment.
+ * A Fragment that displays the user's notifications.
  */
 public class NotificationsFragment extends Fragment {
-
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
-
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
+    private View view;
+    private NotificationAdapter adapter;
+    private final ArrayList<Notification> notifications;
 
     public NotificationsFragment() {
-        // Required empty public constructor
+        notifications = new ArrayList<>();
     }
 
     /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
+     * Create a new instance of this fragment.
      *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
      * @return A new instance of fragment NotificationsFragment.
      */
-    // TODO: Rename and change types and number of parameters
-    public static NotificationsFragment newInstance(String param1, String param2) {
+    public static NotificationsFragment newInstance() {
         NotificationsFragment fragment = new NotificationsFragment();
         Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
         fragment.setArguments(args);
         return fragment;
     }
@@ -49,16 +68,95 @@ public class NotificationsFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
+        setHasOptionsMenu(true);
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_notifications, container, false);
+        view = inflater.inflate(R.layout.fragment_notifications, container, false);
+
+        notifications.clear();
+
+        RecyclerView recyclerView = view.findViewById(R.id.recycler_view);
+        adapter = new NotificationAdapter(getContext(), notifications);
+        recyclerView.setAdapter(adapter);
+        LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
+        recyclerView.setLayoutManager(layoutManager);
+        recyclerView.addItemDecoration(new DividerItemDecoration(getContext(), layoutManager.getOrientation()));
+
+        String currentUserId = User.getCurrentUser().getId();
+        FirebaseFirestore.getInstance().collection("notifications")
+                .whereEqualTo(Notification.NOTIFIED_USER_KEY, User.documentOf(currentUserId))
+                .orderBy(Notification.TIMESTAMP_KEY, Query.Direction.DESCENDING)
+                .addSnapshotListener(new EventListener<QuerySnapshot>() {
+                    @Override
+                    public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
+                        notifications.clear();
+
+                        if (error != null || value == null) {
+                            Toast.makeText(getContext(), R.string.failed_to_get_notifications, Toast.LENGTH_LONG).show();
+                            Log.e("NotificationsFragment", "Failed to get notifications", error);
+                            onNotificationsChange();
+                            return;
+                        }
+
+                        for (DocumentSnapshot doc : value) {
+                            notifications.add(Notification.fromDocumentSnapshot(doc));
+                        }
+
+                        Collections.sort(notifications, new Comparator<Notification>() {
+                            @Override
+                            public int compare(Notification o1, Notification o2) {
+                                return Long.valueOf(o1.timestamp).compareTo(Long.valueOf(o2.timestamp));
+                            }
+                        });
+
+                        onNotificationsChange();
+                    }
+                });
+        return view;
+    }
+
+    private void onNotificationsChange() {
+        adapter.notifyDataSetChanged();
+        TextView noNotificationsTextView = view.findViewById(R.id.no_notifications);
+        noNotificationsTextView.setVisibility(
+                adapter.getItemCount() == 0 ? View.VISIBLE : View.GONE);
+    }
+
+    @Override
+    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        inflater.inflate(R.menu.notifications_menu, menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (item.getItemId() == R.id.clear_all) {
+            final FirebaseFirestore db = FirebaseFirestore.getInstance();
+            db.runTransaction(new Transaction.Function<Void>() {
+                @Override
+                public @Nullable Void apply(@NonNull Transaction transaction) {
+                    for (Notification notification : notifications) {
+                        DocumentReference ref = db.collection("notifications")
+                                .document(notification.id);
+                        transaction.delete(ref);
+                    }
+                    return null;
+                }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    Toast.makeText(getContext(),
+                            getString(R.string.failed_to_clear_notifications, e),
+                            Toast.LENGTH_LONG)
+                            .show();
+                }
+            });
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 }

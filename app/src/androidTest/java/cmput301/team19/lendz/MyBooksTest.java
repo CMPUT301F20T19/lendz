@@ -21,10 +21,13 @@ import org.junit.runner.RunWith;
 
 import java.util.concurrent.RecursiveAction;
 
+import static androidx.test.espresso.Espresso.onData;
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.clearText;
 import static androidx.test.espresso.action.ViewActions.click;
+import static androidx.test.espresso.action.ViewActions.replaceText;
 import static androidx.test.espresso.action.ViewActions.scrollTo;
+import static androidx.test.espresso.action.ViewActions.swipeUp;
 import static androidx.test.espresso.action.ViewActions.typeText;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.hasDescendant;
@@ -36,11 +39,13 @@ import static androidx.test.espresso.matcher.ViewMatchers.withParent;
 import static androidx.test.espresso.matcher.ViewMatchers.withParentIndex;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static org.hamcrest.Matchers.allOf;
+import static org.hamcrest.Matchers.anyOf;
+import static org.hamcrest.Matchers.not;
 
 @LargeTest
 @RunWith(AndroidJUnit4.class)
 public class MyBooksTest extends TestCase {
-    private static final String TEST_USER_EMAIL = "seclosDev@gmail.com";
+    private static final String TEST_USER_EMAIL = "mybookstest@gmail.com";
     private static final String TEST_USER_PASSWORD = "123456";
 
     @Rule
@@ -59,10 +64,10 @@ public class MyBooksTest extends TestCase {
 
         // log into test user's account
         onView(withId(R.id.editText_login_email))
-                .perform(clearText(), typeText(TEST_USER_EMAIL),
+                .perform(clearText(), replaceText(TEST_USER_EMAIL),
                         ViewActions.closeSoftKeyboard());
         onView(withId(R.id.editText_login_password))
-                .perform(clearText(), typeText(TEST_USER_PASSWORD),
+                .perform(clearText(), replaceText(TEST_USER_PASSWORD),
                         ViewActions.closeSoftKeyboard());
         onView(withId(R.id.login_button))
                 .perform(click());
@@ -72,7 +77,6 @@ public class MyBooksTest extends TestCase {
         onView(withId(R.id.my_books))
                 .perform(click());
         Thread.sleep(3000);
-
     }
 
     /**
@@ -81,35 +85,39 @@ public class MyBooksTest extends TestCase {
      */
     @Test
     public void testSectionHeader() {
-        // test if section header is displayed
-        onView(allOf(isDescendantOfA(withId(R.id.myBooksFrag_recyclerView)),
-                withId(R.id.section_header)))
-                .check(matches(isDisplayed()));
+        // test if section headers are shown and have correct texts
+        onView(withId(R.id.myBooksFrag_recyclerView))
+                .check(matches(hasDescendant(withText("Available Books"))));
 
-        // test if section header has correct text
-        onView(allOf(isDescendantOfA(withId(R.id.myBooksFrag_recyclerView)),
-                withId(R.id.section_header)))
-                .check(matches(withText("Available Books")));
+        onView(withId(R.id.myBooksFrag_recyclerView))
+                .check(matches(hasDescendant(withText("Requested Books"))));
+
+        onView(withId(R.id.myBooksFrag_recyclerView))
+                .perform(swipeUp())
+                .check(matches(hasDescendant(withText("Accepted Books"))));
     }
 
     /**
      * Test book data being shown.
+     * @param section_header name of the section the book is under
      * @param position position of the book in the list being shown
      * @param title expected title of the book being shown
      * @param author expected author of the book being shown
      */
-    public void testBookData(int position, String title, String author) {
+    public void testBookData(String section_header, int position, String title, String author) {
         // test book title
         onView(allOf(isDescendantOfA(withId(R.id.myBooksFrag_recyclerView)),
-                withParent(withParentIndex(position)),
+                withParent(withParent(withParent(withChild(withText(section_header))))),
                 isDescendantOfA(withId(R.id.section_body)),
+                withParent(withParentIndex(position)),
                 withId(R.id.book_title)))
                 .check(matches(withText(title)));
 
         // test book author
         onView(allOf(isDescendantOfA(withId(R.id.myBooksFrag_recyclerView)),
-                withParent(withParentIndex(position)),
+                withParent(withParent(withParent(withChild(withText(section_header))))),
                 isDescendantOfA(withId(R.id.section_body)),
+                withParent(withParentIndex(position)),
                 withId(R.id.book_author)))
                 .check(matches(withText(author)));
     }
@@ -120,14 +128,14 @@ public class MyBooksTest extends TestCase {
      */
     @Test
     public void testSectionBody() {
-        // test if section body is displayed
-        onView(allOf(isDescendantOfA(withId(R.id.myBooksFrag_recyclerView)),
-                withId(R.id.section_body)))
-                .check(matches(isDisplayed()));
-
         // test book data
-        testBookData(0, "Added", "Who");
-        testBookData(1, "Dune of Paul", "Dune");
-        testBookData(2, "New Title Trial", "Students");
+        testBookData("Available Books", 0, "Pride and Prejudice", "Jane Austen");
+        testBookData("Available Books",1, "War and Peace", "Leo Tolstoy");
+        testBookData("Requested Books",0, "Cosmos", "Carl Sagan");
+
+        onView(withId(R.id.myBooksFrag_recyclerView))
+                .perform(swipeUp());
+
+        testBookData("Accepted Books",0, "The Republic", "Plato");
     }
 }

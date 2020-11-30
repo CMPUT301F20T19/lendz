@@ -19,15 +19,20 @@ import androidx.annotation.Nullable;
  * Stores data about books and provides methods for synchronization with Firestore.
  */
 public class Book {
-    private static final String ACCEPTED_REQUEST_KEY = "acceptedRequest";
     private static final String DESCRIPTION_KEY = "description";
     private static final String LOCATION_KEY = "location";
     private static final String OWNER_KEY = "owner";
     private static final String OWNER_USERNAME_KEY = "ownerUsername";
-    private static final String PENDING_REQUESTS_KEY = "pendingRequests";
     private static final String PHOTO_KEY = "photo";
     private static final String STATUS_KEY = "status";
     private static final String KEYWORDS_KEY = "keywords";
+    public static final String ACCEPTED_REQUEST_KEY = "acceptedRequest";
+    public static final String ACCEPTED_REQUESTER_KEY = "acceptedRequester";
+    private static final String ACCEPTED_REQUESTER_USERNAME_KEY = "acceptedRequesterUsername";
+    public static final String PENDING_REQUESTS_KEY = "pendingRequests";
+    public static final String PENDING_REQUESTERS_KEY = "pendingRequesters";
+    private static final String BORROWER_SCANNED_KEY = "borrowerScanned";
+    private static final String OWNER_SCANNED_KEY = "ownerScanned";
 
     // Maps book ID to Book object, guaranteeing at most
     // one Book object for each book.
@@ -37,21 +42,24 @@ public class Book {
     private String photo;
     private User owner;
     private BookStatus status;
-    private Location location;
     private BookDescription description;
-    private final ArrayList<Request> pendingRequests;
     private List<String> keywords;
 
+    private final List<User> pendingRequesters = new ArrayList<>();
 
     private Request acceptedRequest;
+    private User acceptedRequester;
+    private String acceptedRequesterUsername;
 
     private String ownerUsername;
+
+    private boolean ownerScanned;
+    private boolean borrowerScanned;
 
     private boolean loaded;
 
     private Book(@NonNull String id) {
         this.id = id;
-        pendingRequests = new ArrayList<>();
     }
 
     /**
@@ -80,6 +88,10 @@ public class Book {
      * @param doc DocumentSnapshot to load from
      */
     public void load(@NonNull DocumentSnapshot doc) {
+        if (!doc.exists()) {
+            return;
+        }
+
         loaded = true;
 
         // Load BookDescription
@@ -88,14 +100,6 @@ public class Book {
             throw new NullPointerException("description cannot be null");
         }
         setDescription(new BookDescription(descriptionMap));
-
-        // Load location
-        GeoPoint geoPoint = doc.getGeoPoint(LOCATION_KEY);
-        if (geoPoint == null) {
-            location = null;
-        } else {
-            location = new Location(geoPoint);
-        }
 
         // Load owner
         DocumentReference ownerReference = doc.getDocumentReference(OWNER_KEY);
@@ -108,29 +112,56 @@ public class Book {
         // Load owner username
         ownerUsername = doc.getString(OWNER_USERNAME_KEY);
 
-        // TODO load request data
-        /*
-        List<DocumentReference> pendingRequestsData =
-                (List<DocumentReference>) doc.get(PENDING_REQUESTS_KEY);
-        for (DocumentReference pendingRequest : pendingRequestsData) {
-            // TODO
+        // Load pending requesters
+        pendingRequesters.clear();
+        List<DocumentReference> pendingRequestersData = (List<DocumentReference>) doc.get(PENDING_REQUESTERS_KEY);
+        if (pendingRequestersData != null) {
+            for (DocumentReference ref : pendingRequestersData) {
+                pendingRequesters.add(User.getOrCreate(ref.getId()));
+            }
         }
+
+        // Load accepted request
         DocumentReference acceptedRequestData = doc.getDocumentReference(ACCEPTED_REQUEST_KEY);
-        // TODO
-         */
-
-        String photoUrlString = doc.getString(PHOTO_KEY);
-        if (photoUrlString == null) {
-            setPhoto(null);
+        if (acceptedRequestData == null) {
+            acceptedRequest = null;
         } else {
-            setPhoto(photoUrlString);
+            acceptedRequest = Request.getOrCreate(acceptedRequestData.getId());
         }
 
+        // Load accepted requester
+        DocumentReference acceptedRequesterData = doc.getDocumentReference(ACCEPTED_REQUESTER_KEY);
+        if (acceptedRequesterData == null) {
+            acceptedRequester = null;
+        } else {
+            acceptedRequester = User.getOrCreate(acceptedRequesterData.getId());
+        }
+
+        // Load accepted requester username
+        String acceptedRequesterUsernameData = doc.getString(ACCEPTED_REQUESTER_USERNAME_KEY);
+        if (acceptedRequesterUsernameData != null) {
+            acceptedRequesterUsername = acceptedRequesterUsernameData;
+        }
+
+        // Load photo URL
+        String photoUrlString = doc.getString(PHOTO_KEY);
+        setPhoto(photoUrlString);
+
+        // Load book status
         Long bookStatusLong = doc.getLong(STATUS_KEY);
         if (bookStatusLong == null) {
-            throw new NullPointerException("bookStatus cannot be null");
+            status = BookStatus.AVAILABLE;
+        } else {
+            status = BookStatus.values()[bookStatusLong.intValue()];
         }
-        setStatus(BookStatus.values()[bookStatusLong.intValue()]);
+
+        // Load owner scanned
+        Boolean ownerScannedData = doc.getBoolean(OWNER_SCANNED_KEY);
+        ownerScanned = ownerScannedData != null ? ownerScannedData : false;
+
+        // Load borrower scanned
+        Boolean borrowerScannedData = doc.getBoolean(BORROWER_SCANNED_KEY);
+        borrowerScanned = borrowerScannedData != null ? borrowerScannedData : false;
     }
 
     /**
@@ -142,11 +173,11 @@ public class Book {
 
         map.put(OWNER_KEY, User.documentOf(owner.getId()));
 
-        if (photo == null)
+        if (photo == null) {
             map.put(PHOTO_KEY, null);
-        else
-            map.put(PHOTO_KEY, photo.toString());
-        map.put(STATUS_KEY, status.ordinal());
+        } else {
+            map.put(PHOTO_KEY, photo);
+        }
         map.put(KEYWORDS_KEY, keywords);
         return map;
     }
@@ -168,10 +199,44 @@ public class Book {
     }
 
     /**
-     * @return list of pending Requests for this Book
+     * Updates the Firestore document after a successful scan by the Book owner.
+     * @return Task of the update
      */
-    public ArrayList<Request> getPendingRequests() {
-        return pendingRequests;
+    public Task<Void> notifyOwnerDidScan() {
+        Map<String, Object> data = new HashMap<>();
+        data.put(OWNER_SCANNED_KEY, true);
+        return documentOf(id).update(data);
+    }
+
+    /**
+     * Updates the Firestore document after a successful scan by the Book borrower.
+     * @return Task of the update
+     */
+    public Task<Void> notifyBorrowerDidScan() {
+        Map<String, Object> data = new HashMap<>();
+        data.put(BORROWER_SCANNED_KEY, true);
+        return documentOf(id).update(data);
+    }
+
+    /**
+     * @return true if owner scanned the book, false otherwise
+     */
+    public boolean isOwnerScanned() {
+        return ownerScanned;
+    }
+
+    /**
+     * @return true if borrower scanned the book, false otherwise
+     */
+    public boolean isBorrowerScanned() {
+        return borrowerScanned;
+    }
+
+    /**
+     * @return get the list of pending requesters
+     */
+    public List<User> getPendingRequesters() {
+        return pendingRequesters;
     }
 
     /**
@@ -179,6 +244,20 @@ public class Book {
      */
     public Request getAcceptedRequest() {
         return acceptedRequest;
+    }
+
+    /**
+     * @return the user who made the accepted request, or null if there is none
+     */
+    public User getAcceptedRequester() {
+        return acceptedRequester;
+    }
+
+    /**
+     * @return the username of the user who made the accepted request, or null if there is none
+     */
+    public String getAcceptedRequesterUsername() {
+        return acceptedRequesterUsername;
     }
 
     /**
@@ -230,21 +309,6 @@ public class Book {
      */
     public BookStatus getStatus() {
         return status;
-    }
-
-    /**
-     * Set the current BookStatus of this Book
-     * @param status status to use
-     */
-    public void setStatus(@NonNull BookStatus status) {
-        this.status = status;
-    }
-
-    /**
-     * @return the current location of this Book
-     */
-    public Location getLocation() {
-        return location;
     }
 
     /**

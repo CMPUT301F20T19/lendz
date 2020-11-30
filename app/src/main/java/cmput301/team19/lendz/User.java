@@ -5,6 +5,8 @@ import androidx.annotation.Nullable;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -26,6 +28,7 @@ public class User {
     private static final String PHONE_NUMBER_KEY = "phoneNumber";
     private static final String OWNED_BOOKS_KEY = "ownedBooks";
     private static final String BORROWED_BOOKS_KEY = "borrowedBooks";
+    public static final String FCM_TOKEN = "fcmToken";
 
     // Maps user ID to User object, guaranteeing at most
     // one User object for each user.
@@ -53,6 +56,18 @@ public class User {
             users.put(userId, user);
         }
         return user;
+    }
+
+    /**
+     * Get the currently logged in User.
+     * @return the logged in User, or null if there is none
+     */
+    public static User getCurrentUser() {
+        FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (firebaseUser != null) {
+            return User.getOrCreate(firebaseUser.getUid());
+        }
+        return null;
     }
 
     /**
