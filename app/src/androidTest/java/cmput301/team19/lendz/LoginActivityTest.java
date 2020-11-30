@@ -71,6 +71,8 @@ public class LoginActivityTest {
         //​Asserts that the current activity is the MainActivity. Otherwise, show "Wrong Activity"
         solo.assertCurrentActivity("Wrong Activity",MainActivity.class);
 
+        solo.waitForActivity("MainActivity",2000);
+
     }
 
 
