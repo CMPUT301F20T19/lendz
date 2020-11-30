@@ -46,7 +46,7 @@ public class DeclineRequest {
 
         onView(withId(R.id.editText_login_email))
                 .perform(clearText())
-                .perform(typeText("me@you.com"));
+                .perform(typeText("me@you.com"),ViewActions.closeSoftKeyboard());
 
         onView(withId(R.id.editText_login_password))
                 .perform(clearText())

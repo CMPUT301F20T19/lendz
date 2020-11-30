@@ -39,8 +39,11 @@ public class FailedSignUpTest {
 
     @Before
     public void signUp() throws Exception{
+        // Start signed out
+        FirebaseAuth.getInstance().signOut();
+
         Thread.sleep(2000);
-        onView(withId(R.id.login_signUp_message))
+        onView(withText("Sign up"))
                 .perform(ViewActions.click());
         Thread.sleep(2000);
     }
