@@ -84,7 +84,7 @@ public class ViewRequestTest {
             //navigate to list view
             onData(anything()).inAdapterView(withId(R.id.requestListView)).onChildView(withId(R.id.acceptRequest)).atPosition(0).perform(click());
             Thread.sleep(2000);
-            onView(withText("Accept Book Request")).check(matches(isDisplayed()));
+            onView(withText("Accept Request")).check(matches(isDisplayed()));
             Thread.sleep(2000);
             onView(withId(android.R.id.button1)).perform(click());
             Thread.sleep(2000);
