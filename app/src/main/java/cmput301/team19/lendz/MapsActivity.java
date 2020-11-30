@@ -413,8 +413,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                                     }
                                 });
 
-
-
                             }
                         })
                         .setNegativeButton("No", new DialogInterface.OnClickListener() {
