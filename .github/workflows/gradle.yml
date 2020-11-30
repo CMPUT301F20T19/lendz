@@ -33,4 +33,4 @@ jobs:
           api-level: 29
           arch: x86
           disable-animations: false
-          script: ./gradlew connectedAndroidTest --stacktrace
+          script: ./gradlew connectedInstrumentTest --stacktrace
