@@ -47,6 +47,10 @@ public class FailedSignUpTest {
                 .perform(ViewActions.click());
         Thread.sleep(2000);
     }
+
+    /**
+     * checks for invalid email doing a sign up
+     */
     @Test
     public void fakeSignUpemail() throws Exception {
         onView(withId(R.id.editText_signup_username))
@@ -65,6 +69,9 @@ public class FailedSignUpTest {
         Thread.sleep(2000);
     }
 
+    /**
+     * checks for phone number during a sign up
+     */
     @Test
     public void checkNumber() throws Exception{
         onView(withId(R.id.editText_signup_username))
@@ -81,6 +88,9 @@ public class FailedSignUpTest {
         Thread.sleep(2000);
     }
 
+    /**
+     * checks for password during a sign up
+     */
     @Test
     public void checkPassword() throws Exception{
         onView(withId(R.id.editText_signup_username))
@@ -99,6 +109,9 @@ public class FailedSignUpTest {
         Thread.sleep(2000);
     }
 
+    /**
+     * checks user full name when signing up
+     */
     @Test
     public void checkFullName() throws Exception{
         onView(withId(R.id.editText_signup_username))
@@ -115,6 +128,9 @@ public class FailedSignUpTest {
         Thread.sleep(2000);
     }
 
+    /**
+     * checks username when signing up
+     */
     @Test
     public void checkUsername() throws Exception{
         onView(withId(R.id.editText_signup_full_name))
