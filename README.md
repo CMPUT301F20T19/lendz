@@ -1,5 +1,5 @@
 # Lendz
-![Icon](icon.svg)
+<img src="icon.svg" width="64">
 *Lendz* is an app that assists users with borrowing books from one another.
 
 ## Authors
