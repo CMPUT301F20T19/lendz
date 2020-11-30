@@ -14,14 +14,21 @@ import androidx.test.rule.ActivityTestRule;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.robotium.solo.Condition;
 
 import org.hamcrest.Matchers;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 import static android.service.autofill.Validators.not;
 import static androidx.test.espresso.Espresso.onData;
@@ -43,12 +50,13 @@ import static org.hamcrest.Matchers.startsWith;
 @RunWith(AndroidJUnit4.class)
 
 public class ViewRequestTest {
-    private String QUERY_STRING = "jjj";
-    private String bookId = "VPA0OZKNmARHfolNq8Ae";
 
+    private String QUERY_STRING = "jjj";
+    
     @Rule
     public ActivityScenarioRule<LoginActivity> rule =
             new ActivityScenarioRule<>(LoginActivity.class);
+
 
     @Before
     public void logUserIn() throws Exception {
@@ -108,40 +116,6 @@ public class ViewRequestTest {
 
     }
 
-    /**
-     * Closes the activity and delete the created user after each test
-     */
-    @After
-    public void tearDown() {
-        // make the  book  available
-
-        String requestId = "7Ky95aU7Rfylm2hq2vPW";
-        final String bookID = "VPA0OZKNmARHfolNq8Ae";
-        String requesterId = "ZO4nCClyAbMhhuPhJwQY6wwWW0x1";
-
-        Location location = new Location("hub mall ",45.10,-105.4);
-        Request request = Request.getOrCreate(requestId);
-        Book book  = Book.getOrCreate(bookID);
-        User user = User.getOrCreate(requesterId);
-        request.setRequester(user);
-        request.setBook(book);
-        request.setLocation(location);
-
-        //store in firebase
-        request.setStatus(RequestStatus.SENT);
-        request.store().addOnSuccessListener(new OnSuccessListener<Void>() {
-            @Override
-            public void onSuccess(Void aVoid) {
-
-
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-
-            }
-        });
-    }
 }
 
 
