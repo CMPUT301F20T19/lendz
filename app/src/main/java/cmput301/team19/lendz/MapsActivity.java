@@ -9,15 +9,24 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 import android.Manifest;
+import android.app.AlertDialog;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.location.Address;
+import android.location.Geocoder;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.text.Html;
 import android.util.Log;
 import android.view.View;
 import android.widget.AutoCompleteTextView;
 import android.widget.EditText;
 import android.widget.Toast;
+
 
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -39,8 +48,10 @@ import com.google.android.libraries.places.widget.AutocompleteActivity;
 import com.google.android.libraries.places.widget.model.AutocompleteActivityMode;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 
 
 public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback {
@@ -55,6 +66,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private Boolean mLocationPermissionsGranted = false;
     private int backToViewBook = 0;
     private Place place;
+    private double latitude;
+    private double longitude;
 
     //widgets
     private EditText mSearchText;
@@ -70,6 +83,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         mConfirm.hide();
         getLocationPermission();
         confirmLocation(mConfirm);
+
 
     }
 
@@ -103,6 +117,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             //initialize places Api
             //initMap();
             initPlacesApi();
+
 
         }
     }
@@ -154,7 +169,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     /**
-     * this method gets the device current location 
+     * this method gets the device current location
      */
     private void getDeviceLocation(){
         Log.d(TAG, "getDeviceLocation: getting the current device's location");
@@ -175,12 +190,17 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                             }else{
                                 LatLng latLng = new LatLng(currentLocation.getLatitude(),currentLocation.getLongitude());
                                 moveCamera(latLng,DEFAULT_ZOOM,"My Location");
-                            }
+                                latitude = currentLocation.getLatitude();
+                                longitude = currentLocation.getLongitude();
+                                dialogBox( "your current location","Pickup Location");
 
+                            }
 
                         }else {
                             Log.d(TAG, "onComplete: current location is null");
                             Toast.makeText(MapsActivity.this, "Unable to get devices loaction", Toast.LENGTH_SHORT).show();
+                            //use cell towers to get appromimate location
+
                         }
 
                     }
@@ -189,7 +209,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         }catch ( SecurityException e){
             Log.e(TAG, "getDeviceLocation: SecurityException" + e.getMessage() );
         }
-        
+
     }
 
     /**
@@ -313,6 +333,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
      * @param mConfirm
      * this is the button the user clicks to confirm the location searched
      */
+
     private void confirmLocation(final FloatingActionButton mConfirm){
         mConfirm.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -343,10 +364,74 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                     getRequestLocation(place);
                     startActivity(back);
                 }
-
             }
         });
     }
+    public void dialogBox(String message, final String title){
+        AlertDialog.Builder builder = new AlertDialog.Builder(MapsActivity.this);
+        builder.setTitle(title);
+
+        Geocoder geocoder = new Geocoder(MapsActivity.this, Locale.getDefault());
+        List<Address> addresses = null;
+        final Address address;
+        try {
+            addresses = geocoder.getFromLocation(latitude, longitude, 1);
+
+            if (addresses.size() > 0) {
+                address = addresses.get(0);
+                final String addressName = addresses.get(0).getAddressLine(0);
+                builder.setMessage(Html.fromHtml("Do you want to use "+ "<b><i>"+ addressName+"</i></b>"+" as the pickup location?"))
+                        .setCancelable(false)
+                        .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                //SHOW CONFIRM BUTTON
+                                Location location = new Location(addressName,latitude,longitude);
+                                Intent intent = getIntent();
+                                String requestId = intent.getStringExtra("requestID");
+                                final String bookID = intent.getStringExtra("bookID");
+                                String requesterId = intent.getStringExtra("requesterID");
+
+                                Request request = Request.getOrCreate(requestId);
+                                Book book  = Book.getOrCreate(bookID);
+                                User user = User.getOrCreate(requesterId);
+                                request.setRequester(user);
+                                request.setBook(book);
+                                request.setLocation(location);
+                                //store in firebase
+                                request.setStatus(RequestStatus.ACCEPTED);
+                                request.store().addOnSuccessListener(new OnSuccessListener<Void>() {
+                                    @Override
+                                    public void onSuccess(Void aVoid) {
+                                        Intent back = new Intent(MapsActivity.this,MainActivity.class);
+                                        startActivity(back);
+
+                                    }
+                                }).addOnFailureListener(new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception e) {
+                                        Toast.makeText(MapsActivity.this,"Could not accept request",Toast.LENGTH_SHORT).show();
+                                    }
+                                });
+
+
+
+                            }
+                        })
+                        .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                dialog.cancel();
+                            }
+                        });
+
+                AlertDialog alert = builder.create();
+                alert.show();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+
 
 }
 
