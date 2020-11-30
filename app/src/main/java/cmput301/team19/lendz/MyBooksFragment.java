@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.DividerItemDecoration;
@@ -15,13 +16,15 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
@@ -34,12 +37,12 @@ import static android.content.ContentValues.TAG;
  */
 public class MyBooksFragment extends Fragment implements OnBookClickListener {
     private RecyclerView viewBooksRecyclerView;
-    private ArrayList<Book> availableBooks;
-    private ArrayList<Book> requestedBooks;
-    private ArrayList<Book> acceptedBooks;
-    private ArrayList<Book> borrowedBooks;
+    private final ArrayList<Book> availableBooks = new ArrayList<>();
+    private final ArrayList<Book> requestedBooks = new ArrayList<>();
+    private final ArrayList<Book> acceptedBooks = new ArrayList<>();
+    private final ArrayList<Book> borrowedBooks = new ArrayList<>();
     private ViewBooksAdapter viewBooksAdapter;
-    private ArrayList<ViewBooksSection> sections;
+    private final ArrayList<ViewBooksSection> sections = new ArrayList<>();
     private View myBooksView;
     FirebaseFirestore db;
     CollectionReference booksRef;
@@ -70,45 +73,43 @@ public class MyBooksFragment extends Fragment implements OnBookClickListener {
         View view =  inflater.inflate(R.layout.fragment_my_books, container, false);
         if (getArguments() == null)
             throw new IllegalArgumentException("no arguments");
-        myBooksView = view;
         db = FirebaseFirestore.getInstance();
         booksRef = db.collection("books");
-        setUp();
-        loadBooks();
-        onAddBook(view);
         return view;
     }
 
-    /**
-     * sets a click listener of the add book button and
-     * starts an intent when the button is clicked
-     * @param view the current view the fragment is being displayed
-     */
-    private void onAddBook(View view) {
-        FloatingActionButton button = view.findViewById(R.id.add_book_button);
-        button.setOnClickListener(new View.OnClickListener() {
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        myBooksView = view;
+
+        // Show a progress dialog while books are loading for the first time
+        progressDialog = new ProgressDialog(myBooksView.getContext());
+        progressDialog.setTitle("Loading...");
+        progressDialog.show();
+
+        // Add a snapshot listener to get the current user's owned books
+        booksRef.whereEqualTo("owner", User.documentOf(User.getCurrentUser().getId()))
+                .addSnapshotListener(new EventListener<QuerySnapshot>() {
+                    @Override
+                    public void onEvent(@Nullable QuerySnapshot value,
+                                        @Nullable FirebaseFirestoreException error) {
+                        if (error != null || value == null) {
+                            Log.e(TAG, "Error getting owned books: ", error);
+                        }
+                        loadBooks(value);
+                    }
+                });
+
+        // Set click listener of add book button
+        FloatingActionButton addBookButton = view.findViewById(R.id.add_book_button);
+        addBookButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(getActivity(), EditBookActivity.class);
                 startActivity(intent);
             }
         });
-    }
-
-    /**
-     * Initializes the array lists availableBooks, requestedBooks, acceptedBooks,
-     * borrowedBooks and sections.
-     */
-    private void setUp() {
-        progressDialog = new ProgressDialog(myBooksView.getContext());
-        progressDialog.setTitle("Loading...");
-        progressDialog.show();
-
-        availableBooks = new ArrayList<>();
-        requestedBooks = new ArrayList<>();
-        acceptedBooks = new ArrayList<>();
-        borrowedBooks = new ArrayList<>();
-        sections = new ArrayList<>();
     }
 
     /**
@@ -129,6 +130,12 @@ public class MyBooksFragment extends Fragment implements OnBookClickListener {
         if (borrowedBooks.size() > 0) {
             sections.add(new ViewBooksSection("Borrowed Books", borrowedBooks));
         }
+        boolean noBooks = availableBooks.isEmpty()
+                && requestedBooks.isEmpty()
+                && acceptedBooks.isEmpty()
+                && borrowedBooks.isEmpty();
+        myBooksView.findViewById(R.id.no_owned_books).setVisibility(
+                noBooks ? View.VISIBLE : View.GONE);
     }
 
     /**
@@ -143,30 +150,28 @@ public class MyBooksFragment extends Fragment implements OnBookClickListener {
     }
 
     /**
-     * Finds books owned by a user and
+     * Clears existing books and sections.
+     * Loads books from a QuerySnapshot then
      * calls checkSections and initRecyclerView.
      */
-    private void loadBooks() {
-        booksRef
-                .whereEqualTo("owner", User.documentOf(User.getCurrentUser().getId()))
-                .get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
-                            progressDialog.dismiss();
-                            for (QueryDocumentSnapshot document : task.getResult()) {
-                                Book book = Book.getOrCreate(document.getId());
-                                book.load(document);
-                                addBooks(book);
-                            }
-                            checkSections();
-                            initRecyclerView();
-                        } else {
-                            Log.d(TAG, "Error getting book ID: ", task.getException());
-                        }
-                    }
-                });
+    private void loadBooks(@Nullable QuerySnapshot snapshot) {
+        availableBooks.clear();
+        requestedBooks.clear();
+        acceptedBooks.clear();
+        borrowedBooks.clear();
+        sections.clear();
+
+        progressDialog.dismiss();
+
+        if (snapshot != null) {
+            for (QueryDocumentSnapshot document : snapshot) {
+                Book book = Book.getOrCreate(document.getId());
+                book.load(document);
+                addBook(book);
+            }
+        }
+        checkSections();
+        initRecyclerView();
     }
 
     /**
@@ -175,7 +180,7 @@ public class MyBooksFragment extends Fragment implements OnBookClickListener {
      * requestedBooks, acceptedBooks or borrowedBooks.
      * @param book Book to add
      */
-    private void addBooks(Book book) {
+    private void addBook(Book book) {
         BookStatus bookStatus = book.getStatus();
 
         // adding book to the appropriate array list

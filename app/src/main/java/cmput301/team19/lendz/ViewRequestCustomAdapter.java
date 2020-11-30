@@ -66,7 +66,8 @@ public class ViewRequestCustomAdapter extends ArrayAdapter<BorrowerInfo>{
             @Override
             public void onClick(View v) {
                 //decline request
-                dialogBox("do you want to decline this request","Decline Book Request",1,position);
+                dialogBox(getContext().getResources().getString(R.string.decline_this_request_prompt),
+                        getContext().getResources().getString(R.string.decline_request),1,position);
 
             }
         });
@@ -75,7 +76,8 @@ public class ViewRequestCustomAdapter extends ArrayAdapter<BorrowerInfo>{
             @Override
             public void onClick(View v) {
                 //accept request
-                dialogBox("Do you want to accept this request","Accept Book Request",0,position);
+                dialogBox(getContext().getResources().getString(R.string.accept_this_request_prompt),
+                        getContext().getResources().getString(R.string.accept_request),0,position);
 
             }
         });

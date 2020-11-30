@@ -23,6 +23,7 @@ import cmput301.team19.lendz.R;
 import cmput301.team19.lendz.Request;
 import cmput301.team19.lendz.SearchBooksFragment;
 import cmput301.team19.lendz.User;
+import cmput301.team19.lendz.ViewBookFragment;
 import cmput301.team19.lendz.ViewUserProfileFragment;
 
 public class BookRequestedNotification extends Notification {
@@ -50,38 +51,29 @@ public class BookRequestedNotification extends Notification {
         public final View itemView;
         public final TextView notificationText;
         public final ImageView bookImageView;
-        public final ImageButton acceptButton;
-        public final ImageButton declineButton;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             this.itemView = itemView;
             notificationText = itemView.findViewById(R.id.notification_text);
             bookImageView = itemView.findViewById(R.id.notification_book_photo);
-            acceptButton = itemView.findViewById(R.id.accept_button);
-            declineButton = itemView.findViewById(R.id.decline_button);
         }
 
         @Override
         public void bind(final Context context, final Notification n) {
             notificationText.setText("");
             bookImageView.setImageBitmap(null);
-            acceptButton.setVisibility(View.INVISIBLE);
-            declineButton.setVisibility(View.INVISIBLE);
 
             final BookRequestedNotification notification = (BookRequestedNotification) n;
 
             notification.request.getDocumentReference().get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                 @Override
                 public void onSuccess(DocumentSnapshot documentSnapshot) {
-                    if (documentSnapshot == null) {
+                    if (documentSnapshot == null || !documentSnapshot.exists()) {
                         return;
                     }
 
                     notification.request.load(documentSnapshot);
-
-                    acceptButton.setVisibility(View.VISIBLE);
-                    declineButton.setVisibility(View.VISIBLE);
 
                     String requesterUsername = notification.request.getRequesterUsername();
                     String requestedBookTitle = notification.request.getBookTitle();
@@ -94,7 +86,8 @@ public class BookRequestedNotification extends Notification {
                         @Override
                         public void onClick(View v) {
                             MainActivity mainActivity = (MainActivity) context;
-                            Fragment profileFragment = ViewUserProfileFragment.newInstance(notification.request.getRequester().getId());
+                            Fragment bookFragment = ViewBookFragment.newInstance(
+                                    notification.request.getBook().getId());
                             FragmentTransaction transaction = mainActivity.getSupportFragmentManager().beginTransaction();
                             transaction.setCustomAnimations(
                                     R.anim.slide_in,
@@ -103,7 +96,7 @@ public class BookRequestedNotification extends Notification {
                                     R.anim.slide_out
                             );
 
-                            transaction.replace(R.id.container, profileFragment);
+                            transaction.replace(R.id.container, bookFragment);
                             transaction.addToBackStack(null);
 
                             transaction.commit();

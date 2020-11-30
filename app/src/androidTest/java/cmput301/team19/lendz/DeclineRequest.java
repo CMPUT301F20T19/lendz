@@ -1,6 +1,9 @@
 package cmput301.team19.lendz;
 
+import android.widget.Toast;
+
 import androidx.test.espresso.Espresso;
+import androidx.test.espresso.NoMatchingViewException;
 import androidx.test.espresso.action.ViewActions;
 import androidx.test.espresso.assertion.ViewAssertions;
 import androidx.test.espresso.contrib.RecyclerViewActions;
@@ -23,9 +26,11 @@ import static androidx.test.espresso.action.ViewActions.typeText;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
+import static androidx.test.espresso.matcher.ViewMatchers.withText;
 
 @RunWith(AndroidJUnit4.class)
-public class EditBookTest {
+
+public class DeclineRequest {
     @Rule
     public ActivityScenarioRule<LoginActivity> rule =
             new ActivityScenarioRule<>(LoginActivity.class);
@@ -49,47 +54,52 @@ public class EditBookTest {
     }
 
     /**
-     * @throws Exception Switches the view to editing a book details
+     * @throws Exception
+     * Declines a book request
      */
     @Test
-    public void editBook() throws Exception {
-        Thread.sleep(2000);
+    public void declineBookRequest() throws Exception{
+        Thread.sleep(1000);
         onView(withId(R.id.my_books))
                 .perform(ViewActions.click());
 
         Thread.sleep(2000);
 
+
+        onView(withText("Requested Books")).check(matches(isDisplayed()));
         onView(withId(R.id.myBooksFrag_recyclerView)).
                 perform(RecyclerViewActions.actionOnItemAtPosition(0, click()));
         Thread.sleep(2000);
 
-        // checks if the correct views for the book exist
-        check_if_ViewBook();
+        checkingBookViews();
 
-        onView(withId(R.id.editBookDetails))
+        onView(withId(R.id.view_requests_button))
                 .perform(ViewActions.click());
 
-        editBookDetails("One Punch Man",
-                "The life of one punch is " +
-                        "simple, he just punch one and can" +
-                        "literally end the world",
-                "Students",
-                "8008");
+        checkRequestControl();
 
-
-        onView(withId(R.id.save_book_details))
+        //decline the request
+        onView(withId(R.id.declineRequest))
                 .perform(ViewActions.click());
+        Thread.sleep(2000);
+
+        onView(withText("Decline Book Request")).check(matches(isDisplayed()));
+        onView(withText("do you want to decline this request")).check(matches(isDisplayed()));
+        onView(withText("do you want to decline this request")).check(matches(isDisplayed()));
+        Thread.sleep(2000);
+
+        onView(withText("Yes")).perform(click());
         Thread.sleep(2000);
 
         Espresso.pressBack();
         Thread.sleep(2000);
+
     }
 
-
     /**
-     * Checking to see if the correct details exits
+     * checking if views exist for the book being declined
      */
-    public void check_if_ViewBook() {
+    public void checkingBookViews() {
         onView(withId(R.id.bookImage)).check(matches(isDisplayed()));
         onView(withId(R.id.bookViewTitle)).check(matches(isDisplayed()));
         onView(withId(R.id.bookViewDescription)).check(matches(isDisplayed()));
@@ -98,30 +108,12 @@ public class EditBookTest {
 
     }
 
-
     /**
-     * Checks if the displayed details in the AddBookActivity matches the expected values,
-     * then replaces them with the new values.
+     * checking if the views and button for requesting actions exits
      */
-    private void editBookDetails(String newBookTitle,
-            String newBookDesc,
-            String newBookAuthor,
-            String newBookISBN) {
-        onView(withId(R.id.title_edittext))
-                .perform(clearText())
-                .perform(typeText(newBookTitle));
-        onView(withId(R.id.isbn_edittext))
-                .perform(clearText())
-                .perform(typeText(newBookISBN));
-        onView(withId(R.id.author_edittext))
-                .perform(clearText())
-                .perform(typeText(newBookAuthor), ViewActions.closeSoftKeyboard());
-        onView(withId(R.id.description_edittext))
-                .perform(clearText())
-                .perform(typeText(newBookDesc), ViewActions.closeSoftKeyboard());
+    public void checkRequestControl(){
+        onView(withId(R.id.n1)).check(matches(isDisplayed()));
+        onView(withId(R.id.acceptRequest)).check(matches(isDisplayed()));
+        onView(withId(R.id.declineRequest)).check(matches(isDisplayed()));
     }
-
-
-
-
 }

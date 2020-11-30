@@ -26,7 +26,7 @@
         <TextView
             android:id="@+id/bookViewTitle"
             android:layout_width="0dp"
-            android:layout_height="37dp"
+            android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:textAllCaps="true"
             android:textAppearance="@style/TextAppearance.AppCompat.Large"

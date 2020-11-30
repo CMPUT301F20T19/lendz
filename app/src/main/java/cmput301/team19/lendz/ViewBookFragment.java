@@ -27,6 +27,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -62,6 +63,7 @@ public class ViewBookFragment extends Fragment {
     private Chip ownerButton;
 
     private Book book;
+    private Button requestBtn;
 
     public ViewBookFragment() {
 
@@ -120,6 +122,7 @@ public class ViewBookFragment extends Fragment {
         Picasso.get().load(book.getPhoto()).into(bookImage);
         // call check user function
         updateRequestControls();
+        getActivity().invalidateOptionsMenu();
     }
 
     /**
@@ -147,6 +150,16 @@ public class ViewBookFragment extends Fragment {
             @Override
             public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
                 if (value != null && error == null) {
+                    if (!value.exists()) {
+                        // Book was deleted
+                        try {
+                            getParentFragmentManager().popBackStack();
+                        } catch (IllegalStateException ignored) {
+
+                        }
+                        return;
+                    }
+
                     book.load(value);
                     updateBookDetails();
                 } else {
@@ -159,7 +172,7 @@ public class ViewBookFragment extends Fragment {
         if (getArguments() == null)
             throw new IllegalArgumentException("no arguments");
 
-        Button requestBtn = view.findViewById(R.id.request_button);
+        requestBtn = view.findViewById(R.id.request_button);
         requestBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -232,6 +245,8 @@ public class ViewBookFragment extends Fragment {
      * allows user to make a request on a book they do not own
      */
     public void makeRequest() {
+        requestBtn.setEnabled(false);
+
         //generate id
         String id = FirebaseFirestore.getInstance()
                 .collection("requests").document().getId();
@@ -254,6 +269,7 @@ public class ViewBookFragment extends Fragment {
             @Override
             public void onFailure(@NonNull Exception e) {
                 Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+                requestBtn.setEnabled(true);
             }
         });
     }
@@ -268,7 +284,6 @@ public class ViewBookFragment extends Fragment {
 
                     }
                 });
-
         AlertDialog alert = builder.create();
         alert.show();
     }
@@ -301,21 +316,7 @@ public class ViewBookFragment extends Fragment {
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
             case R.id.deleteBook:
-                book.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        bookTitleTextView.setText(null);
-                        bookStatusTextView.setText(null);
-                        bookDescriptionTextView.setText(null);
-                        bookAuthorTextView.setText(null);
-                        bookISBNTextView.setText(null);
-                        ownerButton.setText(null);
-                        ownerButton.setOnClickListener(null);
-                        book.setPhoto(null);
-                        Picasso.get().load(book.getPhoto()).into(bookImage);
-                        getParentFragmentManager().popBackStack();
-                    }
-                }).addOnFailureListener(new OnFailureListener() {
+                book.delete().addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
                         Toast.makeText(getContext(),

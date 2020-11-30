@@ -1,12 +1,72 @@
 // Functions
 const functions = require('firebase-functions');
 
-// Required to access Cloud Firestore
+// Required to access Cloud Firestore and Cloud Messaging
 const admin = require('firebase-admin');
 admin.initializeApp();
 
 // Cloud Firestore
 const db = admin.firestore();
+
+// Cloud Messaging
+const messaging = admin.messaging();
+
+async function pushNotification(data, extras={}) {
+    const userRef = data.notifiedUser;
+
+    const userData = (await userRef.get()).data();
+    const token = userData.fcmToken;
+
+    if (!token) {
+        functions.logger.warn('could not push notification to user ' + userRef.id);
+        return;
+    }
+
+    let message;
+    if (data.type === 0) { // BookRequested
+        message = {
+            token: token,
+            notification: {
+                title: `New book request`,
+                body: `Your book ${extras.bookTitle} was requested by ${extras.requesterUsername}`
+            },
+            android: {
+                notification: {
+                    image: extras.bookPhotoUrl,
+                    click_action: 'view_book',
+                    channel_id: 'book_requested'
+                }
+            },
+            data: {
+                bookId: extras.bookId
+            }
+        }
+    } else if (data.type === 1) { // RequestAcknowledged
+        const statusText = extras.status === 1 ? 'declined' : 'accepted';
+        message = {
+            token: token,
+            notification: {
+                title: `A request was acknowledged`,
+                body: `Your request for ${extras.bookTitle} was ${statusText}`
+            },
+            android: {
+                notification: {
+                    image: extras.bookPhotoUrl,
+                    click_action: 'view_book',
+                    channel_id: 'request_acknowledged'
+                }
+            },
+            data: {
+                bookId: extras.bookId
+            }
+        }
+    }
+
+    messaging.send(message)
+        .catch((error) => {
+            functions.logger.error('Failed to push notification:', error);
+        });
+}
 
 exports.onUserUpdate = functions.firestore
     .document('users/{userId}')
@@ -168,8 +228,10 @@ exports.onBookDelete = functions.firestore
         }
 
         const requestsBatch = db.batch();
-        for (const requestRef of snapshot.data().pendingRequests) {
-            requestsBatch.delete(requestRef);
+        if (snapshot.data().pendingRequests) {
+            for (const requestRef of snapshot.data().pendingRequests) {
+                requestsBatch.delete(requestRef);
+            }
         }
         if (snapshot.data().acceptedRequest) {
             requestsBatch.delete(snapshot.data().acceptedRequest);
@@ -244,6 +306,7 @@ exports.onRequestCreate = functions.firestore
             request: snapshot.ref
         };
         db.collection('notifications').add(notificationData);
+        pushNotification(notificationData, {bookId: bookRef.id, bookPhotoUrl: bookData.photo, bookTitle: bookData.description.title, requesterUsername: requesterData.username});
     });
 
 exports.onRequestUpdate = functions.firestore
@@ -287,6 +350,7 @@ exports.onRequestUpdate = functions.firestore
                     request: change.after.ref
                 };
                 db.collection('notifications').add(notificationData);
+                pushNotification(notificationData, {bookId: bookRef.id, bookPhotoUrl: bookData.photo, bookTitle: bookData.description.title, status: newStatus});
             } else if (newStatus === 2) {
                 // If new status is ACCEPTED, then set the acceptedRequest on the book and decline and clear pendingRequests
 
@@ -322,6 +386,7 @@ exports.onRequestUpdate = functions.firestore
                     request: change.after.ref
                 };
                 db.collection('notifications').add(notificationData);
+                pushNotification(notificationData, {bookId: bookRef.id, bookPhotoUrl: bookData.photo, bookTitle: bookData.description.title, status: newStatus});
             }
         }
     });
