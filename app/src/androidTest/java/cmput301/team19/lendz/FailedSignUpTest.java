@@ -50,13 +50,13 @@ public class FailedSignUpTest {
     @Test
     public void fakeSignUpemail() throws Exception {
         onView(withId(R.id.editText_signup_username))
-                .perform(typeText("MugiWara"));
+                .perform(typeText("MugiWara"), closeSoftKeyboard());
         onView(withId(R.id.editText_signup_full_name))
-                .perform(typeText("Mugi Wara"));
+                .perform(typeText("Mugi Wara"), closeSoftKeyboard());
         onView(withId(R.id.editText_signup_password))
-                .perform(typeText("MugiWara"));
+                .perform(typeText("MugiWara"), closeSoftKeyboard());
         onView(withId(R.id.editText_signup_phone_number))
-                .perform(typeText("78012345469"));
+                .perform(typeText("78012345469"), closeSoftKeyboard());
         onView(withId(R.id.editText_signup_email))
                 .perform(typeText("MugiWara"), closeSoftKeyboard());
 
@@ -68,11 +68,11 @@ public class FailedSignUpTest {
     @Test
     public void checkNumber() throws Exception{
         onView(withId(R.id.editText_signup_username))
-                .perform(typeText("MugiWara"));
+                .perform(typeText("MugiWara"), closeSoftKeyboard());
         onView(withId(R.id.editText_signup_full_name))
-                .perform(typeText("Mugi Wara"));
+                .perform(typeText("Mugi Wara"), closeSoftKeyboard());
         onView(withId(R.id.editText_signup_password))
-                .perform(typeText("MugiWara"));
+                .perform(typeText("MugiWara"), closeSoftKeyboard());
         onView(withId(R.id.editText_signup_email))
                 .perform(typeText("MugiWara@gmail.com"), closeSoftKeyboard());
 
@@ -84,13 +84,13 @@ public class FailedSignUpTest {
     @Test
     public void checkPassword() throws Exception{
         onView(withId(R.id.editText_signup_username))
-                .perform(typeText("MugiWara"));
+                .perform(typeText("MugiWara"), closeSoftKeyboard());
         onView(withId(R.id.editText_signup_full_name))
-                .perform(typeText("Mugi Wara"));
+                .perform(typeText("Mugi Wara"), closeSoftKeyboard());
         onView(withId(R.id.editText_signup_password))
-                .perform(typeText("Mug"));
+                .perform(typeText("Mug"), closeSoftKeyboard());
         onView(withId(R.id.editText_signup_phone_number))
-                .perform(typeText("78012345469"));
+                .perform(typeText("78012345469"), closeSoftKeyboard());
         onView(withId(R.id.editText_signup_email))
                 .perform(typeText("MugiWara@gmail.com"), closeSoftKeyboard());
 
@@ -102,11 +102,11 @@ public class FailedSignUpTest {
     @Test
     public void checkFullName() throws Exception{
         onView(withId(R.id.editText_signup_username))
-                .perform(typeText("MugiWara"));
+                .perform(typeText("MugiWara"), closeSoftKeyboard());
         onView(withId(R.id.editText_signup_password))
-                .perform(typeText("MugiWara"));
+                .perform(typeText("MugiWara"), closeSoftKeyboard());
         onView(withId(R.id.editText_signup_phone_number))
-                .perform(typeText("78012345469"));
+                .perform(typeText("78012345469"), closeSoftKeyboard());
         onView(withId(R.id.editText_signup_email))
                 .perform(typeText("MugiWara@gmail.com"), closeSoftKeyboard());
 
@@ -118,11 +118,11 @@ public class FailedSignUpTest {
     @Test
     public void checkUsername() throws Exception{
         onView(withId(R.id.editText_signup_full_name))
-                .perform(typeText("MugiWara"));
+                .perform(typeText("MugiWara"), closeSoftKeyboard());
         onView(withId(R.id.editText_signup_password))
-                .perform(typeText("MugiWara"));
+                .perform(typeText("MugiWara"), closeSoftKeyboard());
         onView(withId(R.id.editText_signup_phone_number))
-                .perform(typeText("78012345469"));
+                .perform(typeText("78012345469"), closeSoftKeyboard());
         onView(withId(R.id.editText_signup_email))
                 .perform(typeText("MugiWara@gmail.com"), closeSoftKeyboard());
 
