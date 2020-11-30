@@ -55,7 +55,7 @@ public class LoginActivityTest {
     @Test
     public void testLogin() throws InterruptedException {
         //​Asserts that the current activity is the LoginActivity. Otherwise, show "Wrong Activity"
-        solo.assertCurrentActivity("Wrong Activity",LoginActivity.class);
+        solo.assertCurrentActivity("Wrong Activity",MainActivity.class);
 
         //Get view for email EditText and enter email
         solo.enterText((EditText) solo.getView(R.id.editText_login_email),"frankwoods@gmail.com");
