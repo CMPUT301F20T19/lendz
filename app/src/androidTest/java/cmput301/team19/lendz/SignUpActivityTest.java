@@ -70,7 +70,7 @@ public class SignUpActivityTest {
 
         //Click on signUp text
         solo.clickOnText("Sign up");
-
+        solo.waitForActivity("MainActivity",2000);
         //Get view for username and enter username
         solo.enterText((EditText) solo.getView(R.id.editText_signup_username),"Naruto");
 
@@ -88,9 +88,10 @@ public class SignUpActivityTest {
 
         //Click on SignUp
         solo.clickOnButton("Sign Up");
-
+        solo.waitForActivity("MainActivity",2000);
         //​Asserts that the current activity is the MainActivity. Otherwise, show "Wrong Activity"
         solo.assertCurrentActivity("Wrong Activity",MainActivity.class);
+        solo.waitForActivity("MainActivity",2000);
 
         createdUser= FirebaseAuth.getInstance().getCurrentUser();
     }
