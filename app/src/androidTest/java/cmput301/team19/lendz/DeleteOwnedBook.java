@@ -21,6 +21,7 @@ import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.Espresso.openActionBarOverflowOrOptionsMenu;
 import static androidx.test.espresso.action.ViewActions.clearText;
 import static androidx.test.espresso.action.ViewActions.click;
+import static androidx.test.espresso.action.ViewActions.closeSoftKeyboard;
 import static androidx.test.espresso.action.ViewActions.scrollTo;
 import static androidx.test.espresso.action.ViewActions.typeText;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
@@ -43,7 +44,7 @@ public class DeleteOwnedBook {
 
         onView(withId(R.id.editText_login_email))
                 .perform(clearText())
-                .perform(typeText("deleting@g.com"));
+                .perform(typeText("deleting@g.com"),closeSoftKeyboard());
 
         onView(withId(R.id.editText_login_password))
                 .perform(clearText())
