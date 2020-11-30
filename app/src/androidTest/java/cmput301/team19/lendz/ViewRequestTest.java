@@ -8,11 +8,7 @@ import androidx.test.espresso.contrib.RecyclerViewActions;
 import androidx.test.espresso.matcher.ViewMatchers;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.rule.ActivityTestRule;
-import androidx.test.uiautomator.UiDevice;
-import androidx.test.uiautomator.UiObject;
-import androidx.test.uiautomator.UiObjectNotFoundException;
-import androidx.test.uiautomator.UiSelector;
+
 
 import com.google.firebase.auth.FirebaseAuth;
 
@@ -45,7 +41,7 @@ import static org.hamcrest.Matchers.startsWith;
 @RunWith(AndroidJUnit4.class)
 
 public class ViewRequestTest {
-    private String QUERY_STRING = "Gilbert";
+    private String QUERY_STRING = "eee";
     @Rule
     public ActivityScenarioRule<LoginActivity> rule =
             new ActivityScenarioRule<>(LoginActivity.class);
@@ -58,8 +54,8 @@ public class ViewRequestTest {
 
         onView(withId(R.id.editText_login_email))
                 .perform(clearText())
-                .perform(typeText("seclosDev@gmail.com"));
-
+                .perform(typeText("seclosDev@gmail.com"),ViewActions.closeSoftKeyboard());
+        Thread.sleep(2000);
         onView(withId(R.id.editText_login_password))
                 .perform(clearText())
                 .perform(typeText("123456"), ViewActions.closeSoftKeyboard());
@@ -82,7 +78,7 @@ public class ViewRequestTest {
         onView(withId(R.id.search_button)).perform(click());
         Thread.sleep(2000);
         onView(withId(R.id.search_recyclerview)).
-                perform(actionOnItemAtPosition(1, click()));
+                perform(actionOnItemAtPosition(0, click()));
         Thread.sleep(2000);
         //check if view requests button is in view
         try {
@@ -98,7 +94,6 @@ public class ViewRequestTest {
             Thread.sleep(2000);
             //open map activity
             onView(withId(android.R.id.button1)).perform(click());
-
             //check if dialog box appears
             Thread.sleep(2000);
             onView(withText("Pickup Location")).check(matches(isDisplayed()));

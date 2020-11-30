@@ -62,11 +62,4 @@ dependencies {
     androidTestImplementation 'com.jayway.android.robotium:robotium-solo:5.6.3'
     androidTestImplementation 'androidx.test:runner:1.2.0'
     androidTestImplementation 'androidx.test:rules:1.2.0'
-    implementation "com.android.support.test.uiautomator:uiautomator-v18:2.0.1"
-    implementation 'com.androidmapsextensions:android-maps-extensions:2.4.0'
-    implementation 'com.google.android.gms:play-services-maps:10.2.0'
-//    compile 'com.google.android.gms:play-services:6.5.87'
-//    compile 'com.androidmapsextensions:android-maps-extensions:2.2.0'
-
-//    implementation "com.android.support.test.uiautomator:uiautomator-v18:2.1.3"
 }

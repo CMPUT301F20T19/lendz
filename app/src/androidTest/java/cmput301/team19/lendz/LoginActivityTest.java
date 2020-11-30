@@ -36,6 +36,7 @@ public class LoginActivityTest {
     public static void signOut() {
         // Start signed out
         FirebaseAuth.getInstance().signOut();
+
     }
 
     /**
@@ -57,30 +58,19 @@ public class LoginActivityTest {
         solo.assertCurrentActivity("Wrong Activity",LoginActivity.class);
 
         //Get view for email EditText and enter email
-        solo.enterText((EditText) solo.getView(R.id.editText_login_email),"bayo@gmail.com");
+        solo.enterText((EditText) solo.getView(R.id.editText_login_email),"frankwoods@gmail.com");
         //Get view for password EditText and enter password
-        solo.enterText((EditText) solo.getView(R.id.editText_login_password),"123456");
+        solo.enterText((EditText) solo.getView(R.id.editText_login_password),"1234567");
 
-        /**True if there is a text: bayo@gmail.com on the screen, wait at least 2 seconds and find
+        /**True if there is a text: frankwoods@gmail.com on the screen, wait at least 2 seconds and find
          minimum one match. */
-        assertTrue(solo.waitForText("bayo@gmail.com",1,2000));
+        assertTrue(solo.waitForText("frankwoods@gmail.com",1,2000));
         //Click on login button
         solo.clickOnButton("LOGIN");
 
-        //​Asserts that the current activity is the SignUp. Otherwise, show "Wrong Activity"
+        //​Asserts that the current activity is the MainActivity. Otherwise, show "Wrong Activity"
         solo.assertCurrentActivity("Wrong Activity",MainActivity.class);
 
-        //Get the bottom navigation bar
-        final BottomNavigationView navigationBar = (BottomNavigationView) solo.getView(R.id.bottomNav);
-
-        //Go to user profile
-        solo.clickOnView(navigationBar.findViewById(R.id.profile));
-
-        //Click of LogOut
-        solo.clickOnButton("Log Out");
-
-        //​Asserts that the current activity is the LoginActivity Otherwise, show "Wrong Activity"
-        solo.assertCurrentActivity("Wrong Activity",LoginActivity.class);
 
     }
 
