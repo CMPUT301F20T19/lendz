@@ -27,8 +27,10 @@ import static androidx.test.espresso.Espresso.onData;
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.clearText;
 import static androidx.test.espresso.action.ViewActions.click;
+import static androidx.test.espresso.action.ViewActions.scrollTo;
 import static androidx.test.espresso.action.ViewActions.typeText;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
+import static androidx.test.espresso.contrib.RecyclerViewActions.actionOnItemAtPosition;
 import static androidx.test.espresso.matcher.RootMatchers.withDecorView;
 import static androidx.test.espresso.matcher.ViewMatchers.hasDescendant;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
@@ -43,7 +45,7 @@ import static org.hamcrest.Matchers.startsWith;
 @RunWith(AndroidJUnit4.class)
 
 public class ViewRequestTest {
-    private String QUERY_STRING = "Expresso";
+    private String QUERY_STRING = "Gilbert";
     @Rule
     public ActivityScenarioRule<LoginActivity> rule =
             new ActivityScenarioRule<>(LoginActivity.class);
@@ -56,11 +58,11 @@ public class ViewRequestTest {
 
         onView(withId(R.id.editText_login_email))
                 .perform(clearText())
-                .perform(typeText("who@you.com"));
+                .perform(typeText("seclosDev@gmail.com"));
 
         onView(withId(R.id.editText_login_password))
                 .perform(clearText())
-                .perform(typeText("1234567"), ViewActions.closeSoftKeyboard());
+                .perform(typeText("123456"), ViewActions.closeSoftKeyboard());
         onView(withId(R.id.login_button))
                 .perform(click());
         Thread.sleep(8000);
@@ -80,7 +82,7 @@ public class ViewRequestTest {
         onView(withId(R.id.search_button)).perform(click());
         Thread.sleep(2000);
         onView(withId(R.id.search_recyclerview)).
-                perform(RecyclerViewActions.actionOnItemAtPosition(0, click()));
+                perform(actionOnItemAtPosition(1, click()));
         Thread.sleep(2000);
         //check if view requests button is in view
         try {
@@ -96,14 +98,15 @@ public class ViewRequestTest {
             Thread.sleep(2000);
             //open map activity
             onView(withId(android.R.id.button1)).perform(click());
-            UiDevice device = UiDevice.getInstance(getInstrumentation());
-            UiObject marker = device.findObject(new UiSelector().descriptionContains("My Location"));
-            marker.click();
-            Thread.sleep(50000);
-//            onView(withId(R.id.input_search)).perform(click());
-//            Thread.sleep(2000);
 
-        }catch (NoMatchingViewException | UiObjectNotFoundException ignore) {
+            //check if dialog box appears
+            Thread.sleep(2000);
+            onView(withText("Pickup Location")).check(matches(isDisplayed()));
+            Thread.sleep(2000);
+            onView(withId(android.R.id.button1)).perform(click());
+            Thread.sleep(2000);
+
+        }catch (NoMatchingViewException ignore) {
             //no matching view exception
 
         }

@@ -84,6 +84,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         mConfirm.hide();
         getLocationPermission();
         confirmLocation(mConfirm);
+
+
     }
 
     /**
@@ -363,7 +365,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                     getRequestLocation(place);
                     startActivity(back);
                 }
-
             }
         });
     }
@@ -385,9 +386,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                         .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
                                 //SHOW CONFIRM BUTTON
-
                                 Location location = new Location(addressName,latitude,longitude);
-
                                 Intent intent = getIntent();
                                 String requestId = intent.getStringExtra("requestID");
                                 final String bookID = intent.getStringExtra("bookID");
@@ -404,7 +403,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                                 request.store().addOnSuccessListener(new OnSuccessListener<Void>() {
                                     @Override
                                     public void onSuccess(Void aVoid) {
-                                        mConfirm.show();
+                                        Intent back = new Intent(MapsActivity.this,MainActivity.class);
+                                        startActivity(back);
+
                                     }
                                 }).addOnFailureListener(new OnFailureListener() {
                                     @Override
@@ -412,7 +413,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                                         Toast.makeText(MapsActivity.this,"Could not accept request",Toast.LENGTH_SHORT).show();
                                     }
                                 });
-                                mConfirm.show();
+
 
 
                             }
