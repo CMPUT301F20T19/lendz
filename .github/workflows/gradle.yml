@@ -25,7 +25,12 @@ jobs:
       run: ./gradlew  testDebugUnitTest --stacktrace
       
     - name: Run UI tests
-      uses: vgaidarji/android-github-actions-emulator@v1.0.1
+      uses: reactivecircus/android-emulator-runner@v2
+      env:
+          FABRIC_API_KEY: ${{ secrets.FABRIC_API_KEY }}
+          FABRIC_API_SECRET: ${{ secrets.FABRIC_API_SECRET }}
       with:
-        api-level: 29
-        script: ./ui-tests-on-emulator.sh
+          api-level: 29
+          arch: x86
+          disable-animations: true
+          script: ./gradlew connectedAndroidTest --stacktrace
