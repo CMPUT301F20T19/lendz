@@ -34,7 +34,7 @@ import static org.junit.Assert.fail;
 
 @RunWith(AndroidJUnit4.class)
 
-public class ViewRequestTest {
+public class AcceptRequestTest {
     private final String QUERY_STRING = "2536732323232";
 
     @Rule
@@ -115,7 +115,7 @@ public class ViewRequestTest {
     }
 
     /**
-     * Closes the activity and delete the created user after each test
+     * Closes the activity and delete the created book after each test
      */
     @After
     public void tearDown() {
