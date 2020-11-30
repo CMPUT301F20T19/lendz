@@ -72,18 +72,12 @@ public class RequestBookTest {
         Thread.sleep(2000);
         //check if return button is in view
         try {
-            onView(withId(R.id.request_button)).perform(click());
-            //check if dialog box appears
-            Thread.sleep(2000);
-            onView(withText("Request Sent")).check(matches(isDisplayed()));
-            Thread.sleep(2000);
-            onView(withId(android.R.id.button1)).perform(click());
+            onView(withId(R.id.confirm_pick_up_or_return_button)).perform(click());
             Thread.sleep(2000);
 
         }catch (NoMatchingViewException ignore) {
             //no matching view exception
         }
     }
-
 
 }
