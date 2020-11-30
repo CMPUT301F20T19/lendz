@@ -28,7 +28,6 @@ import com.google.firebase.auth.FirebaseUser;
  * After this is successfully done it directs them to the Main Activity where they can use the app as they desire
  */
 public class LoginActivity extends AppCompatActivity {
-
     private EditText email;
     private EditText password;
     final FirebaseAuth mFirebaseAuth = FirebaseAuth.getInstance();
