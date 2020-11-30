@@ -11,7 +11,12 @@ const db = admin.firestore();
 // Cloud Messaging
 const messaging = admin.messaging();
 
-async function pushNotification(data, extras={}) {
+// Test functions
+const tests = require('./tests');
+exports.viewRequestTestBefore = tests.viewRequestTestBefore;
+exports.viewRequestTestAfter = tests.viewRequestTestAfter;
+
+async function pushNotification(data, extras = {}) {
     const userRef = data.notifiedUser;
 
     const userData = (await userRef.get()).data();
@@ -306,7 +311,7 @@ exports.onRequestCreate = functions.firestore
             request: snapshot.ref
         };
         db.collection('notifications').add(notificationData);
-        pushNotification(notificationData, {bookId: bookRef.id, bookPhotoUrl: bookData.photo, bookTitle: bookData.description.title, requesterUsername: requesterData.username});
+        pushNotification(notificationData, { bookId: bookRef.id, bookPhotoUrl: bookData.photo, bookTitle: bookData.description.title, requesterUsername: requesterData.username });
     });
 
 exports.onRequestUpdate = functions.firestore
@@ -350,7 +355,7 @@ exports.onRequestUpdate = functions.firestore
                     request: change.after.ref
                 };
                 db.collection('notifications').add(notificationData);
-                pushNotification(notificationData, {bookId: bookRef.id, bookPhotoUrl: bookData.photo, bookTitle: bookData.description.title, status: newStatus});
+                pushNotification(notificationData, { bookId: bookRef.id, bookPhotoUrl: bookData.photo, bookTitle: bookData.description.title, status: newStatus });
             } else if (newStatus === 2) {
                 // If new status is ACCEPTED, then set the acceptedRequest on the book and decline and clear pendingRequests
 
@@ -386,7 +391,7 @@ exports.onRequestUpdate = functions.firestore
                     request: change.after.ref
                 };
                 db.collection('notifications').add(notificationData);
-                pushNotification(notificationData, {bookId: bookRef.id, bookPhotoUrl: bookData.photo, bookTitle: bookData.description.title, status: newStatus});
+                pushNotification(notificationData, { bookId: bookRef.id, bookPhotoUrl: bookData.photo, bookTitle: bookData.description.title, status: newStatus });
             }
         }
     });
