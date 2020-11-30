@@ -28,3 +28,4 @@ jobs:
       uses: vgaidarji/android-github-actions-emulator@v1.0.1
       with:
         api-level: 29
+        script: ui-tests-on-emulator.sh
