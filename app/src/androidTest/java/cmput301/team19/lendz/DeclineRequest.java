@@ -98,7 +98,7 @@ public class DeclineRequest {
     }
 
     /**
-     * checking if views exist for the book being declined
+     * checking if views exist for the book being declined and if so do it
      */
     public void checkingBookViews() {
         onView(withId(R.id.bookImage)).check(matches(isDisplayed()));
