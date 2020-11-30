@@ -26,6 +26,8 @@ import android.view.View;
 import android.widget.AutoCompleteTextView;
 import android.widget.EditText;
 import android.widget.Toast;
+
+
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
@@ -45,7 +47,6 @@ import com.google.android.libraries.places.widget.Autocomplete;
 import com.google.android.libraries.places.widget.AutocompleteActivity;
 import com.google.android.libraries.places.widget.model.AutocompleteActivityMode;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-//import com.androidmapsextensions.GoogleMap;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -93,7 +94,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         Log.d(TAG, "initMap: initializing map");
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
-        mapFragment.getMapAsync(this);
+        mapFragment.getMapAsync(MapsActivity.this);
     }
 
     @Override
@@ -168,7 +169,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     /**
-     * this method gets the device current location 
+     * this method gets the device current location
      */
     private void getDeviceLocation(){
         Log.d(TAG, "getDeviceLocation: getting the current device's location");
@@ -208,7 +209,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         }catch ( SecurityException e){
             Log.e(TAG, "getDeviceLocation: SecurityException" + e.getMessage() );
         }
-        
+
     }
 
     /**
@@ -411,8 +412,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                                         Toast.makeText(MapsActivity.this,"Could not accept request",Toast.LENGTH_SHORT).show();
                                     }
                                 });
-
-
 
                             }
                         })

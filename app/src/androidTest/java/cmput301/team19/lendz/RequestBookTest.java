@@ -29,7 +29,7 @@ import static androidx.test.platform.app.InstrumentationRegistry.getInstrumentat
 
 @RunWith(AndroidJUnit4.class)
 public class RequestBookTest {
-    private String QUERY_STRING = "Expresso";
+    private String QUERY_STRING = "rrr";
     @Rule
     public ActivityScenarioRule<LoginActivity> rule =
             new ActivityScenarioRule<>(LoginActivity.class);
@@ -41,7 +41,7 @@ public class RequestBookTest {
 
         onView(withId(R.id.editText_login_email))
                 .perform(clearText())
-                .perform(typeText("seclosDev@gmail.com"));
+                .perform(typeText("seclosDev@gmail.com"), ViewActions.closeSoftKeyboard());
 
         onView(withId(R.id.editText_login_password))
                 .perform(clearText())
@@ -70,7 +70,7 @@ public class RequestBookTest {
         onView(withId(R.id.search_recyclerview)).
                 perform(RecyclerViewActions.actionOnItemAtPosition(0, click()));
         Thread.sleep(2000);
-        //check if request button is in view
+        //check if return button is in view
         try {
             onView(withId(R.id.request_button)).perform(click());
             //check if dialog box appears

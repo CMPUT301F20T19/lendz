@@ -18,6 +18,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import static androidx.test.espresso.Espresso.onData;
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.clearText;
 import static androidx.test.espresso.action.ViewActions.click;
@@ -25,8 +26,11 @@ import static androidx.test.espresso.action.ViewActions.scrollTo;
 import static androidx.test.espresso.action.ViewActions.typeText;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
+import static androidx.test.espresso.matcher.ViewMatchers.withContentDescription;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
+import static androidx.test.espresso.matcher.ViewMatchers.withResourceName;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
+import static org.hamcrest.Matchers.anything;
 
 @RunWith(AndroidJUnit4.class)
 
@@ -68,7 +72,7 @@ public class DeclineRequest {
 
         onView(withText("Requested Books")).check(matches(isDisplayed()));
         onView(withId(R.id.myBooksFrag_recyclerView)).
-                perform(RecyclerViewActions.actionOnItemAtPosition(0, click()));
+                perform(RecyclerViewActions.actionOnItemAtPosition(1, click()));
         Thread.sleep(2000);
 
         checkingBookViews();
@@ -76,16 +80,13 @@ public class DeclineRequest {
         onView(withId(R.id.view_requests_button))
                 .perform(ViewActions.click());
 
-        checkRequestControl();
-
         //decline the request
-        onView(withId(R.id.declineRequest))
-                .perform(ViewActions.click());
-        Thread.sleep(2000);
+        onData(anything()).inAdapterView(withId(R.id.requestListView))
+                .onChildView(withId(R.id.declineRequest))
+                .atPosition(0).perform(click());
 
-        onView(withText("Decline Book Request")).check(matches(isDisplayed()));
-        onView(withText("do you want to decline this request")).check(matches(isDisplayed()));
-        onView(withText("do you want to decline this request")).check(matches(isDisplayed()));
+        onView(withText("Decline Request")).check(matches(isDisplayed()));
+        onView(withText("Do you want to decline this request?")).check(matches(isDisplayed()));
         Thread.sleep(2000);
 
         onView(withText("Yes")).perform(click());
@@ -108,12 +109,4 @@ public class DeclineRequest {
 
     }
 
-    /**
-     * checking if the views and button for requesting actions exits
-     */
-    public void checkRequestControl(){
-        onView(withId(R.id.n1)).check(matches(isDisplayed()));
-        onView(withId(R.id.acceptRequest)).check(matches(isDisplayed()));
-        onView(withId(R.id.declineRequest)).check(matches(isDisplayed()));
-    }
 }
