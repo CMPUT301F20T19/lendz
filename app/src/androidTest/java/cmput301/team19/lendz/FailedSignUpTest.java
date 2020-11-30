@@ -39,6 +39,7 @@ public class FailedSignUpTest {
 
     @Before
     public void signUp() throws Exception{
+        Thread.sleep(2000);
         onView(withId(R.id.login_signUp_message))
                 .perform(ViewActions.click());
         Thread.sleep(2000);
