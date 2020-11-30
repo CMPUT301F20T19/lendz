@@ -11,6 +11,8 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.functions.FirebaseFunctions;
 
 import org.junit.After;
@@ -18,6 +20,11 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static androidx.test.espresso.Espresso.onData;
 import static androidx.test.espresso.Espresso.onView;
@@ -37,26 +44,58 @@ import static org.junit.Assert.fail;
 public class AcceptRequestTest {
     private final String QUERY_STRING = "2536732323232";
 
+    private final DocumentReference testBookRef = FirebaseFirestore.getInstance()
+            .document("books/acceptRequestTestBook");
+
     @Rule
     public ActivityScenarioRule<LoginActivity> rule =
             new ActivityScenarioRule<>(LoginActivity.class);
 
     @Before
-    public void logUserIn() {
+    public void initialize() {
         // Ensure started logged out
         FirebaseAuth.getInstance().signOut();
 
-        // Call Firebase function to create the required book and request
-        FirebaseFunctions.getInstance()
-                .getHttpsCallable("viewRequestTestBefore")
-                .call()
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.e("ViewRequestTest", "call to viewRequestTestBefore failed");
-                        fail();
-                    }
-                });
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        // Create the required book
+        Map<String, Object> bookData = new HashMap<>();
+        Map<String, Object> descriptionMap = new HashMap<>();
+        descriptionMap.put("author", "boyonda");
+        descriptionMap.put("description", "the witcher");
+        descriptionMap.put("isbn", "2536732323232");
+        descriptionMap.put("title", "Chelsea Book");
+        bookData.put("description", descriptionMap);
+        List<String> keywordsArray = new ArrayList<>();
+        keywordsArray.add("2536732323232");
+        bookData.put("keywords", keywordsArray);
+        bookData.put("owner", db.document("users/dwpqY6Wnr4MTavg9pJkvfjFadJ73"));
+        bookData.put("ownerUsername", "WoodieFrank101");
+        bookData.put("photo", null);
+        bookData.put("status", BookStatus.REQUESTED.ordinal());
+        List<DocumentReference> pendingRequestsArray = new ArrayList<>();
+        pendingRequestsArray.add(db.document("requests/acceptRequestTestRequest"));
+        bookData.put("pendingRequests", pendingRequestsArray);
+        List<DocumentReference> pendingRequestersArray = new ArrayList<>();
+        pendingRequestersArray.add(db.document("users/dqdzdaUMthZxuyo43LLpeCfkvjb2"));
+        bookData.put("pendingRequesters", pendingRequestersArray);
+
+        testBookRef.set(bookData);
+
+        // Create the required request
+        Map<String, Object> requestData = new HashMap<>();
+        requestData.put("book", testBookRef);
+        requestData.put("bookPhotoUrl", null);
+        requestData.put("bookTitle", "Chelsea book");
+        requestData.put("location", null);
+        requestData.put("ownerUsername", "WoodieFrank101");
+        requestData.put("requester", db.document("users/dqdzdaUMthZxuyo43LLpeCfkvjb2"));
+        requestData.put("requesterFullName", "James Harden");
+        requestData.put("requesterUsername", "jamesHarden");
+        requestData.put("status", RequestStatus.SENT.ordinal());
+        requestData.put("timestamp", 1606715798873L);
+        db.document("requests/acceptRequestTestRequest")
+                .set(requestData);
 
         // Log in
         onView(withId(R.id.editText_login_email))
@@ -79,7 +118,7 @@ public class AcceptRequestTest {
      */
     @Test
     public void acceptRequest() throws InterruptedException {
-        Thread.sleep(16000);
+        Thread.sleep(8000);
         onView(withId(R.id.search_item)).perform(click());
         Thread.sleep(2000);
         onView(withId(R.id.search_edit)).perform(typeText(QUERY_STRING),ViewActions.closeSoftKeyboard());
@@ -112,22 +151,6 @@ public class AcceptRequestTest {
         }
 
 
-    }
-
-    /**
-     * Closes the activity and delete the created book after each test
-     */
-    @After
-    public void tearDown() {
-        // Call Firebase function to delete the book
-        FirebaseFunctions.getInstance()
-                .getHttpsCallable("viewRequestTestAfter")
-                .call(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.w("ViewRequestTest", "call to viewRequestTestAfter failed");
-                    }
-                });
     }
 }
 

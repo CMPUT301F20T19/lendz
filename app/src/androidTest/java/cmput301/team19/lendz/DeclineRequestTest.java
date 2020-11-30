@@ -1,7 +1,9 @@
 package cmput301.team19.lendz;
 
+import android.util.Log;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.test.espresso.Espresso;
 import androidx.test.espresso.NoMatchingViewException;
 import androidx.test.espresso.action.ViewActions;
@@ -11,12 +13,22 @@ import androidx.test.espresso.matcher.ViewMatchers;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.functions.FirebaseFunctions;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static androidx.test.espresso.Espresso.onData;
 import static androidx.test.espresso.Espresso.onView;
@@ -31,26 +43,71 @@ import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withResourceName;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static org.hamcrest.Matchers.anything;
+import static org.junit.Assert.fail;
 
 @RunWith(AndroidJUnit4.class)
 
-public class DeclineRequest {
+public class DeclineRequestTest {
+    private final DocumentReference testBookRef =
+            FirebaseFirestore.getInstance().document("books/declineRequestTestBook");
+
     @Rule
     public ActivityScenarioRule<LoginActivity> rule =
             new ActivityScenarioRule<>(LoginActivity.class);
 
     @Before
-    public void logUserIn() throws Exception {
+    public void initialize() throws Exception {
         // Ensure started logged out
         FirebaseAuth.getInstance().signOut();
 
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        // Create the required book
+        Map<String, Object> bookData = new HashMap<>();
+        Map<String, Object> descriptionMap = new HashMap<>();
+        descriptionMap.put("author", "Famous Author");
+        descriptionMap.put("description", "This is a book that literally everyone wants.");
+        descriptionMap.put("isbn", "9172631827461");
+        descriptionMap.put("title", "Book That Everyone Wants");
+        bookData.put("description", descriptionMap);
+        List<String> keywordsArray = new ArrayList<>();
+        keywordsArray.add("9172631827461");
+        bookData.put("keywords", keywordsArray);
+        bookData.put("owner", db.document("users/T4x10rJR4mOV4UhQFNeb1jneSsH2"));
+        bookData.put("ownerUsername", "DeclineRequestTestOwner");
+        bookData.put("photo", null);
+        bookData.put("status", BookStatus.REQUESTED.ordinal());
+        List<DocumentReference> pendingRequestsArray = new ArrayList<>();
+        pendingRequestsArray.add(db.document("requests/declineRequestTestRequest"));
+        bookData.put("pendingRequests", pendingRequestsArray);
+        List<DocumentReference> pendingRequestersArray = new ArrayList<>();
+        pendingRequestersArray.add(db.document("users/OryOs90dhaXBXo0cfNqqvkf7qn12"));
+        bookData.put("pendingRequesters", pendingRequestersArray);
+        testBookRef.set(bookData);
+
+        // Create the required request
+        Map<String, Object> requestData = new HashMap<>();
+        requestData.put("book", testBookRef);
+        requestData.put("bookPhotoUrl", null);
+        requestData.put("bookTitle", "Book That Everyone Wants");
+        requestData.put("location", null);
+        requestData.put("ownerUsername", "DeclineRequestTestOwner");
+        requestData.put("requester", db.document("users/OryOs90dhaXBXo0cfNqqvkf7qn12"));
+        requestData.put("requesterFullName", "DeclineRequestTest Requester");
+        requestData.put("requesterUsername", "DeclineRequestTestRequester");
+        requestData.put("status", RequestStatus.SENT.ordinal());
+        requestData.put("timestamp", 1606765885890L);
+        db.document("requests/declineRequestTestRequest")
+                .set(requestData);
+
+        // Log in
         onView(withId(R.id.editText_login_email))
                 .perform(clearText())
-                .perform(typeText("me@you.com"),ViewActions.closeSoftKeyboard());
+                .perform(typeText("owner@declinerequesttest.example.com"),ViewActions.closeSoftKeyboard());
 
         onView(withId(R.id.editText_login_password))
                 .perform(clearText())
-                .perform(typeText("1234567"), ViewActions.closeSoftKeyboard());
+                .perform(typeText("password"), ViewActions.closeSoftKeyboard());
 
         onView(withId(R.id.login_button))
                 .perform(click());
@@ -63,16 +120,15 @@ public class DeclineRequest {
      */
     @Test
     public void declineBookRequest() throws Exception{
-        Thread.sleep(1000);
+        Thread.sleep(8000);
         onView(withId(R.id.my_books))
                 .perform(ViewActions.click());
 
         Thread.sleep(2000);
 
-
         onView(withText("Requested Books")).check(matches(isDisplayed()));
         onView(withId(R.id.myBooksFrag_recyclerView)).
-                perform(RecyclerViewActions.actionOnItemAtPosition(1, click()));
+                perform(RecyclerViewActions.actionOnItemAtPosition(0, click()));
         Thread.sleep(2000);
 
         checkingBookViews();
@@ -108,5 +164,4 @@ public class DeclineRequest {
         onView(withId(R.id.bookViewISBN)).check(matches(isDisplayed()));
 
     }
-
 }

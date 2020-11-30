@@ -11,11 +11,6 @@ const db = admin.firestore();
 // Cloud Messaging
 const messaging = admin.messaging();
 
-// Test functions
-const tests = require('./tests');
-exports.viewRequestTestBefore = tests.viewRequestTestBefore;
-exports.viewRequestTestAfter = tests.viewRequestTestAfter;
-
 async function pushNotification(data, extras = {}) {
     const userRef = data.notifiedUser;
 
@@ -275,14 +270,25 @@ exports.onRequestCreate = functions.firestore
         const newPendingRequests = bookData.pendingRequests ? bookData.pendingRequests : [];
         const newPendingRequesters = bookData.pendingRequesters ? bookData.pendingRequesters : [];
 
-        // Add new request to pendingRequests and pendingRequesters
-        newPendingRequests.push(snapshot.ref);
-        newPendingRequesters.push(snapshot.data().requester);
+        // Check if request is already in pending requests (it might be due to test documents)
+        let requestAlreadyInPendingRequests = false;
+        for (const req of newPendingRequests) {
+            if (req.id === snapshot.ref.id) {
+                requestAlreadyInPendingRequests = true;
+                break;
+            }
+        }
 
-        bookRef.set({
-            pendingRequests: newPendingRequests,
-            pendingRequesters: newPendingRequesters
-        }, { merge: true });
+        if (!requestAlreadyInPendingRequests) {
+            // Add new request to pendingRequests and pendingRequesters
+            newPendingRequests.push(snapshot.ref);
+            newPendingRequesters.push(snapshot.data().requester);
+
+            bookRef.set({
+                pendingRequests: newPendingRequests,
+                pendingRequesters: newPendingRequesters
+            }, { merge: true });
+        }
 
         // Get requester data
         const requesterRef = snapshot.data().requester;
