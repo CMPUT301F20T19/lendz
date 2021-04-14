@@ -3,6 +3,8 @@
 
 **Lendz** is an app that assists users with borrowing books from one another.
 
+<img src="screenshots.png">
+
 ## Authors
 * [Abdulrahman Bakare](https://github.com/aobakare)
 * [Kwasi Boateng](https://github.com/kb-jboateng)
